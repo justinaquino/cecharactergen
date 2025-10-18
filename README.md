@@ -10,6 +10,17 @@
 
 ## **Overview**
 
+### **Table of Contents**
+- [Status](#status)
+- [Overview](#overview)
+- [Timeline](#timeline-tentative)
+- [Core Components](#core-components)
+- [Generation Modes](#generation-modes)
+- [Milestones & Progress](#milestones--progress)
+- [Reference Materials](#reference-materials)
+- [License](#license)
+- [Beginner Guide: GitHub, JS & HTML](./GITHUB_JS_HTML_for_beginners.md)
+
 The **Cepheus Engine Character Generator (CECG)** is a modular, data‑driven character generator for Cepheus Engine. We separate **data** (races, backgrounds, careers, equipment) from the **Rules Engine** (enlistment, survival, promotions, term loop, mustering out). Races, backgrounds, and careers are shipped as **swappable modules** so third parties can add, remove, or override content without touching code.
 
 ---
