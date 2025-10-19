@@ -119,33 +119,17 @@ These adjustments maintain compatibility with core Cepheus Engine gameplay while
   * No longer requires a separate Re-Enlistment roll.
   * Players may choose to re-enlist freely between terms, subject to story or referee approval.
 
-* **Aging Streamlined:**
+* **Aging and Anagathics Streamlined:**
 
   * Aging begins at Term 5, with thresholds every 4 years (T5, T9, T13, etc.).
-  * Simplified aging roll: 2D6 + Endurance DM vs. Difficulty Terms+1. (first Aging roll is 5+1 or Difficulty 6, gets harder every term.). 
-
-* **Automatic Survival for Certain Careers:**
-
-  * Civilian or non-combat roles (e.g., Scholar, Diplomat) may have auto-survival terms for faster progression.
-
-* **Anagathics Revised:**
-
-  * Uses a simplified roll mechanic instead of cumulative thresholds.
-  * Easier to track aging resistance without multi-term recordkeeping.
+  * Simplified aging roll: 2D6 + Endurance DM vs. Difficulty Terms+1. (first Aging roll is 5+1 or Difficulty 6, gets harder every term.).
+  * Anagathics is Simple - just spend 100KCr if Status Allowed (Can get Anagathics SOC-7 times). 
 
 * **Drifter Career Adjustments:**
 
-  * Drifter now rolls only once per term to qualify or drift into another career.
-  * Removes redundancy and accelerates early-game play.
+  * Drifter automatically Qualifies
 
-* **Benefit Rolls:**
-
-  * Taken once after every change in career, instead of every term.
-
-For detailed rule text and conversion notes, refer to the **Mneme CE Wiki: Character Generation** section.
-
-
-
+For detailed rule text and conversion notes, refer to the **[Mneme CE Wiki: Character Generation](https://github.com/justinaquino/cecharactergen/wiki/Mneme-Cepheus-Engine-Character-Creation)** section.
 
 ## **Reference Materials**
 
