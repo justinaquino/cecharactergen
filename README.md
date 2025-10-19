@@ -122,7 +122,7 @@ These adjustments maintain compatibility with core Cepheus Engine gameplay while
 * **Aging Streamlined:**
 
   * Aging begins at Term 5, with thresholds every 4 years (T5, T9, T13, etc.).
-  * Simplified aging roll: 2D6 + Endurance DM vs. Difficulty 8.
+  * Simplified aging roll: 2D6 + Endurance DM vs. Difficulty Terms+1. (first Aging roll is 5+1 or Difficulty 6, gets harder every term.). 
 
 * **Automatic Survival for Certain Careers:**
 
