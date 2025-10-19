@@ -17,9 +17,11 @@
 - [Core Components](#core-components)
 - [Generation Modes](#generation-modes)
 - [Milestones & Progress](#milestones--progress)
+- [Disclaimer](#disclaimer)
 - [Reference Materials](#reference-materials)
 - [License](#license)
 - [Beginner Guide: GitHub, JS & HTML](./github_js_html_for_beginners.md)
+
 
 
 The **Cepheus Engine Character Generator (CECG)** is a modular, data‑driven character generator for Cepheus Engine. We separate **data** (races, backgrounds, careers, equipment) from the **Rules Engine** (enlistment, survival, promotions, term loop, mustering out). Races, backgrounds, and careers are shipped as **swappable modules** so third parties can add, remove, or override content without touching code.
@@ -98,6 +100,52 @@ Pure logic. Executes CCC setup, background/race effects, enlistment/survival/pro
 | **5**   | **Finalization (24 Careers)**     | Implement all 24 careers and finalize data integrity.                                                                                   | 0%           |
 
 ---
+
+### Disclaimer
+
+This character creation process uses the **Mneme Cepheus Engine (CE) Character Generation System**, which introduces **quality-of-life improvements** and **streamlined mechanics** compared to the Rules-As-Written (RAW) from the Cepheus Engine SRD.
+
+These adjustments maintain compatibility with core Cepheus Engine gameplay while improving pacing, reducing redundancy, and simplifying bookkeeping.
+
+#### Summary of Key Changes
+
+* **Rolls Simplified:**
+
+  * All core rolls (Qualification, Survival, Advancement) use a unified 2D6 vs. Difficulty system.
+  * Separate DM modifiers per roll are replaced by a simplified modifier structure.
+
+* **Re-Enlistment Simplified:**
+
+  * No longer requires a separate Re-Enlistment roll.
+  * Players may choose to re-enlist freely between terms, subject to story or referee approval.
+
+* **Aging Streamlined:**
+
+  * Aging begins at Term 5, with thresholds every 4 years (T5, T9, T13, etc.).
+  * Simplified aging roll: 2D6 + Endurance DM vs. Difficulty 8.
+
+* **Automatic Survival for Certain Careers:**
+
+  * Civilian or non-combat roles (e.g., Scholar, Diplomat) may have auto-survival terms for faster progression.
+
+* **Anagathics Revised:**
+
+  * Uses a simplified roll mechanic instead of cumulative thresholds.
+  * Easier to track aging resistance without multi-term recordkeeping.
+
+* **Drifter Career Adjustments:**
+
+  * Drifter now rolls only once per term to qualify or drift into another career.
+  * Removes redundancy and accelerates early-game play.
+
+* **Benefit Rolls:**
+
+  * Taken once after every change in career, instead of every term.
+
+For detailed rule text and conversion notes, refer to the **Mneme CE Wiki: Character Generation** section.
+
+
+
 
 ## **Reference Materials**
 
