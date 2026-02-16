@@ -2,13 +2,14 @@
 // TileManager — arranges tiles on screen based on device
 //
 // Phone (< 768px):    accordion — one tile open at a time
-// Tablet (768-1024):  two-column grid — tiles side by side
-// Desktop (> 1024):   free-form — draggable, resizable windows
+// Tablet (768-1400):  two-column grid — tiles side by side
+// Desktop (> 1400):   free-form — draggable, resizable windows
 // ============================================================
 
 var TileManager = {
     tiles: [],
     activeLayout: '',
+    manualLayout: null,
     _dragState: null,
 
     // Create a tile and add it to the workspace
@@ -110,12 +111,19 @@ var TileManager = {
     _detectLayout: function() {
         var w = window.innerWidth;
         var newLayout;
-        if (w < 768) {
-            newLayout = 'phone';
-        } else if (w <= 1024) {
-            newLayout = 'tablet';
+        
+        // Manual override
+        if (this.manualLayout) {
+            newLayout = this.manualLayout;
         } else {
-            newLayout = 'desktop';
+            // Auto-detect with adjusted breakpoints for tablets
+            if (w < 768) {
+                newLayout = 'phone';
+            } else if (w <= 1400) {  // Extended tablet range for larger tablets
+                newLayout = 'tablet';
+            } else {
+                newLayout = 'desktop';
+            }
         }
 
         if (newLayout !== this.activeLayout) {
@@ -246,6 +254,17 @@ var TileManager = {
         var indicator = document.createElement('div');
         indicator.className = 'layout-indicator';
         indicator.id = 'layout-indicator';
+        indicator.style.cursor = 'pointer';
+        indicator.title = 'Click to cycle layouts, double-click to reset auto-detection';
+        var self = this;
+        indicator.addEventListener('click', function() {
+            self._cycleLayout();
+        });
+        indicator.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            self.manualLayout = null;
+            self._detectLayout();
+        });
         document.body.appendChild(indicator);
         this._updateIndicator();
     },
@@ -259,6 +278,15 @@ var TileManager = {
             tablet: 'Tablet layout (grid) — ' + w + 'px',
             desktop: 'Desktop layout (free-form) — ' + w + 'px'
         };
-        indicator.textContent = labels[this.activeLayout] || '';
+        var prefix = this.manualLayout ? '[Manual] ' : '';
+        indicator.textContent = prefix + labels[this.activeLayout] || '';
+    },
+
+    _cycleLayout: function() {
+        var layouts = ['phone', 'tablet', 'desktop'];
+        var currentIndex = layouts.indexOf(this.activeLayout);
+        var nextIndex = (currentIndex + 1) % layouts.length;
+        this.manualLayout = layouts[nextIndex];
+        this._detectLayout(); // will use manualLayout
     }
 };

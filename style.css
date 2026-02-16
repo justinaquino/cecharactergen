@@ -301,10 +301,10 @@ hr {
 }
 
 /* ============================================================
-   TABLET LAYOUT (768px – 1024px) — Two-column grid
+   TABLET LAYOUT (768px – 1400px) — Two-column grid
    ============================================================ */
 
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1400px) {
     .workspace {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -323,10 +323,10 @@ hr {
 }
 
 /* ============================================================
-   DESKTOP LAYOUT (> 1024px) — Free-form draggable windows
+   DESKTOP LAYOUT (> 1400px) — Free-form draggable windows
    ============================================================ */
 
-@media (min-width: 1025px) {
+@media (min-width: 1401px) {
     .workspace {
         position: relative;
         min-height: calc(100vh - 100px);
