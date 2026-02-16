@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Gen — Cepheus Engine</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <header class="app-header">
+        <h1 class="app-title">Character Gen</h1>
+        <p class="app-subtitle">Cepheus Engine</p>
+    </header>
+
+    <div class="workspace" id="workspace">
+        <!-- Tiles are created by tile-manager.js -->
+    </div>
+
+    <script src="js/event-bus.js"></script>
+    <script src="js/tile-manager.js"></script>
+    <script>
+        // Register service worker for PWA/offline support
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        // Create 3 test tiles
+        TileManager.createTile({
+            id: 'generate',
+            title: 'Generate',
+            content: '<div class="tile-demo">'
+                + '<button class="btn-generate" onclick="EventBus.emit(\'generate-click\')">Generate Character</button>'
+                + '<div class="field-group">'
+                + '<label>Species</label>'
+                + '<select><option>Human</option><option>Vargr</option><option>Aslan</option><option>Droyne</option></select>'
+                + '</div>'
+                + '<div class="field-group">'
+                + '<label>Career</label>'
+                + '<select><option>Any</option><option>Navy</option><option>Marines</option><option>Army</option><option>Scouts</option><option>Merchants</option></select>'
+                + '</div>'
+                + '<div class="field-group">'
+                + '<label>Max Terms</label>'
+                + '<input type="number" value="7" min="1" max="12">'
+                + '</div>'
+                + '</div>'
+        });
+
+        TileManager.createTile({
+            id: 'character-sheet',
+            title: 'Character Sheet',
+            content: '<div class="tile-demo">'
+                + '<div class="sheet-line"><strong>Navy Captain Sir James Cohen</strong></div>'
+                + '<div class="sheet-line mono">789A6E &nbsp; Age 38</div>'
+                + '<div class="sheet-line">6 terms &nbsp;&nbsp;&nbsp;&nbsp; Cr35,000</div>'
+                + '<hr>'
+                + '<div class="sheet-section">Skills</div>'
+                + '<div class="sheet-line">Admin-1, Engineering-2, Gunnery-1, Navigation-1, Pilot-3, Vacc Suit-1</div>'
+                + '<hr>'
+                + '<div class="sheet-section">Benefits</div>'
+                + '<div class="sheet-line">High Passage, Travellers\' Aid Society, 6,000/yr Retirement Pay</div>'
+                + '</div>'
+        });
+
+        TileManager.createTile({
+            id: 'history-log',
+            title: 'History Log',
+            content: '<div class="tile-demo">'
+                + '<div class="log-entry">Attempted to enlist in Navy.</div>'
+                + '<div class="log-entry">Enlistment accepted.</div>'
+                + '<div class="log-entry">Commissioned during first term as Ensign.</div>'
+                + '<div class="log-entry">Promoted to Lieutenant.</div>'
+                + '<div class="log-entry">Voluntarily reenlisted for second term.</div>'
+                + '<div class="log-entry">Promoted to Lt Cmdr.</div>'
+                + '<div class="log-entry">Promoted to Commander.</div>'
+                + '<div class="log-entry">Voluntarily reenlisted for third term.</div>'
+                + '<div class="log-entry">Promoted to Captain.</div>'
+                + '<div class="log-entry">Retired after sixth term.</div>'
+                + '</div>'
+        });
+
+        TileManager.init();
+
+        // Demo: flash the character sheet when Generate is clicked
+        EventBus.on('generate-click', function() {
+            var sheet = document.querySelector('#tile-character-sheet');
+            if (sheet) {
+                sheet.classList.add('flash');
+                setTimeout(function() { sheet.classList.remove('flash'); }, 300);
+            }
+        });
+    </script>
+</body>
+</html>
