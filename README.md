@@ -15,10 +15,12 @@
 ### **Table of Contents**
 - [Status](#status)
 - [Overview](#overview)
-- [Timeline](#timeline-tentative)
+- [Timeline](#timeline-accelerated---2-weeks-per-stage)
 - [Core Components](#core-components)
 - [Generation Modes](#generation-modes)
 - [Career System](#career-system)
+- [Character Export & Batch Generation](#character-export--batch-generation)
+- [Procedural Generation](#procedural-generation)
 - [Milestones & Progress](#milestones--progress)
 - [Disclaimer](#disclaimer)
 - [Reference Materials](#reference-materials)
@@ -33,22 +35,24 @@ The **Cepheus Engine Character Generator (CECG)** is a modular, data‑driven ch
 
 ## **Timeline (Accelerated - 2 Weeks Per Stage)**
 
-Each stage runs for **2 weeks** for rapid iteration and testing. Career implementation is modular with JSON-based career definitions that can be individually toggled.
+Each stage runs for **2 weeks** for rapid iteration and testing. Priority is given to core UI, pre-career steps, settings, and essential "fringe" careers that define the gritty Traveller universe.
 
-| Stage   | Milestone                                    | Duration     | Start        | End          | Focus Area |
-| ------- | -------------------------------------------- | ------------ | ------------ | ------------ |------------|
-| **1.0** | **UI Foundation**                            | **2 weeks**  | Feb 28, 2026 | Mar 13, 2026 | **Tile system, focus workflow, layout toggle** |
-| **1.1** | **Pre-Career: Characteristics & Details**    | **2 weeks**  | Mar 14, 2026 | Mar 27, 2026 | **Step 1: Name (datetime default), Gender toggle, 6 Stats with DMs** |
-| **1.2** | **Pre-Career: Homeworld & Background**       | **2 weeks**  | Mar 28, 2026 | Apr 10, 2026 | **Step 2: Random/Select homeworld, Background skills** |
-| **2.0** | **Career System: Core Engine**               | **2 weeks**  | Apr 11, 2026 | Apr 24, 2026 | **Career JSON structure, qualification, survival** |
-| **2.1** | **Career System: Toggle & Settings**         | **2 weeks**  | Apr 25, 2026 | May 8, 2026  | **Career toggle UI, JSON download, Opening Settings** |
-| **2.2** | **Career System: First 6 Careers**           | **2 weeks**  | May 9, 2026  | May 22, 2026 | **Aerospace Forces, Marine, Navy, Scout, Mercenary, Merchant** |
-| **3.0** | **Career System: Next 6 Careers**            | **2 weeks**  | May 23, 2026 | Jun 5, 2026  | **Agent, Army, Barbarian, Belter, Colonist, Diplomat** |
-| **3.1** | **Career System: Next 6 Careers**            | **2 weeks**  | Jun 6, 2026  | Jun 19, 2026 | **Drifter, Entertainer, Hunter, Marine, Maritime, Noble** |
-| **3.2** | **Career System: Final 6 Careers**           | **2 weeks**  | Jun 20, 2026 | Jul 3, 2026  | **Physician, Pirate, Rogue, Scientist, Technician, Surface Forces** |
-| **4.0** | **Events & Mishaps**                         | **2 weeks**  | Jul 4, 2026  | Jul 17, 2026 | **Random events during careers** |
-| **4.1** | **Mustering Out**                            | **2 weeks**  | Jul 18, 2026 | Jul 31, 2026 | **Benefits, cash, equipment, ships** |
-| **5.0** | **Finalization & Polish**                    | **2 weeks**  | Aug 1, 2026  | Aug 14, 2026 | **Export, import, PWA polish, testing** |
+| Stage | Milestone | Duration | Start | End | Focus Area |
+|-------|-----------|----------|-------|-----|------------|
+| **1.0** | **UI Foundation** | **2 weeks** | Feb 28, 2026 | Mar 13, 2026 | Tile system, focus workflow, Mobile/Desktop toggle, responsive layout |
+| **2.0** | **Pre-Career: Characteristics** | **2 weeks** | Mar 14, 2026 | Mar 27, 2026 | Step 1: Name (datetime default), Gender toggle, 6 Stats with DMs, 2D6 rolling |
+| **2.1** | **Pre-Career: Homeworld & Background** | **2 weeks** | Mar 28, 2026 | Apr 10, 2026 | Step 2: Random/Select homeworld, Background skills (3+EDU), trade codes |
+| **3.0** | **Opening Settings Page** | **2 weeks** | Apr 11, 2026 | Apr 24, 2026 | Species toggle (Human default), TL9 default, SOC range, Career filters |
+| **3.1** | **First 7 Careers: Fringe & Criminal** | **2 weeks** | Apr 25, 2026 | May 8, 2026 | **Drifter, Barbarian, Belter, Pirate, Rogue, Mercenary, Colonist** |
+| **4.0** | **Character Export** | **2 weeks** | May 9, 2026 | May 22, 2026 | Text export with full career history, all rolls, character sheet format |
+| **4.1** | **Batch Generation & CSV** | **2 weeks** | May 23, 2026 | Jun 5, 2026 | Generate N characters, CSV export with stats, careers, skills |
+| **5.0** | **Random Name Generator** | **2 weeks** | Jun 6, 2026 | Jun 19, 2026 | Historical & current cultures database, ethnicity-aware naming |
+| **5.1** | **Procedural Appearance** | **2 weeks** | Jun 20, 2026 | Jul 3, 2026 | Generate appearance based on culture, gender, ethnicity, description text |
+| **5.2** | **Integration Testing** | **2 weeks** | Jul 4, 2026 | Jul 17, 2026 | Test name, ethnic, gender, description with batch character system |
+| **6.0** | **Remaining 17 Careers** | **6 weeks** | Jul 18, 2026 | Aug 28, 2026 | Aerospace Forces, Marine, Navy, Scout, Merchant, Agent, Army, Diplomat, Entertainer, Hunter, Maritime, Noble, Physician, Scientist, Technician, Surface Forces, System Defense |
+| **6.1** | **Events & Mishaps** | **2 weeks** | Aug 29, 2026 | Sep 11, 2026 | Random events during careers, shared event tables |
+| **6.2** | **Mustering Out** | **2 weeks** | Sep 12, 2026 | Sep 25, 2026 | Benefits rolling, cash vs. material, retirement pay |
+| **7.0** | **Finalization & Polish** | **2 weeks** | Sep 26, 2026 | Oct 9, 2026 | PWA polish, performance optimization, final testing, documentation |
 
 ---
 
@@ -58,16 +62,20 @@ Each stage runs for **2 weeks** for rapid iteration and testing. Career implemen
 
 The canonical ("living") character sheet.
 
+- **Name** (string with procedurally generated or user-specified name)
 - **Age** (starts at 18)
-- **Race** (default: "Human")
+- **Gender** (Male/Female/Other)
+- **Appearance** (procedurally generated description)
+- **Race/Species** (default: "Human")
 - **Background** (string)
 - **Terms** (int; 1 term = 4 years)
-- **Careers** (array of `{ name, terms, rank }`) – tracks career history including service length and military/civil **Rank** (e.g., Lieutenant, Captain, General)
+- **Careers** (array of `{ name, terms, rank, history }`) – tracks career history including service length and military/civil **Rank** (e.g., Lieutenant, Captain, General)
 - **Status** (string) – denotes noble or social titles derived from high SOC (e.g., Knight, Duke, King, Taipan, Patriarch)
 - **Abilities** `{ Str, Dex, End, Int, Edu, Soc }` (+ optional: Psi, Wis, etc.)
 - **Skills** (array like `"Gunnery-1"`)
 - **Assets** (array)
 - **Conditions** (array; e.g., "Wounded")
+- **Roll History** (array of all dice rolls for transparency)
 
 ### **2) Rules Engine**
 
@@ -79,6 +87,8 @@ Pure logic. Executes CCC setup, background/race effects, enlistment/survival/pro
 - **Backgrounds Module** (e.g., `backgrounds.json`): list of backgrounds with prerequisites/effects.
 - **Careers Module** (e.g., `careers.json`): enlistment, survival, promotion, skills, draft, muster tables.
 - **Equipment Module** (optional): item definitions for assets/muster results.
+- **Names Module** (e.g., `names.json`): culturally-appropriate name databases by ethnicity/culture.
+- **Appearance Module** (e.g., `appearance.json`): procedural description templates.
 
 > **Modular Races:** Each race is its own record with tags, prerequisites, and effects. This lets setting authors add alien races without changing application logic.
 
@@ -87,7 +97,7 @@ Pure logic. Executes CCC setup, background/race effects, enlistment/survival/pro
 ## **Generation Modes**
 
 - **Click‑to‑Generate (default):** One‑click build using current parameters; no step‑by‑step user prompts.
-- **Batch Generation (optional):** Generate N characters using the same parameters.
+- **Batch Generation:** Generate N characters using the same parameters. Export as CSV or individual text files.
 
 ---
 
@@ -99,77 +109,411 @@ Each career is defined in a modular JSON format that can be individually enabled
 
 ```json
 {
-  "career_id": "marine",
-  "name": "Marine",
-  "description": "Elite soldier trained for zero-g and planetary assault operations.",
+  "career_id": "drifter",
+  "name": "Drifter",
+  "category": "fringe",
+  "description": "Wanderer surviving by odd jobs, salvage, or luck across the stars.",
   "enabled": true,
   "qualification": {
-    "target": 6,
-    "dm": { "end": 1, "str": 1 }
+    "automatic": true,
+    "target": 0,
+    "dm": {}
   },
   "survival": {
     "target": 6,
-    "dm": { "end": 2 }
+    "dm": { "end": 1 },
+    "failure_effect": "lose_job"
   },
   "advancement": {
+    "automatic": false,
     "target": 7,
-    "dm": { "edu": 1 },
+    "dm": { "int": 1 },
     "auto_advance_on_survival_effect": 4
   },
   "ranks": [
-    { "rank": 0, "title": "Private", "bonus_skill": null },
-    { "rank": 1, "title": "Lieutenant", "bonus_skill": "Leadership" },
-    { "rank": 2, "title": "Captain", "bonus_skill": null },
-    { "rank": 3, "title": "Force Commander", "bonus_skill": null },
-    { "rank": 4, "title": "Colonel", "bonus_skill": null },
-    { "rank": 5, "title": "General", "bonus_skill": null }
+    { "rank": 0, "title": "Drifter", "bonus_skill": null },
+    { "rank": 1, "title": "Streetwise", "bonus_skill": "Streetwise" },
+    { "rank": 2, "title": "Scavenger", "bonus_skill": null },
+    { "rank": 3, "title": "Nomad", "bonus_skill": null },
+    { "rank": 4, "title": "Survivor", "bonus_skill": null },
+    { "rank": 5, "title": "Wasteland Elder", "bonus_skill": null }
   ],
   "skills": {
     "personal": ["Strength", "Dexterity", "Endurance", "Intelligence", "Education", "Social Standing"],
-    "service": ["Zero-G", "Vacc Suit", "Athletics", "Gun Combat", "Melee Combat", "Recon"],
-    "specialist": ["Battle Dress", "Heavy Weapons", "Tactics", "Leadership", "Explosives", "Comms"],
-    "advanced": ["Medic", "Survival", "Pilot", "Navigation", "Engineer", "Admin"]
+    "service": ["Streetwise", "Survival", "Melee Combat", "Recon", "Stealth", "Athletics"],
+    "specialist": ["Mechanic", "Gambler", "Bribery", "Carousing", "Deception", "Persuade"],
+    "advanced": ["Pilot", "Navigation", "Engineer", "Medic", "Admin", "Leadership"]
   },
   "mustering": {
-    "cash": [2000, 5000, 10000, 20000, 50000, 100000],
+    "cash": [1000, 2000, 5000, 10000, 20000, 50000],
     "benefits": [
-      { "type": "skill", "value": "Gun Combat" },
-      { "type": "skill", "value": "Leadership" },
-      { "type": "item", "value": "Armour" },
-      { "type": "item", "value": "Weapon" },
-      { "type": "pension", "value": "retirement_pay" }
-    ]
+      { "type": "skill", "value": "Streetwise" },
+      { "type": "skill", "value": "Survival" },
+      { "type": "item", "value": "Basic Gear" },
+      { "type": "weapon", "value": "Improvised Weapon" }
+    ],
+    "no_retirement": true
   },
   "mishaps": [
-    "Severely injured in action. Roll on Injury table.",
-    "Betrayed by a commanding officer. Lose 1 SOC.",
-    "Discharged for misconduct. Lose all benefits.",
-    "Your unit is wiped out. You alone survive.",
-    "Injured. Roll on Injury table."
+    "Severely injured. Roll on Injury table.",
+    "Betrayed by a fellow drifter. Lose all cash.",
+    "Arrested by authorities. Lose 1 SOC.",
+    "Robbed by rival gang. Lose equipment.",
+    "Starving and desperate. Start next term with END -1."
   ],
   "events": [
     { "roll": 2, "event": "Disaster! Roll on Mishap table but stay in career." },
-    { "roll": 3, "event": "Political upheaval renders your unit obsolete." },
-    { "roll": 4, "event": "Assigned to an elite special forces unit." },
-    { "roll": 5, "event": "Serve as bodyguard to a diplomat." },
-    { "roll": 6, "event": "Assigned to a combat zone." },
+    { "roll": 3, "event": "Caught in a gang war." },
+    { "roll": 4, "event": "Find a valuable cache of supplies." },
+    { "roll": 5, "event": "Befriend a local crime boss." },
+    { "roll": 6, "event": "Survive a harsh winter." },
     { "roll": 7, "event": "Life event. Roll on Life Events table." },
-    { "roll": 8, "event": "Win a medal for bravery." },
-    { "roll": 9, "event": "Promoted for valor." },
-    { "roll": 10, "event": "Assigned to peacekeeping mission." },
-    { "roll": 11, "event": "Selected for officer training." },
+    { "roll": 8, "event": "Win a high-stakes gamble." },
+    { "roll": 9, "event": "Recruited for a smuggling run." },
+    { "roll": 10, "event": "Make contacts in the underworld." },
+    { "roll": 11, "event": "Gain respect among drifters." },
     { "roll": 12, "event": "Advanced training. Roll on any Skill table." }
   ]
 }
 ```
 
-### **Opening Settings: World & Character Configuration**
+### **First 7 Careers: Fringe & Criminal Focus**
 
-The **Opening Settings** panel appears when starting character generation, allowing players to configure the **default parameters** for their campaign world. These settings enable generation of characters from different settings, tech levels, and cultures.
+These careers define the gritty, dangerous edge of the Traveller universe:
+
+| Career | Category | Description |
+|--------|----------|-------------|
+| **Drifter** | Fringe | Wanderers, vagrants, survivors on the edges of society |
+| **Barbarian** | Fringe | Primitive world warriors, tribal cultures |
+| **Belter** | Fringe | Asteroid miners, space-based independent operators |
+| **Pirate** | Criminal | Raiders, hijackers, criminals of the spaceways |
+| **Rogue** | Criminal | Con artists, thieves, fixers, underworld operators |
+| **Mercenary** | Combat | Guns for hire, corporate soldiers, free company troops |
+| **Colonist** | Civilian | Frontier settlers, terraformers, agricultural pioneers |
+
+**Why These First:** These careers represent the "default" Traveller experience — characters from the rough edges of civilization who take to the stars out of desperation, greed, or survival. They have the most interesting survival/mishap tables and require the least complex rank structures.
+
+---
+
+## **Character Export & Batch Generation**
+
+### **Text Export with Full History**
+
+Export a complete character as formatted text including:
+
+```
+══════════════════════════════════════════════════════════════════
+                    CHARACTER SHEET
+══════════════════════════════════════════════════════════════════
+
+Name: Zara Okafor                    Age: 34 (Born: 2092)
+Gender: Female                       Species: Human
+Homeworld: Agricultural (Earth-like)
+
+APPEARANCE
+Zara is a tall woman with dark skin, short braided hair dyed with 
+traditional red earth pigments. She has a scar across her left 
+cheek and wears practical, weather-beaten clothing. Her eyes are 
+hazel and carry the wary look of someone who's seen too much.
+
+CHARACTERISTICS                    MODIFIERS
+STR:  7  [+]                       DM:  0
+DEX:  9  [+]                       DM: +1
+END:  6  [ ]                       DM: -1
+INT: 10  [+]                       DM: +1
+EDU:  8  [ ]                       DM: +0
+SOC:  5  [ ]                       DM: -1
+
+SKILLS
+Animals-1, Farming-0, Survival-2, Streetwise-1, Carousing-0,
+Melee Combat-1, Recon-1, Pilot (Small Craft)-0
+
+CAREER HISTORY
+══════════════════════════════════════════════════════════════════
+
+Term 1 (Age 18-22): COLONIST
+  Homesteading on New Kenya Agricultural Colony
+  
+  Roll History:
+  - Qualification: Automatic (first career)
+  - Survival: Rolled 2D6+1=8 vs 6+ → SUCCESS (Effect +2)
+  - Advancement: Effect 4+ → Promoted to Rank 1 (Settler)
+  - Skill Roll (Service): Animals
+  - Second Skill (Advancement): Survival
+  - Event: Rolled 7 → Life Event: Made a powerful contact
+  
+  Result: Survived, Promoted to Settler, Gained Animals-0, 
+          Survival-1, Contact: Local Administrator
+
+Term 2 (Age 22-26): COLONIST
+  Continuing settlement work...
+  
+  Roll History:
+  - Survival: Rolled 2D6+1=11 vs 6+ → SUCCESS (Effect +5)
+  - Advancement: Effect 4+ → Promoted to Rank 2 (Colonial Rep)
+  - Skill Roll (Specialist): Survival (increased to Survival-2)
+  - Event: Rolled 9 → Recruited for colony defense militia
+  
+  Result: Survived, Promoted to Colonial Rep, Survival-2,
+          Melee Combat-0
+
+Term 3 (Age 26-30): DRIFTER
+  After colony failed, took to the spacelanes...
+  
+  Roll History:
+  - Qualification: Automatic
+  - Survival: Rolled 2D6-1=3 vs 6+ → FAILURE (Effect -3)
+  - Mishap: Rolled 3 → Betrayed by fellow drifter, lost all cash
+  
+  Result: FAILED SURVIVAL, Injured (scar), Ejected from career,
+          Lost all accumulated cash, Gained Streetwise-1
+
+[Additional terms...]
+
+MUSTERING OUT
+══════════════════════════════════════════════════════════════════
+
+Career Benefits:
+  Colonist (3 terms, Rank 2): 3 benefit rolls
+    - Roll 1: Cash Cr10,000
+    - Roll 2: Skill: Carousing
+    - Roll 3: Equipment: ATV
+
+FINAL ASSETS
+Cash: Cr8,500 (after medical debt)
+Equipment: ATV, Survival Gear, Basic Weapons
+Ship Shares: 0
+
+CONTACTS & ALLIES
+- Administrator Chen (Colonial Authority)
+- "Spike" Morrison (Underworld Fixer, questionable loyalty)
+- Dr. Yuki Tanaka (Ship's Surgeon, owes favor)
+
+ENEMIES & RIVAlS
+- Red Jack (Pirate who betrayed Term 3)
+- Colonial Revenue Service (tax investigation pending)
+
+══════════════════════════════════════════════════════════════════
+Generated: 2026-02-28 14:30:22 UTC
+Seed: 8f3d9a2e1b4c
+══════════════════════════════════════════════════════════════════
+```
+
+### **CSV Batch Generation**
+
+Generate N characters and export as CSV:
+
+```csv
+Name,Gender,Age,Species,Homeworld,STR,DEX,END,INT,EDU,SOC,Careers,Terms,Skills,Cash,Notes
+"Zara Okafor","Female",34,"Human","Agricultural",7,9,6,10,8,5,"Colonist (3), Drifter (1)",4,"Animals-1, Survival-2...",8500,"Scar on cheek"
+"James "Jimbo" Callahan","Male",42,"Human","Industrial",9,7,8,7,6,4,"Drifter (2), Rogue (3), Pirate (2)",7,"Streetwise-2, Melee-1...",1200,"Missing left eye"
+"Wei Zhang","Other",26,"Human","High Tech",8,10,7,11,10,8,"Merchant (2)",2,"Admin-1, Broker-1...",25000,"Clean record"
+```
+
+**CSV Columns:**
+- Basic Info: Name, Gender, Age, Species, Homeworld
+- Stats: STR, DEX, END, INT, EDU, SOC
+- Career Summary: Career list with terms, Total terms
+- Skills: Comma-separated skill list
+- Assets: Cash, Ship Shares, Notable Equipment
+- Notes: Appearance summary, scars, notable features
+
+**Batch Options:**
+- Generate 1-1000 characters
+- Filter by career type, TL, species
+- Sort by various criteria
+- Export as CSV or JSON
+
+---
+
+## **Procedural Generation**
+
+### **Random Name Generator**
+
+**Cultural Databases Included:**
+
+| Culture/Ethnicity | Region | Naming Style |
+|-------------------|--------|--------------|
+| **English** | Western | First + Last |
+| **Chinese** | East Asia | Family + Given |
+| **Nigerian (Yoruba)** | West Africa | Meaning-based names |
+| **Indian (Hindi)** | South Asia | Traditional + Modern |
+| **Arabic** | Middle East | Given + Patronymic |
+| **Japanese** | East Asia | Family + Given |
+| **Russian** | Eastern Europe | Given + Patronymic + Family |
+| **Spanish** | Mediterranean | First + Middle + Two Surnames |
+| **Scandinavian** | Northern Europe | Old Norse influence |
+| **Celtic** | British Isles | Traditional Gaelic |
+| **Polynesian** | Pacific Islands | Hawaiian, Maori, Samoan |
+| **Ethiopian** | Horn of Africa | Amharic naming |
+| **Korean** | East Asia | Family + Given |
+| **Vietnamese** | Southeast Asia | Family + Middle + Given |
+| **Greek** | Mediterranean | Classical + Modern |
+| **Turkish** | Central Asia/West Asia | Traditional + Modern |
+| **Slavic (Polish/Czech)** | Central Europe | Traditional |
+| **Indigenous (N. American)** | Americas | Tribal databases |
+| **Swahili** | East Africa | Coastal Bantu |
+| **Persian** | Middle East | Iranian naming |
+
+**Name JSON Structure:**
+
+```json
+{
+  "culture": "nigerian_yoruba",
+  "region": "West Africa",
+  "naming_convention": "meaning_based",
+  "male_given": ["Adebowale", "Oluwaseun", "Ifeanyi", "Chukwuemeka", "Olumide"],
+  "female_given": ["Adebola", "Oluwatosin", "Chinwe", "Ngozi", "Folake"],
+  "family_names": ["Adeyemi", "Okafor", "Nwosu", "Balogun", "Eze"],
+  "honorifics": ["Chief", "Elder"],
+  "nicknames": ["Baba", "Nna", "Dele"],
+  "generation_markers": ["Junior", "II", "III"],
+  "patterns": [
+    "{given}",
+    "{given} {family}",
+    "{nickname} {given}",
+    "{given} '{nickname}' {family}"
+  ]
+}
+```
+
+**Generation Features:**
+- Weighted by modern global population distributions
+- Species-specific names (Aslan, Vargr, etc.)
+- Nickname generation
+- Honorifics based on SOC and career
+- Gender-neutral options
+- Phonetic variation within cultures
+
+### **Procedural Appearance Generator**
+
+Generates physical description based on:
+- **Culture/Ethnicity** → Skin tone range, hair texture, typical features
+- **Gender** → Body type distribution, hairstyle conventions
+- **Age** → Aging markers, wrinkles, posture
+- **Career** → Scars, tattoos, clothing style, physical conditioning
+- **Homeworld** → Tan/pale (star type), body modifications (low/high grav)
+- **Random variation** → Height, build, distinguishing marks
+
+**Appearance JSON Templates:**
+
+```json
+{
+  "ethnicity": "west_african",
+  "gender": "female",
+  "age_range": "30-40",
+  "templates": [
+    "{height} {build} {gender} with {skin_tone} skin, {hair_style}, and {eye_color} eyes. {distinguishing_feature}.",
+    "A {build} figure with {skin_tone} complexion and {hair_description}. {scar_or_mark}. {clothing_style}."
+  ],
+  "components": {
+    "height": ["tall", "average height", "short", "very tall"],
+    "build": ["slender", "athletic", "heavyset", "wiry", "muscular"],
+    "skin_tone": ["deep brown", "dark brown", "brown", "warm brown"],
+    "hair_style": ["short braided hair", "close-cropped curls", "long dreadlocks", "shaved head with patterns"],
+    "eye_color": ["dark brown", "hazel", "amber", "dark"],
+    "distinguishing_feature": [
+      "A scar across the left cheek",
+      "Tribal markings on the temples",
+      "Piercing amber eyes",
+      "Weather-beaten hands"
+    ],
+    "scar_or_mark": [
+      "Has a noticeable scar on the {body_part}",
+      "Bears traditional scarification marks",
+      "Missing {body_part} from an old injury"
+    ],
+    "clothing_style": [
+      "Wears practical, weather-beaten clothing",
+      "Dressed in colorful traditional fabrics",
+      "Wears functional spacer gear",
+      "Clad in patched and repaired armor"
+    ]
+  },
+  "career_modifiers": {
+    "marine": { "build_weight": "muscular", "scar_probability": 0.7 },
+    "drifter": { "clothing": "worn", "scar_probability": 0.4 },
+    "noble": { "clothing": "fine", "jewelry": true }
+  }
+}
+```
+
+**Sample Outputs:**
+
+```
+Gender: Female, Career: Drifter, Age: 34, Culture: West African
+→ "Zara is a tall, wiry woman with deep brown skin and short braided 
+   hair dyed with traditional red earth pigments. She has a scar across 
+   her left cheek and wears practical, weather-beaten clothing. Her 
+   eyes are hazel and carry the wary look of someone who's seen too much."
+
+Gender: Male, Career: Marine, Age: 26, Culture: East Asian  
+→ "Corporal Wei is a muscular man of average height with tan skin 
+   and a close-cropped military haircut. He has a cybernetic replacement 
+   for his right eye and wears a faded Marine dress uniform with visible 
+   combat patches. His posture is rigid and disciplined."
+
+Gender: Other, Career: Scientist, Age: 45, Culture: Nordic
+→ "Dr. Svensson is a slender, pale person with long silver-white hair 
+   tied in a practical bun. They have laugh lines around blue eyes and 
+   wear a pristine lab coat over utilitarian ship's clothing. A small 
+   tattoo of a molecular structure is visible on their left wrist."
+```
+
+### **Integration Testing**
+
+**Stage 5.2: Testing Name, Ethnic, Gender, Description with Batch System**
+
+Test scenarios:
+1. **Generate 100 characters** with random cultures/genders
+2. **Verify name-gender-culture consistency** (e.g., no male names for female characters)
+3. **Check appearance matches culture** (skin tone appropriate to ethnicity)
+4. **Validate career-description fit** (Marines should look tough, Nobles well-dressed)
+5. **Edge case testing:** Mixed heritage, gender-neutral options, scarred veterans
+6. **Statistical distribution:** Ensure all cultures represented fairly
+7. **CSV export verification:** All fields populated correctly
+
+**Test Output Example:**
+```
+Batch Test Results (n=100):
+✓ Names: 98% culturally appropriate
+✓ Gender match: 100%
+✓ Appearance-culture fit: 96%
+✓ Career-description consistency: 94%
+⚠ 2 characters had mismatched scar descriptions
+⚠ 2 nobles had 'worn clothing' (should be fine)
+```
+
+---
+
+## **Milestones & Progress**
+
+| Stage | Milestone | Description | Progress (%) |
+|-------|-------------|-------------|--------------|
+| **1.0** | **UI Foundation** | Tile system with focus workflow, Mobile/Desktop toggle, responsive layout, PWA support | 0% |
+| **2.0** | **Pre-Career: Characteristics** | Step 1: Name (datetime default), Gender toggle, 6 Stats with DMs, 2D6 rolling | 0% |
+| **2.1** | **Pre-Career: Homeworld** | Step 2: Random/Select homeworld, Background skills (3+EDU), trade codes | 0% |
+| **3.0** | **Settings Page** | Species toggle, TL9 default, SOC range, Career filters, Opening Settings UI | 0% |
+| **3.1** | **First 7 Careers** | Drifter, Barbarian, Belter, Pirate, Rogue, Mercenary, Colonist | 0% |
+| **4.0** | **Character Export** | Text export with full career history, all rolls, character sheet format | 0% |
+| **4.1** | **Batch & CSV** | Generate N characters, CSV export, batch configuration | 0% |
+| **5.0** | **Name Generator** | Cultural name databases (20+ cultures), ethnicity-aware, gender options | 0% |
+| **5.1** | **Appearance Generator** | Procedural descriptions based on culture/gender/career/ethnicity | 0% |
+| **5.2** | **Integration Testing** | Test name/ethnic/gender/description with batch system, fix inconsistencies | 0% |
+| **6.0** | **Remaining 17 Careers** | All military, civilian, service careers (17 remaining) | 0% |
+| **6.1** | **Events & Mishaps** | Random events during careers, shared tables, career-specific events | 0% |
+| **6.2** | **Mustering Out** | Benefits rolling, cash vs. material, retirement pay | 0% |
+| **7.0** | **Finalization** | PWA polish, performance optimization, final testing, documentation | 0% |
+
+---
+
+## **Opening Settings: World & Character Configuration**
+
+The **Opening Settings** panel appears when starting character generation, allowing players to configure the **default parameters** for their campaign world.
 
 > **Purpose:** These toggles allow the generator to create characters from **more worlds and cultures** by adjusting the baseline assumptions. Default settings represent a standard interstellar civilization (TL9, Human-majority, full career spectrum).
 
-#### **Settings Categories**
+### **Settings Categories**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -204,9 +548,7 @@ The **Opening Settings** panel appears when starting character generation, allow
 └─────────────────────────────────────────────────────────────┘
 ```
 
----
-
-##### **1. Species Toggle**
+### **1. Species Toggle**
 
 **Default:** `Human` (loaded from `species/human.json`)
 
@@ -241,149 +583,27 @@ Each species is defined in a modular JSON file:
 }
 ```
 
-- **Enable multiple species:** Characters can be generated from any enabled species
-- **Species affects:** Characteristic ranges, modifiers, available careers, aging rules
-- **Download/Import:** Export species JSON or import custom species
+### **2. Technology Level (TL) Toggle**
 
----
+**Default:** `TL9` (Lowest interstellar civilization)
 
-##### **2. Technology Level (TL) Toggle**
+| TL | Era | Description |
+|----|-----|-------------|
+| **TL9** | **Interstellar** | **Jump drive** (DEFAULT) |
+| TL10-11 | Advanced | Improved tech |
+| TL12-15 | Frontier | Maximum tech |
 
-**Default:** `TL9` (Lowest interstellar civilization level in Traveller)
+### **3. Social Standing (SOC) Range**
 
-| TL | Era | Description | Career Impact |
-|----|-----|-------------|---------------|
-| TL0 | Stone Age | Primitive | No advanced careers |
-| TL1-3 | Industrial | Early machinery | Limited careers |
-| TL4-6 | Space Age | Orbital flight | Basic space careers |
-| TL7-8 | Interplanetary | System travel | Scout, Merchant unlocked |
-| **TL9** | **Interstellar** | **Jump drive** | **Full career list (DEFAULT)** |
-| TL10-11 | Advanced | Improved tech | High-tech variants |
-| TL12-15 | Frontier | Maximum tech | Rare/elite careers |
-
-**Impact on Generation:**
-- **Equipment available:** Gear filtered by TL
-- **Career availability:** Some careers require minimum TL
-- **Homeworld options:** TL affects available world types
-- **Skill tables:** Some skills TL-restricted
-
----
-
-##### **3. Social Standing (SOC) Range**
-
-**Default:** `SOC 0-15` (full range, including nobility)
-
-- **Min SOC slider:** 0-10 (restricts lowest SOC generated)
-- **Max SOC slider:** 5-18 (restricts highest SOC generated)
+- **Min SOC slider:** 0-10
+- **Max SOC slider:** 5-18
 - **Generate Nobles toggle:** Enable/disable SOC 10+ characters
-  - **On:** Characters can be nobles (Knight, Baron, etc.)
-  - **Off:** Max SOC 9, no noble careers (Noble career disabled)
 
-**Use Case:** Creating characters from a specific social class or culture where nobility doesn't exist.
+### **Configuration Management**
 
----
-
-##### **4. Careers Available Toggle**
-
-**Default:** All 24 careers enabled (except criminal careers may be disabled by default in some settings)
-
-**Filter Options:**
-- **Enable All / Disable All:** Master switches
-- **Filter by Group:** Combat, Civilian, Criminal, Fringe, Service
-- **Filter by TL:** Only show careers available at selected TL
-- **Filter by Danger:** Low/Medium/High risk careers
-- **Search:** Find specific careers by name
-
-**Career Groups:**
-
-| Group | Careers | Default Status |
-|-------|---------|----------------|
-| **Combat** | Aerospace Forces, Marine, Navy, Army, System Defense, Surface Forces | ✓ Enabled |
-| **Civilian** | Merchant, Scout, Diplomat, Bureaucrat, Colonist, Technician | ✓ Enabled |
-| **Service** | Physician, Scientist, Maritime Forces | ✓ Enabled |
-| **Fringe** | Drifter, Belter, Barbarian, Hunter | ✓ Enabled |
-| **Criminal** | Pirate, Rogue, Smuggler | ○ Disabled (toggle on for criminal campaigns) |
-| **Elite** | Noble, Agent, Entertainer | ✓ Enabled |
-
----
-
-#### **Configuration Management**
-
-##### **Download Settings**
-Export current configuration as JSON:
-```json
-{
-  "config_name": "My Traveller Campaign",
-  "species": ["human", "aslan"],
-  "tech_level": 9,
-  "soc_range": { "min": 0, "max": 15 },
-  "enable_nobles": true,
-  "careers": {
-    "enabled": ["marine", "navy", "merchant", "scout"],
-    "disabled": ["pirate", "rogue", "drifter"]
-  },
-  "homeworld_types": ["all"],
-  "house_rules": {
-    "aging_starts": 5,
-    "anagathics_enabled": true
-  }
-}
-```
-
-##### **Import World Config**
-- Load a saved settings JSON file
-- Instantly apply all toggles
-- Share campaign settings with players
-- Create genre packs ("Hard Sci-Fi", "Space Opera", "Frontier", etc.)
-
-##### **Reset to Defaults**
-- **Traveller Default:** TL9, Human, full career list, SOC 0-15
-- **Hard Sci-Fi:** TL7-8, Human-only, limited careers, no nobles
-- **Space Opera:** TL10-12, multiple species, all careers enabled
-- **Frontier:** TL9, Human/Vargr, fringe careers emphasized
-
----
-
-### **Pre-career Steps (After Opening Settings)**
-
-Before entering any career, the character goes through:
-
-#### **Step 1: Characteristics**
-- **Name**: Auto-defaults to datetime (e.g., "2026-02-28-143022")
-- **Gender**: Toggleable selector (Male/Female/Other/Random)
-- **6 Stats**: STR, DEX, END, INT, EDU, SOC
-  - Rolled with 2D6
-  - DMs (modifiers) displayed: ⌊stat/3⌋-1
-  - Real-time calculation
-- **Validation**: No stat below 1 or above 15
-
-#### **Step 2: Homeworld & Background**
-- **Random Homeworld Toggle**: Checkbox for random selection
-- **Homeworld Selection**: Choose from 16 homeworld types
-- **Background Skills**: 3 + EDU modifier skills at Level 0
-  - First 2 from homeworld trade codes
-  - Remainder from Primary Education Skills list
-
----
-
-## **Milestones & Progress**
-
-(Track implementation with a progress column.)
-
-| Stage   | Milestone                         | Description                                                                                                                             | Progress (%) |
-| ------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| **1.0** | **UI Foundation**                 | Tile system with focus workflow, Mobile/Desktop toggle, responsive layout, PWA support.                                                  | 0%           |
-| **1.1** | **Pre-Career: Characteristics**     | Step 1: Name (datetime default), Gender toggle, 6 Stats with DMs, 2D6 rolling, validation.                                              | 0%           |
-| **1.2** | **Pre-Career: Homeworld**         | Step 2: Random homeworld toggle, homeworld selection, background skills (3+EDU), trade code skills.                                    | 0%           |
-| **2.0** | **Career System: Core Engine**    | Career JSON structure, qualification rolls, survival checks, advancement logic, term loop.                                                | 0%           |
-| **2.1** | **Career System: Settings UI**    | Career toggle interface, Opening Settings panel, JSON download/import, enable/disable careers.                                           | 0%           |
-| **2.2** | **Career System: First 6 Careers**| Implement: Aerospace Forces, Marine, Navy, Scout, Mercenary, Merchant.                                                                  | 0%           |
-| **3.0** | **Careers 7-12**                   | Implement: Agent, Army, Barbarian, Belter, Colonist, Diplomat.                                                                            | 0%           |
-| **3.1** | **Careers 13-18**                  | Implement: Drifter, Entertainer, Hunter, Maritime, Noble, Physician.                                                                    | 0%           |
-| **3.2** | **Careers 19-24**                  | Implement: Pirate, Rogue, Scientist, Technician, Surface Forces, System Defense.                                                       | 0%           |
-| **4.0** | **Events & Mishaps**               | Random events during careers, shared event tables, career-specific events.                                                              | 0%           |
-| **4.1** | **Mustering Out**                  | Benefits rolling, cash vs. material benefits, retirement pay, equipment purchase.                                                        | 0%           |
-| **5.0** | **Finalization**                   | Character export (JSON, text, PDF), batch generation, PWA polish, full testing.                                                        | 0%           |
+- **Download Settings:** Export as JSON
+- **Import World Config:** Load saved configurations  
+- **Reset to Defaults:** Restore Traveller defaults
 
 ---
 
@@ -408,7 +628,7 @@ These adjustments maintain compatibility with core Cepheus Engine gameplay while
 * **Aging and Anagathics Streamlined:**
 
   * Aging begins at Term 5, with thresholds every 4 years (T5, T9, T13, etc.).
-  * Simplified aging roll: 2D6 + Endurance DM vs. Difficulty Terms+1. (first Aging roll is 5+1 or Difficulty 6, gets harder every term.).
+  * Simplified aging roll: 2D6 + Endurance DM vs. Difficulty Terms+1.
   * Anagathics is Simple - just spend 100KCr if Status Allowed (Can get Anagathics SOC-7 times). 
 
 * **Drifter Career Adjustments:**
