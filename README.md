@@ -2,9 +2,11 @@
 
 ## **Status**
 
-- **Stage:** Planning & funding
-- **Target dev start:** **January 15, 2026**
+- **Current Stage:** **Stage 1: UI Foundation** (In Progress)
+- **Next Stage:** **Stage 2: Pre-Career Character Creation** (Characteristics, Homeworld, Background Skills)
+- **Target dev start:** **February 28, 2026**
 - **Design stance:** Non‑interactive, **click‑to‑generate** characters (with optional pre‑set parameters)
+- **Stage Duration:** **2 weeks per stage** (accelerated timeline)
 
 ---
 
@@ -16,6 +18,7 @@
 - [Timeline](#timeline-tentative)
 - [Core Components](#core-components)
 - [Generation Modes](#generation-modes)
+- [Career System](#career-system)
 - [Milestones & Progress](#milestones--progress)
 - [Disclaimer](#disclaimer)
 - [Reference Materials](#reference-materials)
@@ -28,21 +31,24 @@ The **Cepheus Engine Character Generator (CECG)** is a modular, data‑driven ch
 
 ---
 
-## **Timeline (Tentative)**
+## **Timeline (Accelerated - 2 Weeks Per Stage)**
 
-Each phase and sub‑phase runs for **3 weeks**, except **Phase 5**, which spans **22 weeks** to cover the creation of all 24 career modules. Development starts **January 15, 2026**.
+Each stage runs for **2 weeks** for rapid iteration and testing. Career implementation is modular with JSON-based career definitions that can be individually toggled.
 
-| Phase   | Milestone                                    | Duration     | Start        | End          |
-| ------- | -------------------------------------------- | ------------ | ------------ | ------------ |
-| **1.0** | **CCC (Core Character Creation)**            | 3 weeks      | Jan 15, 2026 | Feb 4, 2026  |
-| **1.1** | **CCC – Everything Else**                    | 3 weeks      | Feb 5, 2026  | Feb 25, 2026 |
-| **1.2** | **Parameters UI**                            | 3 weeks      | Feb 26, 2026 | Mar 18, 2026 |
-| **2**   | **Backgrounds & Race (Module 1)**            | 3 weeks      | Mar 19, 2026 | Apr 8, 2026  |
-| **3**   | **Career Path (Module 2) – Template Build**  | 3 weeks      | Apr 9, 2026  | Apr 29, 2026 |
-| **4**   | **Mustering Out**                            | 3 weeks      | Apr 30, 2026 | May 20, 2026 |
-| **5**   | **Finalization (24 Career Implementations)** | **22 weeks** | May 21, 2026 | Oct 23, 2026 |
-
----
+| Stage   | Milestone                                    | Duration     | Start        | End          | Focus Area |
+| ------- | -------------------------------------------- | ------------ | ------------ | ------------ |------------|
+| **1.0** | **UI Foundation**                            | **2 weeks**  | Feb 28, 2026 | Mar 13, 2026 | **Tile system, focus workflow, layout toggle** |
+| **1.1** | **Pre-Career: Characteristics & Details**    | **2 weeks**  | Mar 14, 2026 | Mar 27, 2026 | **Step 1: Name (datetime default), Gender toggle, 6 Stats with DMs** |
+| **1.2** | **Pre-Career: Homeworld & Background**       | **2 weeks**  | Mar 28, 2026 | Apr 10, 2026 | **Step 2: Random/Select homeworld, Background skills** |
+| **2.0** | **Career System: Core Engine**               | **2 weeks**  | Apr 11, 2026 | Apr 24, 2026 | **Career JSON structure, qualification, survival** |
+| **2.1** | **Career System: Toggle & Settings**         | **2 weeks**  | Apr 25, 2026 | May 8, 2026  | **Career toggle UI, JSON download, Opening Settings** |
+| **2.2** | **Career System: First 6 Careers**           | **2 weeks**  | May 9, 2026  | May 22, 2026 | **Aerospace Forces, Marine, Navy, Scout, Mercenary, Merchant** |
+| **3.0** | **Career System: Next 6 Careers**            | **2 weeks**  | May 23, 2026 | Jun 5, 2026  | **Agent, Army, Barbarian, Belter, Colonist, Diplomat** |
+| **3.1** | **Career System: Next 6 Careers**            | **2 weeks**  | Jun 6, 2026  | Jun 19, 2026 | **Drifter, Entertainer, Hunter, Marine, Maritime, Noble** |
+| **3.2** | **Career System: Final 6 Careers**           | **2 weeks**  | Jun 20, 2026 | Jul 3, 2026  | **Physician, Pirate, Rogue, Scientist, Technician, Surface Forces** |
+| **4.0** | **Events & Mishaps**                         | **2 weeks**  | Jul 4, 2026  | Jul 17, 2026 | **Random events during careers** |
+| **4.1** | **Mustering Out**                            | **2 weeks**  | Jul 18, 2026 | Jul 31, 2026 | **Benefits, cash, equipment, ships** |
+| **5.0** | **Finalization & Polish**                    | **2 weeks**  | Aug 1, 2026  | Aug 14, 2026 | **Export, import, PWA polish, testing** |
 
 ---
 
@@ -85,19 +91,154 @@ Pure logic. Executes CCC setup, background/race effects, enlistment/survival/pro
 
 ---
 
+## **Career System**
+
+### **Career JSON Structure**
+
+Each career is defined in a modular JSON format that can be individually enabled/disabled:
+
+```json
+{
+  "career_id": "marine",
+  "name": "Marine",
+  "description": "Elite soldier trained for zero-g and planetary assault operations.",
+  "enabled": true,
+  "qualification": {
+    "target": 6,
+    "dm": { "end": 1, "str": 1 }
+  },
+  "survival": {
+    "target": 6,
+    "dm": { "end": 2 }
+  },
+  "advancement": {
+    "target": 7,
+    "dm": { "edu": 1 },
+    "auto_advance_on_survival_effect": 4
+  },
+  "ranks": [
+    { "rank": 0, "title": "Private", "bonus_skill": null },
+    { "rank": 1, "title": "Lieutenant", "bonus_skill": "Leadership" },
+    { "rank": 2, "title": "Captain", "bonus_skill": null },
+    { "rank": 3, "title": "Force Commander", "bonus_skill": null },
+    { "rank": 4, "title": "Colonel", "bonus_skill": null },
+    { "rank": 5, "title": "General", "bonus_skill": null }
+  ],
+  "skills": {
+    "personal": ["Strength", "Dexterity", "Endurance", "Intelligence", "Education", "Social Standing"],
+    "service": ["Zero-G", "Vacc Suit", "Athletics", "Gun Combat", "Melee Combat", "Recon"],
+    "specialist": ["Battle Dress", "Heavy Weapons", "Tactics", "Leadership", "Explosives", "Comms"],
+    "advanced": ["Medic", "Survival", "Pilot", "Navigation", "Engineer", "Admin"]
+  },
+  "mustering": {
+    "cash": [2000, 5000, 10000, 20000, 50000, 100000],
+    "benefits": [
+      { "type": "skill", "value": "Gun Combat" },
+      { "type": "skill", "value": "Leadership" },
+      { "type": "item", "value": "Armour" },
+      { "type": "item", "value": "Weapon" },
+      { "type": "pension", "value": "retirement_pay" }
+    ]
+  },
+  "mishaps": [
+    "Severely injured in action. Roll on Injury table.",
+    "Betrayed by a commanding officer. Lose 1 SOC.",
+    "Discharged for misconduct. Lose all benefits.",
+    "Your unit is wiped out. You alone survive.",
+    "Injured. Roll on Injury table."
+  ],
+  "events": [
+    { "roll": 2, "event": "Disaster! Roll on Mishap table but stay in career." },
+    { "roll": 3, "event": "Political upheaval renders your unit obsolete." },
+    { "roll": 4, "event": "Assigned to an elite special forces unit." },
+    { "roll": 5, "event": "Serve as bodyguard to a diplomat." },
+    { "roll": 6, "event": "Assigned to a combat zone." },
+    { "roll": 7, "event": "Life event. Roll on Life Events table." },
+    { "roll": 8, "event": "Win a medal for bravery." },
+    { "roll": 9, "event": "Promoted for valor." },
+    { "roll": 10, "event": "Assigned to peacekeeping mission." },
+    { "roll": 11, "event": "Selected for officer training." },
+    { "roll": 12, "event": "Advanced training. Roll on any Skill table." }
+  ]
+}
+```
+
+### **Opening Settings: Career Management**
+
+The **Opening Settings** panel provides career configuration options:
+
+#### **Career Toggle Interface**
+- **All 24 careers** listed with checkboxes
+- **Enable/Disable** individual careers
+- **Career groups** (Combat, Civilian, Criminal, etc.) with group toggle
+- **Filter by**: Tech Level, Danger Level, Specialization
+- **Search** by career name or keyword
+
+#### **Career JSON Download**
+- **Download All Careers**: Export complete `careers.json` file
+- **Download Selected**: Export only enabled careers
+- **Download Individual**: Export single career JSON
+- **Import Careers**: Upload custom career JSON files
+- **Reset to Default**: Restore original 24 careers
+
+#### **Settings Location**
+```
+┌─────────────────────────────────────────┐
+│ ⚙️ Opening Settings                    │
+├─────────────────────────────────────────┤
+│ 📁 Career Management                    │
+│   [ ] Enable All  [ ] Disable All        │
+│   [✓] Aerospace Forces    [✓] Marine    │
+│   [✓] Navy                [✓] Scout     │
+│   [✓] Mercenary           [ ] Pirate    │
+│   ... (24 total)                        │
+│                                         │
+│ [💾 Download All Careers]               │
+│ [📥 Import Custom Career]               │
+│ [🔄 Reset to Default]                   │
+└─────────────────────────────────────────┘
+```
+
+### **Pre-Career Steps (Before Careers Begin)**
+
+Before entering any career, the character goes through:
+
+#### **Step 1: Characteristics**
+- **Name**: Auto-defaults to datetime (e.g., "2026-02-28-143022")
+- **Gender**: Toggleable selector (Male/Female/Other/Random)
+- **6 Stats**: STR, DEX, END, INT, EDU, SOC
+  - Rolled with 2D6
+  - DMs (modifiers) displayed: ⌊stat/3⌋-1
+  - Real-time calculation
+- **Validation**: No stat below 1 or above 15
+
+#### **Step 2: Homeworld & Background**
+- **Random Homeworld Toggle**: Checkbox for random selection
+- **Homeworld Selection**: Choose from 16 homeworld types
+- **Background Skills**: 3 + EDU modifier skills at Level 0
+  - First 2 from homeworld trade codes
+  - Remainder from Primary Education Skills list
+
+---
+
 ## **Milestones & Progress**
 
 (Track implementation with a progress column.)
 
-| Phase   | Milestone                         | Description                                                                                                                             | Progress (%) |
+| Stage   | Milestone                         | Description                                                                                                                             | Progress (%) |
 | ------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| **1.0** | **CCC (Core Character Creation)** | Initialize base Character Object; roll abilities; basic details.                                                                        | 0%           |
-| **1.1** | **CCC – Everything Else**         | Flesh out CCC utilities: name/homeworld generators, conditions, assets stubs, export scaffolds.                                         | 0%           |
-| **1.2** | **Parameters UI**                 | Add **lists & checkboxes** to constrain outputs (e.g., limit races/backgrounds/careers; toggle house rules). Used by click‑to‑generate. | 0%           |
-| **2**   | **Backgrounds & Race (Module 1)** | Load `races` + `backgrounds`; apply modifiers, starting skills/assets.                                                                  | 0%           |
-| **3**   | **Career Path (Module 2)**        | Enlistment → Survival/Promotion/Skills (per term) → Re‑enlist/Exit loop.                                                                | 0%           |
-| **4**   | **Mustering Out**                 | Compute muster rolls; apply Cash/Benefits; add assets to character.                                                                     | 0%           |
-| **5**   | **Finalization (24 Careers)**     | Implement all 24 careers and finalize data integrity.                                                                                   | 0%           |
+| **1.0** | **UI Foundation**                 | Tile system with focus workflow, Mobile/Desktop toggle, responsive layout, PWA support.                                                  | 0%           |
+| **1.1** | **Pre-Career: Characteristics**     | Step 1: Name (datetime default), Gender toggle, 6 Stats with DMs, 2D6 rolling, validation.                                              | 0%           |
+| **1.2** | **Pre-Career: Homeworld**         | Step 2: Random homeworld toggle, homeworld selection, background skills (3+EDU), trade code skills.                                    | 0%           |
+| **2.0** | **Career System: Core Engine**    | Career JSON structure, qualification rolls, survival checks, advancement logic, term loop.                                                | 0%           |
+| **2.1** | **Career System: Settings UI**    | Career toggle interface, Opening Settings panel, JSON download/import, enable/disable careers.                                           | 0%           |
+| **2.2** | **Career System: First 6 Careers**| Implement: Aerospace Forces, Marine, Navy, Scout, Mercenary, Merchant.                                                                  | 0%           |
+| **3.0** | **Careers 7-12**                   | Implement: Agent, Army, Barbarian, Belter, Colonist, Diplomat.                                                                            | 0%           |
+| **3.1** | **Careers 13-18**                  | Implement: Drifter, Entertainer, Hunter, Maritime, Noble, Physician.                                                                    | 0%           |
+| **3.2** | **Careers 19-24**                  | Implement: Pirate, Rogue, Scientist, Technician, Surface Forces, System Defense.                                                       | 0%           |
+| **4.0** | **Events & Mishaps**               | Random events during careers, shared event tables, career-specific events.                                                              | 0%           |
+| **4.1** | **Mustering Out**                  | Benefits rolling, cash vs. material benefits, retirement pay, equipment purchase.                                                        | 0%           |
+| **5.0** | **Finalization**                   | Character export (JSON, text, PDF), batch generation, PWA polish, full testing.                                                        | 0%           |
 
 ---
 
