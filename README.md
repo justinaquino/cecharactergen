@@ -163,43 +163,188 @@ Each career is defined in a modular JSON format that can be individually enabled
 }
 ```
 
-### **Opening Settings: Career Management**
+### **Opening Settings: World & Character Configuration**
 
-The **Opening Settings** panel provides career configuration options:
+The **Opening Settings** panel appears when starting character generation, allowing players to configure the **default parameters** for their campaign world. These settings enable generation of characters from different settings, tech levels, and cultures.
 
-#### **Career Toggle Interface**
-- **All 24 careers** listed with checkboxes
-- **Enable/Disable** individual careers
-- **Career groups** (Combat, Civilian, Criminal, etc.) with group toggle
-- **Filter by**: Tech Level, Danger Level, Specialization
-- **Search** by career name or keyword
+> **Purpose:** These toggles allow the generator to create characters from **more worlds and cultures** by adjusting the baseline assumptions. Default settings represent a standard interstellar civilization (TL9, Human-majority, full career spectrum).
 
-#### **Career JSON Download**
-- **Download All Careers**: Export complete `careers.json` file
-- **Download Selected**: Export only enabled careers
-- **Download Individual**: Export single career JSON
-- **Import Careers**: Upload custom career JSON files
-- **Reset to Default**: Restore original 24 careers
+#### **Settings Categories**
 
-#### **Settings Location**
 ```
-┌─────────────────────────────────────────┐
-│ ⚙️ Opening Settings                    │
-├─────────────────────────────────────────┤
-│ 📁 Career Management                    │
-│   [ ] Enable All  [ ] Disable All        │
-│   [✓] Aerospace Forces    [✓] Marine    │
-│   [✓] Navy                [✓] Scout     │
-│   [✓] Mercenary           [ ] Pirate    │
-│   ... (24 total)                        │
-│                                         │
-│ [💾 Download All Careers]               │
-│ [📥 Import Custom Career]               │
-│ [🔄 Reset to Default]                   │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ ⚙️ Opening Settings                                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ 👤 SPECIES                                                  │
+│ Default: Human (JSON)                                       │
+│ [✓] Human        [ ] Aslan      [ ] Vargr                  │
+│ [ ] Droyne       [ ] Hiver      [ ] Custom...              │
+│                                                             │
+│ 🔧 TECHNOLOGY LEVEL (TL)                                    │
+│ Default: TL9 (Lowest Interstellar)                         │
+│ [TL0] [TL1] [TL2] [TL3] [TL4] [TL5] [TL6] [TL7] [TL8]     │
+│ [TL9●] [TL10] [TL11] [TL12] [TL13] [TL14] [TL15]          │
+│                                                             │
+│ 👑 SOCIAL STANDING (SOC) RANGE                            │
+│ Min SOC: [0] ─────────────── Max SOC: [15]                │
+│ [✓] Generate Nobles (SOC 10+)                             │
+│                                                             │
+│ 💼 CAREERS AVAILABLE                                        │
+│ [✓] Enable All  [ ] Disable All  [Filter by Group ▼]      │
+│                                                             │
+│ Combat:        [✓] Marine    [✓] Navy     [✓] Army        │
+│ Civilian:      [✓] Merchant  [✓] Scout    [✓] Diplomat   │
+│ Criminal:      [ ] Pirate    [ ] Rogue    [ ] Smuggler   │
+│ Fringe:        [✓] Drifter   [✓] Belter   [ ] Barbarian   │
+│                                                             │
+│ ─────────────────────────────────────────────────────────── │
+│ [💾 Download Current Settings]  [📥 Import World Config]   │
+│ [🔄 Reset to Traveller Defaults]                            │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### **Pre-Career Steps (Before Careers Begin)**
+---
+
+##### **1. Species Toggle**
+
+**Default:** `Human` (loaded from `species/human.json`)
+
+Each species is defined in a modular JSON file:
+
+```json
+{
+  "species_id": "human",
+  "name": "Human",
+  "default": true,
+  "enabled": true,
+  "characteristics": {
+    "str": { "min": 1, "max": 15, "default": 7 },
+    "dex": { "min": 1, "max": 15, "default": 7 },
+    "end": { "min": 1, "max": 15, "default": 7 },
+    "int": { "min": 1, "max": 15, "default": 7 },
+    "edu": { "min": 1, "max": 15, "default": 7 },
+    "soc": { "min": 1, "max": 15, "default": 7 }
+  },
+  "modifiers": {
+    "str": 0, "dex": 0, "end": 0,
+    "int": 0, "edu": 0, "soc": 0
+  },
+  "traits": [],
+  "skills": [],
+  "homeworlds": ["any"],
+  "career_restrictions": [],
+  "aging": {
+    "start_term": 5,
+    "rate": "standard"
+  }
+}
+```
+
+- **Enable multiple species:** Characters can be generated from any enabled species
+- **Species affects:** Characteristic ranges, modifiers, available careers, aging rules
+- **Download/Import:** Export species JSON or import custom species
+
+---
+
+##### **2. Technology Level (TL) Toggle**
+
+**Default:** `TL9` (Lowest interstellar civilization level in Traveller)
+
+| TL | Era | Description | Career Impact |
+|----|-----|-------------|---------------|
+| TL0 | Stone Age | Primitive | No advanced careers |
+| TL1-3 | Industrial | Early machinery | Limited careers |
+| TL4-6 | Space Age | Orbital flight | Basic space careers |
+| TL7-8 | Interplanetary | System travel | Scout, Merchant unlocked |
+| **TL9** | **Interstellar** | **Jump drive** | **Full career list (DEFAULT)** |
+| TL10-11 | Advanced | Improved tech | High-tech variants |
+| TL12-15 | Frontier | Maximum tech | Rare/elite careers |
+
+**Impact on Generation:**
+- **Equipment available:** Gear filtered by TL
+- **Career availability:** Some careers require minimum TL
+- **Homeworld options:** TL affects available world types
+- **Skill tables:** Some skills TL-restricted
+
+---
+
+##### **3. Social Standing (SOC) Range**
+
+**Default:** `SOC 0-15` (full range, including nobility)
+
+- **Min SOC slider:** 0-10 (restricts lowest SOC generated)
+- **Max SOC slider:** 5-18 (restricts highest SOC generated)
+- **Generate Nobles toggle:** Enable/disable SOC 10+ characters
+  - **On:** Characters can be nobles (Knight, Baron, etc.)
+  - **Off:** Max SOC 9, no noble careers (Noble career disabled)
+
+**Use Case:** Creating characters from a specific social class or culture where nobility doesn't exist.
+
+---
+
+##### **4. Careers Available Toggle**
+
+**Default:** All 24 careers enabled (except criminal careers may be disabled by default in some settings)
+
+**Filter Options:**
+- **Enable All / Disable All:** Master switches
+- **Filter by Group:** Combat, Civilian, Criminal, Fringe, Service
+- **Filter by TL:** Only show careers available at selected TL
+- **Filter by Danger:** Low/Medium/High risk careers
+- **Search:** Find specific careers by name
+
+**Career Groups:**
+
+| Group | Careers | Default Status |
+|-------|---------|----------------|
+| **Combat** | Aerospace Forces, Marine, Navy, Army, System Defense, Surface Forces | ✓ Enabled |
+| **Civilian** | Merchant, Scout, Diplomat, Bureaucrat, Colonist, Technician | ✓ Enabled |
+| **Service** | Physician, Scientist, Maritime Forces | ✓ Enabled |
+| **Fringe** | Drifter, Belter, Barbarian, Hunter | ✓ Enabled |
+| **Criminal** | Pirate, Rogue, Smuggler | ○ Disabled (toggle on for criminal campaigns) |
+| **Elite** | Noble, Agent, Entertainer | ✓ Enabled |
+
+---
+
+#### **Configuration Management**
+
+##### **Download Settings**
+Export current configuration as JSON:
+```json
+{
+  "config_name": "My Traveller Campaign",
+  "species": ["human", "aslan"],
+  "tech_level": 9,
+  "soc_range": { "min": 0, "max": 15 },
+  "enable_nobles": true,
+  "careers": {
+    "enabled": ["marine", "navy", "merchant", "scout"],
+    "disabled": ["pirate", "rogue", "drifter"]
+  },
+  "homeworld_types": ["all"],
+  "house_rules": {
+    "aging_starts": 5,
+    "anagathics_enabled": true
+  }
+}
+```
+
+##### **Import World Config**
+- Load a saved settings JSON file
+- Instantly apply all toggles
+- Share campaign settings with players
+- Create genre packs ("Hard Sci-Fi", "Space Opera", "Frontier", etc.)
+
+##### **Reset to Defaults**
+- **Traveller Default:** TL9, Human, full career list, SOC 0-15
+- **Hard Sci-Fi:** TL7-8, Human-only, limited careers, no nobles
+- **Space Opera:** TL10-12, multiple species, all careers enabled
+- **Frontier:** TL9, Human/Vargr, fringe careers emphasized
+
+---
+
+### **Pre-career Steps (After Opening Settings)**
 
 Before entering any career, the character goes through:
 
