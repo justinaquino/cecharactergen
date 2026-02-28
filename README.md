@@ -307,7 +307,34 @@ These careers define the gritty, dangerous edge of the Traveller universe. They 
 | **Mercenary** | Combat | Combat-heavy, military structure without official rank | Tests combat careers before Navy/Marines |
 | **Colonist** | Civilian | Settlement, agriculture, frontier survival | Tests non-combat, non-criminal careers |
 
-### **Settings: Career Cut-Off & Term Minimums**
+#### **Why These 7 First: Establishing the Pattern**
+
+These 7 careers serve as the **pilot implementation** to validate the Career JSON structure. Once these work correctly:
+
+1. **The JSON pattern is proven** - We know the structure works for Drifter, Pirate, Mercenary, etc.
+2. **Draft classes are tested** - The 6 draft careers (Barbarian, Belter, Colonist, Mercenary, Pirate, Rogue) all function correctly
+3. **Mustering rules validated** - Benefits, cash, equipment generation works
+4. **Equipment integration confirmed** - Each career gets appropriate gear
+
+**Only then** do we build the remaining 17 careers using the **same proven JSON pattern**:
+
+```
+Stage 3.1: First 7 Careers (Pilot/Pattern Phase)
+├── Drifter, Barbarian, Belter, Pirate, Rogue, Mercenary, Colonist
+├── Validate JSON structure
+├── Test mustering benefits
+├── Confirm equipment generation
+└── Pattern ESTABLISHED ✓
+
+Stage 8.0: Remaining 17 Careers (Production Phase)
+├── Aerospace Forces, Marine, Navy, Scout, Merchant, Agent, Army
+├── Diplomat, Entertainer, Hunter, Maritime, Noble, Physician
+├── Scientist, Technician, Surface Forces, System Defense
+└── Use proven JSON pattern from Stage 3.1
+```
+
+**Draft Career Validation:**
+The Mneme quick fixes change the draft table to: Barbarian, Belter, Colonist, Mercenary, Pirate, Rogue. All 6 of these draft careers are in our first 7, ensuring the draft mechanic works before building the rest.
 
 The Opening Settings page includes career constraint controls:
 
