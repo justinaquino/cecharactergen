@@ -16,6 +16,7 @@
 ### **Table of Contents**
 - [Status](#status)
 - [Overview](#overview)
+- [Definition of Done](#definition-of-done)
 - [Development Model](#development-model-iterative-with-feedback)
 - [Timeline](#timeline-accelerated---2-weeks-per-stage--1-week-review)
 - [Core Components](#core-components)
@@ -33,6 +34,144 @@
 
 
 The **Cepheus Engine Character Generator (CECG)** is a modular, data‑driven character generator for Cepheus Engine. We separate **data** (races, backgrounds, careers, equipment) from the **Rules Engine** (enlistment, survival, promotions, term loop, mustering out). Races, backgrounds, and careers are shipped as **swappable modules** so third parties can add, remove, or override content without touching code.
+
+---
+
+## **Definition of Done**
+
+### **The Ultimate Success Criteria**
+
+> **A Game Master or Player can generate 20 characters in 10 minutes and immediately use them in a game session.**
+
+### **What "Ready to Run" Means**
+
+Each generated character must be **immediately playable** without additional preparation:
+
+#### **✅ Speed Requirement**
+- **Batch Generate:** 20 characters in ≤10 minutes
+- **Single Character:** <30 seconds from click to completion
+- **Performance:** No lag, no loading screens, instant results
+
+#### **✅ Character Depth - "Just Run With This"**
+Each character includes:
+
+**1. Complete Identity**
+- Full name (culturally appropriate)
+- Physical description (height, weight, build, appearance)
+- Gender, age, species
+- Believable background story implied by career choices
+
+**2. Complete Statistics**
+- All 6 characteristics with modifiers
+- Full skill list with levels
+- Career history (terms, ranks, promotions)
+- Aging effects, scars, injuries
+
+**3. **🎒 Detailed Equipment (Procedurally Generated & Believable)** ⭐**
+
+This is **critical** - characters must have **ready-to-use equipment**:
+
+**Personal Equipment (Always Included):**
+- **Clothing:** Appropriate to career and tech level (vacc suit for spacers, tactical gear for military, worn clothes for drifters)
+- **Personal Weapons:** If career-appropriate (pistol for scouts, rifle for marines, knife for rogues)
+- **Tools:** Career-specific (engineering kit for technicians, medical kit for physicians, navigation tools for scouts)
+- **Survival Gear:** Appropriate to homeworld/career
+- **Communications:** Basic comm unit (TL-appropriate)
+- **Personal Items:** 2-3 procedurally generated personal items (locket, journal, lucky charm, family photo, etc.)
+
+**Mustering Benefits (If Applicable):**
+- Cash on hand (realistic amount for career/terms)
+- Ship shares (if rolled)
+- **Significant Equipment:** ATV for colonists, vacc suit for belters, armor for marines, medical equipment for physicians
+- **Weapons:** Quality appropriate to career (military weapons for combat careers, civilian models for others)
+- **Special Items:** Tools of the trade, trade goods, contact networks
+
+**Equipment Believability Rules:**
+- Equipment must make sense for the **career** (Marines don't get trade goods, Merchants don't get battle dress)
+- Equipment must match **tech level** (TL9 character shouldn't have TL12 gear)
+- Equipment must be **usable** - not just a list, but items with game stats
+- Equipment must be **consistent** - if they have Vacc Suit skill, they should have a vacc suit
+
+**Example - Believable Equipment Set:**
+```
+Drifter (3 terms, just mustered out):
+- Worn civilian clothing (TL9, patched)
+- Emergency vacc suit (1-hour life support, found/stolen)
+- Survival knife
+- Bedroll and pack
+- Cr250 in mixed currency (mostly spent)
+- Locket with photo (personal item)
+- Cheap pistol (unreliable, 3 magazines)
+- Portable comm unit (damaged, intermittent)
+- Street contacts (not equipment, but resource)
+```
+
+**Example - Wrong Equipment (NOT Acceptable):**
+```
+Drifter (3 terms):
+- Battle Dress (TL12) ❌ (Too high tech, wrong career)
+- 1,000,000 Cr ❌ (Drifters don't save money)
+- Starship ❌ (Not a mustering benefit for drifters)
+- No vacc suit despite Belter background ❌ (Inconsistent)
+```
+
+**4. Social Connections**
+- Contacts (NPCs they know)
+- Allies (friends who will help)
+- Enemies (rivals, problems)
+- Patrons (if applicable)
+
+**5. Complete History**
+- Every dice roll shown (transparency)
+- Career progression (why they have those skills)
+- Events that shaped them
+- Reason for adventuring (mustering out motivation)
+
+#### **✅ GM Utility**
+The GM can:
+- **Print character sheets** and hand them to players
+- **Use as NPCs** with zero prep
+- **See at a glance:** What this character can do, what they have, who they know
+- **Improvise:** Equipment list suggests story hooks ("Why do they have a stolen marine helmet?")
+
+#### **✅ Batch Usability**
+When generating 20 characters:
+- **Diverse:** Mix of careers, backgrounds, skill sets
+- **Balanced:** Not all combat monsters or all useless
+- **Interesting:** Some have debts, some have ship shares, some have enemies
+- **Instant Plot Seeds:** Equipment and contacts suggest adventures
+
+### **Testing the Definition of Done**
+
+**The 10-Minute Test:**
+1. Open the character generator
+2. Set parameters (TL9, Human, 7 careers enabled)
+3. Click "Generate 20 Characters"
+4. Wait for completion
+5. Review all 20 character sheets
+
+**Pass Criteria:**
+- [ ] Completed in ≤10 minutes
+- [ ] All 20 characters have believable equipment
+- [ ] All 20 have usable skill sets
+- [ ] GM could run a game with these 20 as NPCs immediately
+- [ ] No character requires the GM to "fix" their equipment
+
+**Example Scenario - "The Bar on Startown"**
+The GM needs 20 patrons for a bar scene. Generates batch. Gets:
+- 3 Drifters (looking for work, minimal gear)
+- 2 Merchants (negotiating deals, nice clothes, comm units)
+- 1 Marine (on leave, military gear, disciplined)
+- 2 Scouts (explorers, vacc suits, survival gear)
+- 1 Rogue (con artist, nice clothes, hidden pistol)
+- 1 Belter (miner, vacc suit, zero-g tools)
+- 1 Pirate (nervous, mismatched gear, stolen items)
+- 1 Colonist (farmer, practical clothes, seeds/tools)
+- 1 Mercenary (professional gear, weapons)
+- 1 Barbarian (primitive gear, confused by high tech)
+- 6 Other varied careers
+
+**Result:** GM can immediately roleplay this bar. Each character's equipment suggests what they're doing there. No prep needed.
 
 ---
 
