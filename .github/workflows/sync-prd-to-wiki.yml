@@ -1,0 +1,63 @@
+name: Sync PRD to Wiki
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'PRD.md'
+  workflow_dispatch:
+
+jobs:
+  sync-prd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+
+      - name: Checkout wiki repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Convert and sync PRD to wiki
+        run: |
+          # Create wiki content with header
+          cat > wiki/Project-Requirements-Document.md << 'WIKIEOF'
+          # Project Requirements Document (PRD)
+
+          *This page is synchronized with the [PRD.md file](../blob/main/PRD.md) in the main repository.*
+
+          ---
+
+          WIKIEOF
+          
+          # Convert repo PRD to wiki format
+          # Skip first title line, convert links
+          tail -n +2 PRD.md | sed 's|(./wiki/\([^)]*\))|([[\1]])|g' >> wiki/Project-Requirements-Document.md
+          
+          # Add footer
+          cat >> wiki/Project-Requirements-Document.md << 'WIKIEOF'
+
+          ---
+
+          *This document is synchronized with the PRD.md file in the main repository. Changes to either should be reflected in both locations.*
+
+          **To update this document:** Edit [PRD.md](../blob/main/PRD.md) in the main repo, then copy changes here.
+          WIKIEOF
+
+      - name: Commit and push wiki changes
+        run: |
+          cd wiki
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          if [ -n "$(git status --porcelain)" ]; then
+            git add Project-Requirements-Document.md
+            git commit -m "Sync PRD from main repo - ${{ github.event.head_commit.message }}"
+            git push
+            echo "✓ Wiki updated successfully"
+          else
+            echo "No changes to sync"
+          fi
