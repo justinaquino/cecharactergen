@@ -835,6 +835,7 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
   - `injury.json` — Injury severity and effects
   - `medical_bills.json` — Medical treatment costs
   - `aging.json` — Characteristic loss by age
+  - `anagathics.json` — Anti-aging drugs (CE and Mneme variants)
   - `retirement_pay.json` — Pension by terms served
 
 **Career Table:**
@@ -893,20 +894,56 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 ---
 
-#### FR-010: Rules Toggle
+#### FR-010: Rules Toggle (CE vs Mneme Variant)
 **Priority:** Medium  
-**Description:** Switch between CE and Mneme rules
+**Description:** Switch between Standard Cepheus Engine and Mneme Variant rules
 
-**Toggle:** Standard CE / Mneme CE
+**Master Toggle:** Standard CE / Mneme Variant
 
-**Changes when Mneme:**
-- Unified Roll System (2D6 vs Difficulty)
-- Automatic Re-Enlistment (no roll)
-- Streamlined Aging (begins Term 5)
-- Simplified Anagathics
-- Drifter Auto-Qualification
+**When Mneme Variant is Active:**
 
-**Acceptance:** Toggle switches all relevant calculations
+**1. Unified Roll System**
+- All core rolls (Qualification, Survival, Advancement) use 2D6 vs Difficulty
+- Simplified DM structure
+
+**2. Automatic Re-Enlistment**
+- No separate re-enlistment roll required
+- Players choose freely whether to continue or muster out
+
+**3. Streamlined Aging**
+- Aging begins Term 5 (not Term 4)
+- Threshold every 4 years (T5, T9, T13...)
+- Roll: 2D6 + End DM vs Difficulty (Terms + 1)
+
+**4. Simplified Anagathics (Anti-Aging Drugs)**
+- **Cost:** Fixed 100KCr per term (regardless of TL)
+- **Maximum Doses:** (SOC - 7), minimum 1
+- **Availability:** Starport A or B only
+- **Aging Prevention:** Completely prevents all aging effects for that term
+- **Side Effects:** None in simplified variant (RAW has side effect table)
+- **Detection:** Automatically detected at Class A starports
+- **Reference:** `MNEME_SPACE_COMBAT_SUMMARY.md` (Section 2.3 - Anagathics)
+
+**5. Drifter Auto-Qualification**
+- Drifter career has no qualification requirement
+- Automatic entry for all characters
+
+**6. Additional Mneme Rules (from reference docs):**
+- **Combat:** "Only Players Roll" system (NPCs use static numbers)
+- **Superiority System:** Tactics-based initiative (from Mneme Space Combat)
+- **MAC:** Multiple Attack Consolidation for faster combat
+
+**Document References:**
+- Primary: `MNEME_SPACE_COMBAT_SUMMARY.md` — Complete Mneme rules summary
+- Source: `ce-shipgen/PROJECT_NOTES.md` — Implementation lessons from CE ShipGen Mneme integration
+- Wiki: https://wiki.gi7b.org/Mneme_Space_Combat — Original Mneme rules
+
+**Acceptance Criteria:**
+- [ ] Toggle switches all relevant calculations
+- [ ] Anagathics costs, availability, and effects use Mneme variant rules when active
+- [ ] Aging mechanics use Mneme variant (Term 5 start)
+- [ ] UI indicates "Mneme Rules Active" when variant is selected
+- [ ] All document references are accurate and accessible
 
 ---
 
@@ -1189,7 +1226,19 @@ These files are created and populated with canonical data during **M2: Settings 
    - Anagathics interaction
    - Death from aging rules
 
-6. **`retirement_pay.json`** — Retirement Pay by Terms Served Table
+6. **`anagathics.json`** — Anagathics (Anti-Aging Drugs) Table
+   - **Standard CE Rules:**
+     - Cost by tech level (100KCr at TL 12+)
+     - Side effects table
+     - Availability by starport
+   - **Mneme Variant Rules (Simplified):**
+     - Fixed cost: 100KCr per term
+     - Max doses: (SOC - 7)
+     - Available at Class A/B starports
+     - No side effects
+   - **Reference:** `MNEME_SPACE_COMBAT_SUMMARY.md` Section 2.3
+
+7. **`retirement_pay.json`** — Retirement Pay by Terms Served Table
    - Annual pension amount by total terms served
    - Multi-career retirement calculation
    - Pension modifiers by rank achieved
@@ -1301,7 +1350,7 @@ These files are created and populated with canonical data during **M2: Settings 
     - Master list of all tables
     - Cross-references between tables
 
-**Total:** 14 core JSON tables with 300+ data entries
+**Total:** 15 core JSON tables with 300+ data entries
 
 ### 3.2 Data Schema
 
