@@ -708,20 +708,21 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 └─────────────────────────────────────────────────────────┘
 ```
   
-**Career Enable/Disable Data Storage:**
+**Career JSON Schema (careers.json):**
 ```json
 {
   "_metadata": {
     "version": "1.0",
-    "description": "Cepheus Engine Core Rulebook Careers - All 24 careers",
+    "description": "Cepheus Engine Core Rulebook - All 24 careers",
+    "source": "Cepheus Engine SRD",
     "totalCareers": 24,
     "activeCareers": 22,
+    "lastUpdated": "2026-03-03",
     "careersList": [
       {"id": "drifter", "name": "Drifter", "category": "Civilian", "enabled": true},
       {"id": "marine", "name": "Marine", "category": "Military", "enabled": true},
       {"id": "scout", "name": "Scout", "category": "Exploration", "enabled": true},
-      {"id": "noble", "name": "Noble", "category": "Elite", "enabled": false, "reason": "Not in frontier setting"},
-      {"id": "pirate", "name": "Pirate", "category": "Criminal", "enabled": false}
+      {"id": "noble", "name": "Noble", "category": "Elite", "enabled": false}
     ]
   },
   "drifter": {
@@ -729,53 +730,118 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
     "name": "Drifter",
     "enabled": true,
     "category": "civilian",
-    "description": "Wanderers, travellers, and those who live on the fringes of society...",
-    "qualification": { ... },
-    "survival": { ... },
-    "advancement": { ... },
-    "skills": { ... },
-    "ranks": [ ... ],
-    "mustering": { ... },
-    "events": [ ... ],
-    "mishaps": [ ... ]
+    "description": "Wanderers, travellers, and those who live on the fringes of society without a fixed home or career.",
+    
+    "qualification": {
+      "roll": "2D6",
+      "target": 0,
+      "dm": {},
+      "auto": true,
+      "description": "Automatic entry - anyone can be a drifter"
+    },
+    "survival": {
+      "roll": "2D6",
+      "target": 6,
+      "dm": {"end": 1},
+      "description": "Roll 2D6 + END DM vs 6"
+    },
+    "commission": {
+      "has": false
+    },
+    "advancement": {
+      "roll": "2D6",
+      "target": 7,
+      "dm": {"int": 1},
+      "description": "Roll 2D6 + INT DM vs 7"
+    },
+    "reenlistment": {
+      "roll": "2D6",
+      "target": 0,
+      "automatic": true,
+      "description": "Automatic re-enlistment allowed"
+    },
+    
+    "rank1": {"title": "Wanderer", "skill": null},
+    "rank2": {"title": "Vagabond", "skill": "Streetwise 1"},
+    "rank3": {"title": "Traveller", "skill": "Deception 1"},
+    "rank4": {"title": "Itinerant", "skill": null},
+    "rank5": {"title": "Wayfarer", "skill": "Jack of all Trades 1"},
+    "rank6": {"title": "Nomad", "skill": "Survival 1"},
+    
+    "material_benefit1": {"roll": 1, "benefit": "Contact", "description": "Gain a contact in the underworld"},
+    "material_benefit2": {"roll": 2, "benefit": "Weapon", "description": "Any personal weapon"},
+    "material_benefit3": {"roll": 3, "benefit": "Alliance", "description": "Gain an ally in a criminal organization"},
+    "material_benefit4": {"roll": 4, "benefit": "Ship Share", "description": "One share in a ship"},
+    "material_benefit5": {"roll": 5, "benefit": "Ship Share", "description": "One share in a ship"},
+    "material_benefit6": {"roll": 6, "benefit": "Life Insurance", "description": "Insurance pays to next of kin"},
+    
+    "cash_benefit1": {"roll": 1, "amount": 1000},
+    "cash_benefit2": {"roll": 2, "amount": 5000},
+    "cash_benefit3": {"roll": 3, "amount": 10000},
+    "cash_benefit4": {"roll": 4, "amount": 10000},
+    "cash_benefit5": {"roll": 5, "amount": 20000},
+    "cash_benefit6": {"roll": 6, "amount": 50000},
+    
+    "personal_skill1": "+1 STR",
+    "personal_skill2": "+1 DEX",
+    "personal_skill3": "+1 END",
+    "personal_skill4": "+1 INT",
+    "personal_skill5": "+1 EDU",
+    "personal_skill6": "+1 SOC",
+    
+    "service_skill1": "Athletics",
+    "service_skill2": "Melee",
+    "service_skill3": "Recon",
+    "service_skill4": "Streetwise",
+    "service_skill5": "Survival",
+    "service_skill6": "Vacc Suit",
+    
+    "advanced_skill1": "Leadership",
+    "advanced_skill2": "Tactics",
+    "advanced_skill3": "Deception",
+    "advanced_skill4": "Persuade",
+    "advanced_skill5": "Streetwise",
+    "advanced_skill6": "Jack of all Trades"
   },
-  "marine": { ... },
-  "scout": { ... },
-  ... (22 more careers)
+  "marine": { /* Same structure for all 24 careers */ },
+  "scout": { /* Same structure */ }
 }
 ```
 
 **Key Points:**
-- ONE file contains ALL careers
-- `_metadata` section describes the file contents
+- ONE file contains ALL 24 careers
+- `_metadata` header describes file contents
 - Each career has `enabled` boolean for active/inactive state
-- GM can toggle careers on/off without editing JSON directly (via Career Management UI)
+- **Career Fields:** name (PK), description, qualification, survival, commission, advancement, reenlistment
+- **Ranks & Skills:** 6 fields (rank1-rank6 with title and skill)
+- **Benefits:** 6 material benefit fields + 6 cash benefit fields
+- **Skills & Training:** 6 personal + 6 service + 6 advanced education fields
+- GM can toggle `enabled` field via Career Management UI
 
 **4. JSON Table Editor** (`/settings/json` or `/settings/tables`)
 - Select table from dropdown (organized by category):
 
-**Core Data:**
-  - `races.json` — Species definitions and modifiers
-  - `careers.json` — All 24 career paths with full rules (editable inline)
+**Global Character Tables:**
+  - `draft.json` — Draft/Conscription assignments
+  - `survival_mishaps.json` — Survival failure consequences
+  - `injury.json` — Injury severity and effects
+  - `medical_bills.json` — Medical treatment costs
+  - `aging.json` — Characteristic loss by age
+  - `retirement_pay.json` — Pension by terms served
 
-**Career Simulation:**
-  - `events.json` — Random events during career terms
-  - `mishaps.json` — Career-ending disasters and injuries
-  - `draft.json` — Draft/conscription targets and outcomes
-  - `anagathics.json` — Anti-aging drug costs and availability
+**Career Table:**
+  - `careers.json` — All 24 careers with full rules data
 
 **Character Components:**
+  - `races.json` — Species definitions and modifiers
   - `skills.json` — Skill definitions and categories
   - `equipment.json` — Weapons, armor, gear, assets
-  - `benefits.json` — Mustering out cash and material benefits
-  - `conditions.json` — Wounds, injuries, aging effects
-
-**World & Background:**
   - `homeworlds.json` — World types with background skills
   - `names.json` — Name generators by culture/species
 
 **Settings:**
   - `rules.json` — Rule variants and house rules
+  - `_summary.json` — Data catalog and index
 
 - Inline JSON editor with syntax highlighting
 - Real-time schema validation (red squiggles on errors)
@@ -1082,95 +1148,152 @@ View and manage localStorage:
 
 ### 3.1 Embedded Data
 
-**15+ JSON Files (M2 Deliverables):**
+**Core JSON Data Tables (M2 Deliverables):**
 
 These files are created and populated with canonical data during **M2: Settings & Data Tables** milestone:
 
-**Core Character Data:**
-1. **`races.json`** — Species definitions with modifiers
-   - **M2 Content:** Default Human species (canonical CE definition)
-   - Structure: `id`, `name`, `modifiers` (characteristics), `traits`, `enabled` (boolean)
-    
-2. **`careers.json`** — **ALL careers in ONE file**
-   - **M2 Content:** Single comprehensive JSON file containing all 24 Cepheus Engine careers
-   - **File Structure:**
-     - **Metadata Header:** Contains file description listing all included careers and their summaries
-     - **Career Objects:** Each career has unique ID with complete rules data
-   - **Active/Inactive Selection:** Each career has `enabled` boolean field
-     - `enabled: true` — Career appears in generation, random selection includes it
-     - `enabled: false` — Career hidden from generation, excluded from random rolls
-   - **Included Careers (M2 starts with 3, M3 completes all 24):**
-     - Drifter, Marine, Scout (M2 initial set)
-     - Navy, Army, Merchants, Pirates, Rogues, etc. (M3 additions)
-   - **Per-Career Data:** qualification, survival, advancement, skills, ranks, mustering, events, mishaps
+**Global Character Tables (Shared Across All Careers):**
 
-**Career Simulation Tables:**
-3. **`events.json`** — Career events by career type
-   - Random events that occur during career terms
-   - Event text, effects, skill gains/losses
-   - Per-career event tables
-
-4. **`mishaps.json`** — Career mishaps and disasters
-   - Negative events that end careers early
-   - Injury tables, death, dismissal scenarios
-   - Per-career mishap tables
-
-5. **`draft.json`** — Draft/Conscription table
+1. **`draft.json`** — Draft/Conscription Table
    - Characters drafted if they fail career qualification
-   - Draft targets by career type
-   - Draft-specific survival and skill tables
+   - Draft assignment by roll (which career they get drafted into)
+   - Draft-specific survival DMs
 
-6. **`anagathics.json`** — Anagathics (anti-aging drugs)
-   - Cost per term by tech level
-   - Availability by starport class
-   - Side effects tables
-   - Detection and legal issues
+2. **`survival_mishaps.json`** — Survival Mishaps Table
+   - What happens when a character fails survival roll
+   - Mishap descriptions and consequences
+   - Career-ending events
+
+3. **`injury.json`** — Injury Table
+   - Injury severity levels (1-6 scale)
+   - Characteristic damage by injury type
+   - Recovery times and medical care needed
+   - Permanent effects
+
+4. **`medical_bills.json`** — Medical Bills Table
+   - Cost per injury severity level
+   - Cost by tech level available
+   - Starport class impact on pricing
+
+5. **`aging.json`** — Aging Table
+   - Characteristic loss by age bracket
+   - Aging roll thresholds
+   - Anagathics interaction
+   - Death from aging rules
+
+6. **`retirement_pay.json`** — Retirement Pay by Terms Served Table
+   - Annual pension amount by total terms served
+   - Multi-career retirement calculation
+   - Pension modifiers by rank achieved
+
+**Career Table:**
+
+7. **`careers.json`** — ALL 24 Careers in ONE File
+   - **M2 Content:** Single comprehensive JSON file with metadata header
+   - **Structure:**
+     - `_metadata` header describing all careers in file
+     - Each career object with ID as key
+   
+   **Per-Career Fields:**
+   
+   **Basic Info:**
+   - `name` — Career name (string, primary key/identifier)
+   - `description` — Full career description (text)
+   - `enabled` — Boolean (active/inactive for generation)
+   - `category` — Military, Civilian, Criminal, Elite, etc.
+   
+   **Core Rolls:**
+   - `qualification` — { roll: "2D6", target: number, dm: {}, auto: boolean }
+   - `survival` — { roll: "2D6", target: number, dm: {} }
+   - `commission` — { roll: "2D6", target: number, dm: {} } (if applicable)
+   - `advancement` — { roll: "2D6", target: number, dm: {} }
+   - `reenlistment` — { roll: "2D6", target: number, automatic: boolean }
+   
+   **Ranks & Skills (6 fields):**
+   - `rank1` — { title: string, skill: string | null }
+   - `rank2` — { title: string, skill: string | null }
+   - `rank3` — { title: string, skill: string | null }
+   - `rank4` — { title: string, skill: string | null }
+   - `rank5` — { title: string, skill: string | null }
+   - `rank6` — { title: string, skill: string | null }
+   
+   **Material Benefits (6 columns):**
+   - `material_benefit1` — { roll: number, benefit: string, description: string }
+   - `material_benefit2` — { roll: number, benefit: string, description: string }
+   - `material_benefit3` — { roll: number, benefit: string, description: string }
+   - `material_benefit4` — { roll: number, benefit: string, description: string }
+   - `material_benefit5` — { roll: number, benefit: string, description: string }
+   - `material_benefit6` — { roll: number, benefit: string, description: string }
+   
+   **Cash Benefits (6 columns):**
+   - `cash_benefit1` — { roll: number, amount: number }
+   - `cash_benefit2` — { roll: number, amount: number }
+   - `cash_benefit3` — { roll: number, amount: number }
+   - `cash_benefit4` — { roll: number, amount: number }
+   - `cash_benefit5` — { roll: number, amount: number }
+   - `cash_benefit6` — { roll: number, amount: number }
+   
+   **Skills & Training - Personal Development (6 fields):**
+   - `personal_skill1` — Skill name or "+1 STR/DEX/END/INT/EDU/SOC"
+   - `personal_skill2` — Skill name
+   - `personal_skill3` — Skill name
+   - `personal_skill4` — Skill name
+   - `personal_skill5` — Skill name
+   - `personal_skill6` — Skill name
+   
+   **Skills & Training - Service Skills (6 fields):**
+   - `service_skill1` — Skill name
+   - `service_skill2` — Skill name
+   - `service_skill3` — Skill name
+   - `service_skill4` — Skill name
+   - `service_skill5` — Skill name
+   - `service_skill6` — Skill name
+   
+   **Skills & Training - Advanced Education (6 fields):**
+   - `advanced_skill1` — Skill name
+   - `advanced_skill2` — Skill name
+   - `advanced_skill3` — Skill name
+   - `advanced_skill4` — Skill name
+   - `advanced_skill5` — Skill name
+   - `advanced_skill6` — Skill name
 
 **Character Components:**
-7. **`skills.json`** — Skill definitions and categories
+
+8. **`races.json`** — Species definitions with modifiers
+   - Default Human species (canonical CE definition)
+   - Structure: `id`, `name`, `modifiers` (characteristics), `traits`, `enabled` (boolean)
+
+9. **`skills.json`** — Skill definitions and categories
    - All skills with descriptions
    - Skill categories (Personal, Service, Specialist, Advanced)
    - Cascade skills (Gun Combat → specific weapons)
 
-8. **`equipment.json`** — Weapons, armor, gear, assets
-   - Weapons: damage, range, cost, TL, mass
-   - Armor: protection, cost, TL
-   - Gear: tools, survival equipment, medical
-   - Assets: ship shares, property
+10. **`equipment.json`** — Weapons, armor, gear, assets
+    - Weapons: damage, range, cost, TL, mass
+    - Armor: protection, cost, TL
+    - Gear: tools, survival equipment, medical
+    - Assets: ship shares, property
 
-9. **`benefits.json`** — Mustering out tables
-   - Cash benefits by career and roll
-   - Material benefits (weapons, armor, ships)
-   - Roll tables for each career
-
-10. **`conditions.json`** — Wounds, injuries, aging effects
-    - Injury severity tables
-    - Aging characteristic loss
-    - Medical care requirements
-    - Recovery times
-
-**World & Background Data:**
 11. **`homeworlds.json`** — World types with background skills
     - World classifications (High Tech, Low Tech, etc.)
     - Background skill options per world type
-    
+
 12. **`names.json`** — Name generators by culture/species
     - Name tables for human cultures
     - Alien species naming conventions
 
 **Settings & Configuration:**
+
 13. **`rules.json`** — Rule variants and house rules
     - CE vs Mneme rule differences
     - Optional rules toggles
     - Custom rule definitions
 
-14. **`settings.json`** — Career enable/disable preferences
-    - Which careers are active
-    - Custom modifications per career
+14. **`_summary.json`** — Data catalog and schema index
+    - Master list of all tables
+    - Cross-references between tables
 
-15. **`_summary.json`** — Data catalog and schema index
-
-**Total:** 300+ data entries across all tables
+**Total:** 14 core JSON tables with 300+ data entries
 
 ### 3.2 Data Schema
 
