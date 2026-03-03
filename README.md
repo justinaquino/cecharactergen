@@ -1,13 +1,28 @@
-# **CECG: A Modular Approach for Cepheus Engine**
+# **CE CharacterGen**
+## Cepheus Engine Character Generator — A Progressive Web App
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+**Status:** 🎯 M1 In Progress — UI Foundation  
+**Based On:** Cepheus Engine + Mneme CE Rules  
+**Inspiration:** CE ShipGen Architecture
+
+---
 
 ## **Status**
 
-- **Current Stage:** **Stage 1: UI Foundation** (In Progress)
-- **Next Stage:** **Stage 2: Pre-Career Character Creation** (Characteristics, Homeworld, Background Skills)
-- **Target dev start:** **February 28, 2026**
-- **Design stance:** Non‑interactive, **click‑to‑generate** characters (with optional pre‑set parameters)
-- **Stage Duration:** **2 weeks per stage** with **1 week review/feedback buffer** between stages
-- **Development Model:** **Iterative with feedback loops** — stages can move back and forth based on testing results
+| Milestone | Scope | Status |
+|-----------|-------|--------|
+| **M1: UI Layout & Foundation** | Layout, tiles, PWA setup, basic character generation (characteristics) | 🎯 Current — In Progress |
+| **M2: Settings & Data Tables** | JSON + table editors, **career enable/disable**, all **15+ tables** (careers, events, mishaps, draft, anagathics, skills, equipment, races, etc.), rule toggles | ⏳ Pending |
+| **M2.5: Install UX & Settings System** | FR-021 (install prompt), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
+| **M2.6: Installed Version Control** | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
+| **M3: Full Career System** | All 24 careers, aging, mustering out, equipment | ⏳ Blocked on M2.6 |
+| **M4: Persistence & Export** | Character library, batch generation, JSON/Markdown/Text export | ⏳ Pending |
+
+**Design Stance:** Non-interactive, **click-to-generate** characters (with optional pre-set parameters)  
+**Development Model:** Iterative with feedback loops — milestones can iterate based on testing  
+**Target:** A Game Master can generate 20 characters in 10 minutes
 
 ---
 
@@ -16,7 +31,10 @@
 ### **Table of Contents**
 - [Status](#status)
 - [Overview](#overview)
+- [Why This Structure?](#why-this-structure)
 - [Definition of Done](#definition-of-done)
+- [M2.6: Installed Version Control](#m26-installed-version-control-new-milestone)
+- [Core Components](#core-components)
 - [Development Model](#development-model-iterative-with-feedback)
 - [Timeline](#timeline-accelerated---2-weeks-per-stage--1-week-review)
 - [Core Components](#core-components)
@@ -37,9 +55,50 @@ The **Cepheus Engine Character Generator (CECG)** is a modular, data‑driven ch
 
 ---
 
+## **Why This Structure?**
+
+This project adopts the **CE ShipGen milestone pattern** (M1 → M2 → M2.5 → M2.6 → M3 → M4) because it successfully separates:
+
+1. **M1-M2:** Core functionality (character generation, data editing)
+2. **M2.5:** Quality of life (install prompts, auto-save, CI/CD)
+3. **M2.6:** Version control for installed PWAs (user controls updates)
+4. **M3-M4:** Advanced features (complete careers, persistence)
+
+**Key Insight from CE ShipGen:** Users with installed PWAs need agency over when updates apply. A broken release could disrupt an active campaign mid-session. Version rollback is essential.
+
+---
+
+## **M2.6: Installed Version Control (New Milestone)**
+
+**Problem:** Users with the PWA installed locally have no control over when updates are applied. While the "Installed" badge shows the app is running standalone, users cannot:
+- See which version they have installed
+- Choose when to apply updates (updates apply automatically on page reload)
+- Roll back to previous versions if a new version has issues
+- Opt into beta/release channels for early access
+
+**Solution:** Version control system for installed PWA instances.
+
+**Features:**
+- **Version Display** — Show current version in Settings screen with build timestamp
+- **Update Prompt** — When new version available, show "Update Available" badge with changelog preview
+- **Update on Demand** — User controls when to update (not forced)
+- **Version History** — Keep last 3 versions cached, allow rollback if new version has issues
+- **Release Channels** — "Stable" (default) / "Beta" (early access) toggle in Settings
+- **Offline Version Cache** — Download new version in background, apply on next launch
+
+**Benefits:**
+- Users stay in control of their local instance
+- Campaign GMs can lock to specific version for consistency
+- Beta testers can opt into early releases
+- Broken releases can be rolled back without re-install
+
+---
+
 ## **Definition of Done**
 
 ### **The Ultimate Success Criteria**
+
+> **A Game Master or Player can generate 20 characters in 10 minutes and immediately use them in a game session.**
 
 > **A Game Master or Player can generate 20 characters in 10 minutes and immediately use them in a game session.**
 
@@ -813,32 +872,63 @@ if (career === 'scout' && benefitType === 'equipment') {
 
 ## **Milestones & Progress**
 
-| Stage | Milestone | Description | Progress (%) |
-|-------|-------------|-------------|--------------|
-| **1.0** | **UI Foundation** | Tile system, focus workflow, Mobile/Desktop toggle | 0% |
-| **↩️ 1.R** | **UI Review** | Feedback, device testing, iteration | 0% |
-| **2.0** | **Pre-Career: Characteristics** | Name (datetime), Gender, 6 Stats, DMs | 0% |
-| **2.1** | **Pre-Career: Homeworld** | Random homeworld, Background skills | 0% |
-| **↩️ 2.R** | **Pre-Career Review** | Integration testing Steps 1-2 | 0% |
-| **3.0** | **Settings Page** | Species, TL9, SOC, **Career cut-off**, **Term minimums** | 0% |
-| **3.1** | **First 7 Careers** | Drifter, Barbarian, Belter, Pirate, Rogue, Mercenary, Colonist | 0% |
-| **↩️ 3.R** | **Career Review** | **Test cut-off constraints**, term minimums | 0% |
-| **4.0** | **Character Export** | Text export with full roll history | 0% |
-| **4.1** | **Batch & CSV** | N characters, CSV with height/weight/build | 0% |
-| **↩️ 4.R** | **Export Review** | Data integrity check | 0% |
-| **5.0** | **Name Generator** | **20+ cultures**, height/weight/build database | 0% |
-| **5.1** | **Procedural Appearance** | Height, weight, build, culture, ethnicity | 0% |
-| **5.2** | **Integration Testing** | Test all generators with batch system | 0% |
-| **↩️ 5.R** | **Generator Review** | Consistency fixes | 0% |
-| **6.0** | **Mustering Out: Core** | Benefits rolling, cash vs. material | 0% |
-| **6.1** | **Mustering Testing** | **Test calculations**, edge cases | 0% |
-| **↩️ 6.R** | **Mustering Review** | **Verify all scenarios** | 0% |
-| **7.0** | **Item Database** | **Wiki database**, keywords, **Vacc Suit system**, **Lifepod system** | 0% |
-| **7.1** | **Item Testing** | **Test Vacc Suit**, **Lifepod mechanics** | 0% |
-| **↩️ 7.R** | **Item Review** | Equipment integration | 0% |
-| **8.0** | **Remaining 17 Careers** | Full career set (6 weeks) | 0% |
-| **8.1** | **Events & Mishaps** | Random events | 0% |
-| **9.0** | **Finalization** | PWA polish, final testing | 0% |
+### Current Milestone: M1 — UI Foundation
+
+**M1 Scope:**
+- [ ] Responsive layout (desktop/phone toggle)
+- [ ] Character sheet tile system with focus mode
+- [ ] Startup screen with navigation
+- [ ] Basic character generation (roll 2D6 for 6 characteristics)
+- [ ] PWA manifest and service worker
+- [ ] GitHub Pages deployment
+
+**Target Completion:** March 10, 2026
+
+---
+
+### Milestone Roadmap
+
+| Milestone | Key Deliverables | User Value |
+|-----------|-----------------|------------|
+| **M1** | UI layout, tiles, basic generation | See characters generated instantly |
+| **M2** | Settings, JSON editors, all data tables | Customize careers, skills, equipment |
+| **M2.5** | Install prompts, auto-save, snapshots | Install locally, save custom settings |
+| **M2.6** | Version control, update prompts, rollback | Control when to update, rollback if broken |
+| **M3** | All 24 careers, aging, mustering | Complete character generation |
+| **M4** | Character library, batch export, persistence | Generate 20 NPCs in 10 minutes |
+
+---
+
+### Data Table Management (From M2)
+
+Just like CE ShipGen's ship component tables, CECG uses JSON data tables for:
+
+| Table | Contents | User Can |
+|-------|----------|----------|
+| **Core Data** |
+| `races.json` | Species definitions (Human default) | Create custom races |
+| `careers.json` | 24 career paths | Edit, disable/enable, add custom careers |
+| **Career Simulation** |
+| `events.json` | Career events (promotions, windfalls) | Modify event outcomes |
+| `mishaps.json` | Career mishaps (injuries, scandals) | Adjust disaster severity |
+| `draft.json` | Draft/conscription table | Edit draft targets |
+| `anagathics.json` | Anti-aging drug costs & effects | Modify availability |
+| **Character Components** |
+| `skills.json` | All skills and categories | Modify skill definitions |
+| `equipment.json` | Weapons, armor, gear | Add custom equipment |
+| `benefits.json` | Mustering out rewards | Adjust cash/material benefits |
+| `conditions.json` | Wounds, injuries, aging | Modify medical outcomes |
+| **World & Background** |
+| `homeworlds.json` | World types and background skills | Add setting-specific worlds |
+| `names.json` | Name generators by culture | Add custom name lists |
+
+**Total:** 15+ editable tables covering every aspect of character generation
+
+**Data Management Pattern (from CE ShipGen):**
+- Factory defaults shipped in `data/*.json` (read-only)
+- User edits stored in localStorage (auto-save)
+- Settings snapshots for named configurations
+- Export/import for sharing custom content
 
 ---
 
