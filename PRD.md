@@ -1366,9 +1366,42 @@ These files are created and populated with canonical data during **M2: Settings 
     - Background skill options per world type
     - Toggle: Settings → Rules → "Use Mneme Homeworld Table"
 
-14. **`names.json`** — Name generators by culture/species
-    - Name tables for human cultures
-    - Alien species naming conventions
+14. **`names.json`** — Name generators by UNESCO cultural heritage
+    - **Cultural Heritage Groups:** Based on UNESCO documented cultures
+      - European (English, French, German, Spanish, Russian, etc.)
+      - Asian (Chinese, Japanese, Korean, Indian, Vietnamese, etc.)
+      - African (Nigerian, Ethiopian, Egyptian, etc.)
+      - Middle Eastern (Arabic, Persian, Hebrew, etc.)
+      - American (Native American, Latin American, etc.)
+      - Pacific (Polynesian, Maori, Aboriginal, etc.)
+    - **Gender Grouping:** Names organized by gender within each culture
+      - Male names array
+      - Female names array
+      - Unisex names array (where applicable)
+    - **Alien Species:** Non-human naming conventions for Vargr, Aslan, Droyne, etc.
+    - **Usage:** Character creation randomly selects from chosen culture/gender
+    - **Structure:**
+      ```json
+      {
+        "cultures": {
+          "english": {
+            "heritage": "European",
+            "male": ["James", "William", ...],
+            "female": ["Mary", "Elizabeth", ...],
+            "unisex": ["Alex", "Jordan", ...]
+          },
+          "japanese": {
+            "heritage": "Asian", 
+            "male": ["Kenji", "Takeshi", ...],
+            "female": ["Yuki", "Sakura", ...]
+          }
+        },
+        "alien_species": {
+          "vargr": { ... },
+          "aslan": { ... }
+        }
+      }
+      ```
 
 **Settings & Configuration:**
 
@@ -2137,14 +2170,27 @@ localStorage:
 | **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment, **Low-G Human species (Mneme)**, **advX/disX dice mechanic** | ⏳ Blocked on M2.7 |
 
 **M3 Testing Scope:**
-- **Phase 1 (Pre-Career Testing):** Test character creation through background selection, before career roll
+- **Phase 1 (Pre-Career):** Species, characteristics, name generation, background, homeworld, pre-career education
   - Species selection (Regular Human vs Low-G Human toggle)
   - Characteristic rolls (2D6, advX, disX)
+  - **Name Generator:** Cultural names based on UNESCO heritage, grouped by gender
   - Background selection (Space-only for Low-G humans)
   - Homeworld selection (CE vs Mneme tables)
   - Pre-career education (if applicable)
-- **Phase 2 (Career Testing):** Career generation, aging, mustering
-- **Phase 3 (Complete Character):** Equipment, final details, export
+  - **"Random Everything" Toggle:** Randomize all options for quick generation
+- **Phase 2 (Career):** Career selection with CE/Mneme rule toggle
+  - **Career Rules Toggle:** CE Rules As Written vs Mneme Variant
+    - **CE RAW:** Rejoining career requires qualification roll
+    - **Mneme:** Rejoining career automatic (no qualification roll)
+    - **Drifter:** Auto-qualification in both modes (selectable from dropdown)
+  - **Career Dropdown:** Select from available/enabled careers
+  - Survival, advancement, skills per term
+  - Aging (Term 5+)
+- **Phase 3 (Post-Career):** Mustering out, equipment, final details
+  - Benefits and cash
+  - Equipment assignment
+  - Final connections, wounds, name confirmation
+  - Export character
 | **M4: Persistence & Export** | Character library, batch generation, advanced export | ⏳ Pending |
 
 ---

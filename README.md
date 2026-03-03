@@ -31,6 +31,12 @@ A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop R
 - "Tables In Play" view to select which table drives each generation step
 - Export/import custom tables to share with other players
 - 15+ data tables (draft, survival mishaps, injury, medical bills, aging, anagathics, retirement pay, careers, skills, equipment, etc.)
+- **M3: Character Generation**
+  - "Random Everything" toggle for instant character generation
+  - UNESCO cultural heritage name generator (by gender)
+  - Species: Regular Human and Low-G Human (Mneme Variant with advX/disX rolls)
+  - Career rule toggle: CE Rules As Written vs Mneme (auto-rejoin, Drifter auto-qualify)
+  - Career dropdown selection with 24 careers
 
 ---
 
@@ -43,7 +49,7 @@ A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop R
 | **M2.5: Install UX** | PWA install prompt, auto-save, settings snapshots, CI/CD | ⏳ Pending |
 | **M2.6: Version Control** | Update prompts, version display, changelog, user-controlled updates | ⏳ Pending |
 | **M2.7: Tables In Play** | **List of active tables**, switch tables per category, **add/edit custom tables**, export/import | ⏳ Pending |
-| **M3: Full Careers** | All 24 careers, aging mechanics, mustering out, equipment | ⏳ Blocked on M2.7 |
+| **M3: Full Careers** | All 24 careers, aging, mustering, **advX/disX dice**, **Low-G Human**, **UNESCO name generator**, **career rule toggle (CE/Mneme)**, **"Random Everything" toggle** | ⏳ Blocked on M2.7 |
 | **M4: Library** | Character library, batch generation, advanced export | ⏳ Pending |
 
 ---
@@ -124,8 +130,33 @@ Like CE ShipGen, users can create **custom tables** and select which ones are "i
 - Community shares career packs via JSON files
 
 **Table Categories (all swappable):**
-- Draft, Survival Mishaps, Injury, Medical Bills, Aging, Anagathics, Retirement Pay
-- Careers, Skills, Equipment, Races, Homeworlds
+- Draft, Survival Mishaps, Injury, Medical Bills, Aging, Anagathics, Retirement Pay, SOC Table
+- Careers, Races, Backgrounds, Skills, Equipment, Homeworlds, Names
+
+### Character Generation (M3 — Coming Soon)
+
+**Three-Phase Generation:**
+
+**Phase 1: Pre-Career**
+- **"Random Everything" Toggle** — Instantly randomize all options
+- **Species Selection:** Regular Human (Terra/High-G) or Low-G Human (Mneme Variant)
+  - Low-G Humans: STR dis1, DEX adv1, END dis1, Zero-G skill, adapted for space
+- **Characteristic Rolls:** 2D6, with advX/disX for special species
+- **Name Generator:** Cultural names from UNESCO heritage, grouped by gender
+- **Background & Homeworld:** CE or Mneme variant tables
+
+**Phase 2: Career**
+- **Career Rules Toggle:** CE Rules As Written vs Mneme Variant
+  - CE: Rejoining requires qualification roll
+  - Mneme: Rejoining automatic (no roll needed)
+  - Drifter: Auto-qualification in both modes
+- **Career Dropdown:** Select from enabled careers
+- **Full Career System:** Enlistment, survival, advancement, skills, aging
+
+**Phase 3: Post-Career**
+- Mustering out (benefits & cash)
+- Equipment assignment
+- Final details and export
 
 ---
 
