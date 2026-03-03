@@ -841,19 +841,21 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
   - `aging.json` — Characteristic loss by age
   - `anagathics.json` — Anti-aging drugs (CE and Mneme variants)
   - `retirement_pay.json` — Pension by terms served
+  - `soc_table.json` — Social Standing effects (CE and Mneme variants)
 
 **Career Table:**
   - `careers.json` — All 24 careers with full rules data
 
 **Character Components:**
-  - `races.json` — Species definitions and modifiers
+  - `races.json` — Species definitions (humans + non-humans with abilities/traits)
+  - `backgrounds.json` — Character backgrounds and origins
   - `skills.json` — Skill definitions and categories
   - `equipment.json` — Weapons, armor, gear, assets
-  - `homeworlds.json` — World types with background skills
+  - `homeworlds.json` — World types (CE and Mneme variants)
   - `names.json` — Name generators by culture/species
 
 **Settings:**
-  - `rules.json` — Rule variants and house rules
+  - `rules.json` — Rule variants (CE/Mneme, psionics toggle)
   - `_summary.json` — Data catalog and index
 
 **Editor Features:**
@@ -964,13 +966,34 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - Drifter career has no qualification requirement
 - Automatic entry for all characters
 
-**6. Additional Mneme Rules (from reference docs):**
-- **Combat:** "Only Players Roll" system (NPCs use static numbers)
-- **Superiority System:** Tactics-based initiative (from Mneme Space Combat)
-- **MAC:** Multiple Attack Consolidation for faster combat
+**6. Mneme SOC Table (Social Standing)**
+- **Economic Tiers:** Each SOC level = x2 economic income multiplier
+- **Mneme Formula:** Income = Base × (2 ^ (SOC - 10))
+- **Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
+- **Implementation:** Use `soc_table.json` with Mneme variant data
+
+**7. Mneme Homeworlds Table**
+- Extended homeworld options with economic modifiers
+- Mneme-specific world classifications
+- **Implementation:** Use `homeworlds.json` with Mneme variant data
+
+**Individual Rule Toggles (Settings → Rules):**
+
+**Psionics Toggle:**
+- **Enable PSI:** Add PSI (Psionic Strength) as 7th characteristic
+- **Psionic Careers:** Enable psionic-specific careers (Psi-Warrior, Mindwalker, etc.)
+- **Psionic Skills:** Add Telepathy, Clairvoyance, Telekinesis, Awareness, etc.
+- **Toggle Location:** Settings → Rules → "Enable Psionics for Campaign"
+
+**Mneme Rule Selectors:**
+- Use Mneme SOC Table (vs CE SOC)
+- Use Mneme Homeworlds Table (vs CE Homeworlds)
+- Use Mneme Anagathics Rules (vs CE Anagathics)
+- Use Mneme Aging Rules (vs CE Aging)
 
 **Document References:**
 - Primary: `MNEME_SPACE_COMBAT_SUMMARY.md` — Complete Mneme rules summary
+- Mneme Character Creation: https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
 - Source: `ce-shipgen/PROJECT_NOTES.md` — Implementation lessons from CE ShipGen Mneme integration
 - Wiki: https://wiki.gi7b.org/Mneme_Space_Combat — Original Mneme rules
 
@@ -978,6 +1001,9 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - [ ] Toggle switches all relevant calculations
 - [ ] Anagathics costs, availability, and effects use Mneme variant rules when active
 - [ ] Aging mechanics use Mneme variant (Term 5 start)
+- [ ] SOC table switches between CE (titles) and Mneme (economic tiers) variants
+- [ ] Homeworlds table switches between CE and Mneme variants
+- [ ] Psionics toggle shows/hides PSI characteristic and psionic careers
 - [ ] UI indicates "Mneme Rules Active" when variant is selected
 - [ ] All document references are accurate and accessible
 
@@ -1279,114 +1305,64 @@ These files are created and populated with canonical data during **M2: Settings 
    - Multi-career retirement calculation
    - Pension modifiers by rank achieved
 
-**Career Table:**
-
-7. **`careers.json`** — ALL 24 Careers in ONE File
-   - **M2 Content:** Single comprehensive JSON file with metadata header
-   - **Structure:**
-     - `_metadata` header describing all careers in file
-     - Each career object with ID as key
-   
-   **Per-Career Fields:**
-   
-   **Basic Info:**
-   - `name` — Career name (string, primary key/identifier)
-   - `description` — Full career description (text)
-   - `enabled` — Boolean (active/inactive for generation)
-   - `category` — Military, Civilian, Criminal, Elite, etc.
-   
-   **Core Rolls:**
-   - `qualification` — { roll: "2D6", target: number, dm: {}, auto: boolean }
-   - `survival` — { roll: "2D6", target: number, dm: {} }
-   - `commission` — { roll: "2D6", target: number, dm: {} } (if applicable)
-   - `advancement` — { roll: "2D6", target: number, dm: {} }
-   - `reenlistment` — { roll: "2D6", target: number, automatic: boolean }
-   
-   **Ranks & Skills (6 fields):**
-   - `rank1` — { title: string, skill: string | null }
-   - `rank2` — { title: string, skill: string | null }
-   - `rank3` — { title: string, skill: string | null }
-   - `rank4` — { title: string, skill: string | null }
-   - `rank5` — { title: string, skill: string | null }
-   - `rank6` — { title: string, skill: string | null }
-   
-   **Material Benefits (6 columns):**
-   - `material_benefit1` — { roll: number, benefit: string, description: string }
-   - `material_benefit2` — { roll: number, benefit: string, description: string }
-   - `material_benefit3` — { roll: number, benefit: string, description: string }
-   - `material_benefit4` — { roll: number, benefit: string, description: string }
-   - `material_benefit5` — { roll: number, benefit: string, description: string }
-   - `material_benefit6` — { roll: number, benefit: string, description: string }
-   
-   **Cash Benefits (6 columns):**
-   - `cash_benefit1` — { roll: number, amount: number }
-   - `cash_benefit2` — { roll: number, amount: number }
-   - `cash_benefit3` — { roll: number, amount: number }
-   - `cash_benefit4` — { roll: number, amount: number }
-   - `cash_benefit5` — { roll: number, amount: number }
-   - `cash_benefit6` — { roll: number, amount: number }
-   
-   **Skills & Training - Personal Development (6 fields):**
-   - `personal_skill1` — Skill name or "+1 STR/DEX/END/INT/EDU/SOC"
-   - `personal_skill2` — Skill name
-   - `personal_skill3` — Skill name
-   - `personal_skill4` — Skill name
-   - `personal_skill5` — Skill name
-   - `personal_skill6` — Skill name
-   
-   **Skills & Training - Service Skills (6 fields):**
-   - `service_skill1` — Skill name
-   - `service_skill2` — Skill name
-   - `service_skill3` — Skill name
-   - `service_skill4` — Skill name
-   - `service_skill5` — Skill name
-   - `service_skill6` — Skill name
-   
-   **Skills & Training - Advanced Education (6 fields):**
-   - `advanced_skill1` — Skill name
-   - `advanced_skill2` — Skill name
-   - `advanced_skill3` — Skill name
-   - `advanced_skill4` — Skill name
-   - `advanced_skill5` — Skill name
-   - `advanced_skill6` — Skill name
+8. **`soc_table.json`** — Social Standing (SOC) Table
+   - **CE Standard:** SOC 1-15 with titles and effects
+   - **Mneme Variant:** SOC-based economic tiers (each level = x2 income)
+     - Reference: https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
+     - Economic calculations based on SOC
+   - **Toggle:** Settings → Rules → "Use Mneme SOC Table"
 
 **Character Components:**
 
-8. **`races.json`** — Species definitions with modifiers
-   - Default Human species (canonical CE definition)
-   - Structure: `id`, `name`, `modifiers` (characteristics), `traits`, `enabled` (boolean)
+9. **`races.json`** — Species definitions with modifiers
+   - **Default Human:** STR, DEX, END, INT, EDU, SOC base values
+   - **Optional PSI:** Psionic strength (toggle in settings for psionic campaigns)
+   - **Non-Human Species:**
+     - Abilities (unique racial capabilities)
+     - Traits (distinguishing characteristics)
+     - Modifiers (characteristic adjustments)
+   - Structure: `id`, `name`, `baseCharacteristics`, `abilities`, `traits`, `modifiers`, `enabled`
 
-9. **`skills.json`** — Skill definitions and categories
-   - All skills with descriptions
-   - Skill categories (Personal, Service, Specialist, Advanced)
-   - Cascade skills (Gun Combat → specific weapons)
+10. **`backgrounds.json`** — Character Backgrounds Table
+    - Pre-career backgrounds and origins
+- Background skills and starting equipment
+    - Connection to homeworld
+    - M2: Basic backgrounds, M3: Expanded backgrounds
 
-10. **`equipment.json`** — Weapons, armor, gear, assets
+11. **`skills.json`** — Skill definitions and categories
+    - All skills with descriptions
+    - Skill categories (Personal, Service, Specialist, Advanced)
+    - Cascade skills (Gun Combat → specific weapons)
+
+12. **`equipment.json`** — Weapons, armor, gear, assets
     - Weapons: damage, range, cost, TL, mass
     - Armor: protection, cost, TL
     - Gear: tools, survival equipment, medical
     - Assets: ship shares, property
 
-11. **`homeworlds.json`** — World types with background skills
-    - World classifications (High Tech, Low Tech, etc.)
+13. **`homeworlds.json`** — World types with background skills
+    - **CE Standard:** World classifications (High Tech, Low Tech, etc.)
+    - **Mneme Variant:** Extended homeworld options with economic modifiers
     - Background skill options per world type
+    - Toggle: Settings → Rules → "Use Mneme Homeworld Table"
 
-12. **`names.json`** — Name generators by culture/species
+14. **`names.json`** — Name generators by culture/species
     - Name tables for human cultures
     - Alien species naming conventions
 
 **Settings & Configuration:**
 
-13. **`rules.json`** — Rule variants and house rules
+15. **`rules.json`** — Rule variants and house rules
     - CE vs Mneme rule differences
     - Optional rules toggles
     - Custom rule definitions
+    - **Psionics Toggle:** Enable/disable PSI characteristic and psionic careers
 
-14. **`_summary.json`** — Data catalog and schema index
+16. **`_summary.json`** — Data catalog and schema index
     - Master list of all tables
     - Cross-references between tables
 
-**Total:** 15 core JSON tables with 300+ data entries
+**Total:** 16 core JSON tables with 400+ data entries
 
 ### 3.2 Data Schema
 
@@ -1912,11 +1888,14 @@ Users want to create **custom character tables** (house rules, alternate setting
 | **Aging** | `aging.json` | ✅ Yes |
 | **Anagathics** | `anagathics.json` | ✅ Yes |
 | **Retirement Pay** | `retirement_pay.json` | ✅ Yes |
+| **SOC Table** | `soc_table.json` | ✅ Yes — CE or Mneme variant |
 | **Careers** | `careers.json` | ✅ Yes — Can have multiple career packs |
+| **Races** | `races.json` | ✅ Yes — Humans + non-humans with abilities/traits |
+| **Backgrounds** | `backgrounds.json` | ✅ Yes |
 | **Skills** | `skills.json` | ✅ Yes |
 | **Equipment** | `equipment.json` | ✅ Yes |
-| **Races** | `races.json` | ✅ Yes |
-| **Homeworlds** | `homeworlds.json` | ✅ Yes |
+| **Homeworlds** | `homeworlds.json` | ✅ Yes — CE or Mneme variant |
+| **Names** | `names.json` | ✅ Yes |
 
 **Key Rule:** Each category has exactly ONE table "in play" at a time. Users can switch between canonical and custom tables per category.
 
