@@ -1927,6 +1927,20 @@ Preset object schema:
 4. `npm run build` (type-check gate)
 5. Deploy to `gh-pages` (only on push to main, not PRs)
 
+**CRITICAL: GitHub Pages Configuration**
+
+Repository must be configured to use `gh-pages` branch:
+1. Go to Settings → Pages
+2. Set "Build and deployment" source to:
+   - Option A: "GitHub Actions" (recommended)
+   - Option B: "Deploy from a branch" → Select `gh-pages` branch
+3. Do NOT use `main` branch (will serve old source files, not built files)
+
+**Common Issue:** If Pages shows old content or 404 errors, check that:
+- `vite.config.ts` has `base: '/cecharactergen/'`
+- Repository Settings → Pages uses `gh-pages` branch or GitHub Actions
+- Wait 5-10 minutes after deployment for propagation
+
 **PR behavior:** PRs trigger steps 1-4 only (build check, no deploy)
 
 **Benefits:**

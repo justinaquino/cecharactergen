@@ -584,6 +584,90 @@ ce_char_version_history  → [array] 2 versions
 
 ---
 
+## 6. Problems Faced & Solutions (March 3, 2026)
+
+### Problem 1: GitHub Pages Configuration
+**Issue:** Site not loading correctly at https://xunema.github.io/cecharactergen/
+- Repository was configured to deploy from `main` branch (root)
+- Workflow was creating `gh-pages` branch
+- Conflict: Pages serving old `index.html` from main instead of built files
+
+**Solution:**
+1. Go to Repository Settings → Pages
+2. Change "Build and deployment" source from "Deploy from a branch" to "GitHub Actions"
+3. OR change source branch from `main` to `gh-pages`
+4. Wait for deployment to propagate (5-10 minutes)
+
+**Lesson:** Always verify Pages settings match deployment workflow strategy
+
+---
+
+### Problem 2: Browser Cache Showing Old Content
+**Issue:** After successful deployment, still seeing old version
+- GitHub Pages has aggressive caching
+- Browser caches HTML/JS aggressively
+
+**Solution:**
+- Hard refresh: `Ctrl+F5` (Windows/Linux) or `Cmd+Shift+R` (Mac)
+- Open in Incognito/Private mode
+- Add cache-busting query params: `?t=1`
+
+**Lesson:** Always hard refresh after deployment, especially with SPAs
+
+---
+
+### Problem 3: Git Authentication in Environment
+**Issue:** Need to push to protected repository from CLI environment
+- No SSH keys configured
+- HTTPS requires authentication
+
+**Solution:**
+```bash
+# Temporarily set URL with token
+git remote set-url origin https://USERNAME:TOKEN@github.com/xunema/cecharactergen.git
+git push origin main
+
+# CRITICAL: Reset URL immediately after
+git remote set-url origin https://github.com/xunema/cecharactergen.git
+```
+
+**Security Note:** Never commit tokens to repository, always reset URL after push
+
+---
+
+### Problem 4: Vite Base Path Configuration
+**Issue:** Assets loading with wrong paths on GitHub Pages
+- GitHub Pages serves from subdirectory `/cecharactergen/`
+- Default Vite builds assume root `/`
+- Assets 404 because they tried to load from root
+
+**Solution:**
+```typescript
+// vite.config.ts
+export default defineConfig({
+  base: '/cecharactergen/',  // ← Critical for GitHub Pages
+  // ... rest of config
+})
+```
+
+**Lesson:** Always set `base` to match repository name for GitHub Pages
+
+---
+
+### Problem 5: Workflow Not Triggering New Build
+**Issue:** Pushed commits but gh-pages not updating
+- Workflow showed "nothing to commit, working tree clean"
+- dist/ folder wasn't being regenerated
+
+**Solution:**
+1. Make a dummy change to trigger rebuild
+2. Or manually trigger workflow from GitHub Actions tab
+3. Ensure `npm run build` actually rebuilds dist/
+
+**Lesson:** Vite builds are deterministic - same source = same output. Force new builds with meaningful changes.
+
+---
+
 ## Next Steps
 
 ### Immediate (This Week)

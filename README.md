@@ -169,10 +169,27 @@ Like CE ShipGen, users can create **custom tables** and select which ones are "i
 
 ---
 
+## 🛠️ Troubleshooting
+
+**Site not showing latest version?**
+- Hard refresh: `Ctrl+F5` (Windows/Linux) or `Cmd+Shift+R` (Mac)
+- Try Incognito/Private mode
+- Wait 5-10 minutes for GitHub Pages to propagate
+
+**404 errors on assets?**
+- Check `vite.config.ts` has `base: '/cecharactergen/'`
+- Verify GitHub Pages settings use `gh-pages` branch
+
+**Deployment issues?**
+- See [PROJECT_NOTES.md](./PROJECT_NOTES.md) Section 6: "Problems Faced & Solutions"
+
+---
+
 ## 📚 Documentation
 
-- [PRD.md](./PRD.md) — Product Requirements Document
-- [PROJECT_NOTES.md](./PROJECT_NOTES.md) — Development log and lessons learned
+- [PRD.md](./PRD.md) — Product Requirements Document with full specifications
+- [PROJECT_NOTES.md](./PROJECT_NOTES.md) — Development log, lessons learned, troubleshooting
+- [CE ShipGen](https://github.com/xunema/ce-shipgen) — Inspiration and pattern reference
 
 ---
 
