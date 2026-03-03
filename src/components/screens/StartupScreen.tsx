@@ -72,8 +72,49 @@ function StartupScreen() {
         </button>
       </div>
       
+      {/* Footer Links */}
+      <div className="mt-auto pt-8 pb-4 text-center">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-space-400">
+          <a 
+            href="https://github.com/xunema/cecharactergen" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-accent-cyan transition-colors"
+          >
+            📖 Source
+          </a>
+          <span className="text-space-600">|</span>
+          <a 
+            href="https://www.drivethrurpg.com/en/publisher/17858/game-in-the-brain" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-accent-cyan transition-colors"
+          >
+            📚 Our Books
+          </a>
+          <span className="text-space-600">|</span>
+          <a 
+            href="https://gi7b.org/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-accent-cyan transition-colors"
+          >
+            🌐 Blog
+          </a>
+          <span className="text-space-600">|</span>
+          <a 
+            href="https://wiki.gi7b.org/index.php/Main_Page" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-accent-cyan transition-colors"
+          >
+            📖 Wiki
+          </a>
+        </div>
+      </div>
+      
       {/* Version Info */}
-      <div className="mt-auto pt-8 text-center text-xs text-space-500">
+      <div className="pt-4 text-center text-xs text-space-500">
         <p>Version 0.1.0-dev | M1: UI Foundation</p>
         <p className="mt-1">Built with React + Vite + Tailwind</p>
       </div>

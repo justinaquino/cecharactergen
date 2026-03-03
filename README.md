@@ -160,6 +160,15 @@ Like CE ShipGen, users can create **custom tables** and select which ones are "i
 
 ---
 
+## 🔗 Links
+
+- [📖 **Source Code**](https://github.com/xunema/cecharactergen) — GitHub Repository
+- [📚 **Our Books**](https://www.drivethrurpg.com/en/publisher/17858/game-in-the-brain) — Game in the Brain on DriveThruRPG
+- [🌐 **Blog**](https://gi7b.org/) — Game in the Brain Blog
+- [📖 **Wiki**](https://wiki.gi7b.org/index.php/Main_Page) — Game in the Brain Wiki
+
+---
+
 ## 📚 Documentation
 
 - [PRD.md](./PRD.md) — Product Requirements Document
@@ -175,4 +184,4 @@ GPL v3 — See [LICENSE](./LICENSE)
 
 **Built with:** React + TypeScript + Vite + Tailwind CSS
 
-**Inspired by:** [CE ShipGen](https://github.com/xunema/ce-shipgen)# Build trigger Tue Mar  3 08:21:14 PM PST 2026
+**Inspired by:** [CE ShipGen](https://github.com/xunema/ce-shipgen)
