@@ -64,24 +64,8 @@ npm run build
 cecharactergen/
 ├── data/                    # JSON data tables
 │   ├── races.json          # Species definitions
-│   ├── careers.json        # Career paths (3 examples)
+│   ├── careers.json        # ALL 24 careers in ONE file with metadata header
 │   └── skills.json         # Skill definitions
-├── public/                 # Static assets
-│   └── manifest.json       # PWA manifest
-├── src/
-│   ├── components/
-│   │   ├── screens/        # Main views
-│   │   │   ├── StartupScreen.tsx
-│   │   │   ├── CharacterGenerationView.tsx
-│   │   │   ├── LibraryView.tsx
-│   │   │   └── SettingsScreen.tsx
-│   │   └── shared/         # Shared components
-│   │       └── Header.tsx   # Navigation + layout toggle
-│   ├── App.tsx             # Router setup
-│   └── index.css           # Tailwind styles
-├── tailwind.config.js      # Space theme colors
-├── vite.config.ts          # Build config
-└── package.json
 ```
 
 ---
