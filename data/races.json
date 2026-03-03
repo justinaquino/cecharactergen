@@ -1,0 +1,31 @@
+{
+  "human": {
+    "id": "human",
+    "name": "Human",
+    "enabled": true,
+    "description": "The standard human species from Earth and its colonies. Humans are the baseline for all characteristics.",
+    "modifiers": {
+      "characteristics": {
+        "str": 0,
+        "dex": 0,
+        "end": 0,
+        "int": 0,
+        "edu": 0,
+        "soc": 0
+      }
+    },
+    "traits": [
+      "Adaptive: Humans can survive in any environment",
+      "Standard: No special advantages or disadvantages"
+    ],
+    "homeworlds": ["Any"],
+    "height": {
+      "baseCm": 170,
+      "variance": "2d6-7"
+    },
+    "weight": {
+      "baseKg": 70,
+      "variance": "2d6-7"
+    }
+  }
+}

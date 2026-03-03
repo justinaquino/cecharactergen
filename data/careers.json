@@ -1,0 +1,719 @@
+{
+  "drifter": {
+    "id": "drifter",
+    "name": "Drifter",
+    "enabled": true,
+    "category": "civilian",
+    "description": "Wanderers, travellers, and those who live on the fringes of society without a fixed home or career.",
+    "qualification": {
+      "roll": "2D6",
+      "target": 0,
+      "dm": {},
+      "auto": true,
+      "description": "Automatic entry - anyone can be a drifter"
+    },
+    "survival": {
+      "roll": "2D6",
+      "target": 6,
+      "dm": {
+        "end": 1
+      },
+      "description": "Roll 2D6 + END DM vs 6"
+    },
+    "advancement": {
+      "roll": "2D6",
+      "target": 7,
+      "dm": {
+        "int": 1
+      },
+      "description": "Roll 2D6 + INT DM vs 7"
+    },
+    "skills": {
+      "personal": [
+        "+1 STR",
+        "+1 DEX",
+        "+1 END",
+        "+1 INT",
+        "+1 EDU",
+        "+1 SOC"
+      ],
+      "service": [
+        "Athletics",
+        "Melee",
+        "Recon",
+        "Streetwise",
+        "Survival",
+        "Vacc Suit"
+      ],
+      "specialist": [
+        "Engineer",
+        "Gun Combat",
+        "Melee",
+        "Recon",
+        "Stealth",
+        "Survival"
+      ],
+      "advanced": [
+        "Leadership",
+        "Tactics",
+        "Deception",
+        "Persuade",
+        "Streetwise",
+        "Jack of all Trades"
+      ]
+    },
+    "ranks": [
+      {
+        "level": 0,
+        "title": "Wanderer",
+        "skill": null
+      },
+      {
+        "level": 1,
+        "title": "Vagabond",
+        "skill": "Streetwise 1"
+      },
+      {
+        "level": 2,
+        "title": "Traveller",
+        "skill": "Deception 1"
+      },
+      {
+        "level": 3,
+        "title": "Itinerant",
+        "skill": null
+      },
+      {
+        "level": 4,
+        "title": "Wayfarer",
+        "skill": "Jack of all Trades 1"
+      },
+      {
+        "level": 5,
+        "title": "Nomad",
+        "skill": null
+      },
+      {
+        "level": 6,
+        "title": "Gypsy",
+        "skill": "Survival 1"
+      }
+    ],
+    "mustering": {
+      "cash": [
+        1000,
+        5000,
+        10000,
+        10000,
+        20000,
+        50000,
+        100000
+      ],
+      "benefits": [
+        {
+          "roll": 1,
+          "benefit": "Contact",
+          "description": "Gain a contact in the underworld"
+        },
+        {
+          "roll": 2,
+          "benefit": "Weapon",
+          "description": "Any personal weapon"
+        },
+        {
+          "roll": 3,
+          "benefit": "Alliance",
+          "description": "Gain an ally in a criminal organization"
+        },
+        {
+          "roll": 4,
+          "benefit": "Ship Share",
+          "description": "One share in a ship"
+        },
+        {
+          "roll": 5,
+          "benefit": "Ship Share",
+          "description": "One share in a ship"
+        },
+        {
+          "roll": 6,
+          "benefit": "Life Insurance",
+          "description": "Insurance policy pays out to next of kin"
+        },
+        {
+          "roll": 7,
+          "benefit": "Life Insurance +2",
+          "description": "Insurance policy pays double"
+        }
+      ]
+    },
+    "events": [
+      {
+        "roll": 2,
+        "event": "Disaster!",
+        "description": "Roll on the mishap table but you are not ejected from this career"
+      },
+      {
+        "roll": 3,
+        "event": "Street Contacts",
+        "description": "Gain Streetwise 1 and a contact in the criminal underworld"
+      },
+      {
+        "roll": 4,
+        "event": "Survival Training",
+        "description": "Gain Survival 1"
+      },
+      {
+        "roll": 5,
+        "event": "Close Call",
+        "description": "You survive a dangerous situation. Gain an ally"
+      },
+      {
+        "roll": 6,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 7,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 8,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 9,
+        "event": "Criminal Connections",
+        "description": "Gain a contact in a criminal organization"
+      },
+      {
+        "roll": 10,
+        "event": "Brush with Authority",
+        "description": "Gain Deception 1 or Persuade 1"
+      },
+      {
+        "roll": 11,
+        "event": "Gamble",
+        "description": "You win a gamble. Gain DM+1 to any one benefit roll"
+      },
+      {
+        "roll": 12,
+        "event": "Windfall",
+        "description": "You come into money. Gain DM+2 to any one benefit roll"
+      }
+    ],
+    "mishaps": [
+      {
+        "roll": 1,
+        "mishap": "Injury",
+        "description": "Severely injured in an accident or fight. Roll twice on the Injury table and take the lower result"
+      },
+      {
+        "roll": 2,
+        "mishap": "Legal Trouble",
+        "description": "You are arrested and charged with a crime. Lose one benefit roll"
+      },
+      {
+        "roll": 3,
+        "mishap": "Enemy",
+        "description": "You make an enemy in the criminal underworld"
+      },
+      {
+        "roll": 4,
+        "mishap": "Betrayal",
+        "description": "You are betrayed by a criminal associate. Gain an enemy"
+      },
+      {
+        "roll": 5,
+        "mishap": "Hard Times",
+        "description": "Times are hard. No benefit roll this term"
+      },
+      {
+        "roll": 6,
+        "mishap": "Injury",
+        "description": "Injured. Roll on the Injury table"
+      }
+    ]
+  },
+  "marine": {
+    "id": "marine",
+    "name": "Marine",
+    "enabled": true,
+    "category": "military",
+    "description": "The Marines are the elite fighting forces of the Imperium, trained for boarding actions and planetary assault.",
+    "qualification": {
+      "roll": "2D6",
+      "target": 6,
+      "dm": {
+        "end": 1,
+        "str": 1
+      },
+      "description": "Roll 2D6 + END or STR DM vs 6"
+    },
+    "survival": {
+      "roll": "2D6",
+      "target": 6,
+      "dm": {
+        "end": 2
+      },
+      "description": "Roll 2D6 + END DM vs 6"
+    },
+    "advancement": {
+      "roll": "2D6",
+      "target": 6,
+      "dm": {
+        "edu": 1
+      },
+      "description": "Roll 2D6 + EDU DM vs 6"
+    },
+    "skills": {
+      "personal": [
+        "+1 STR",
+        "+1 DEX",
+        "+1 END",
+        "+1 INT",
+        "+1 EDU",
+        "+1 SOC"
+      ],
+      "service": [
+        "Athletics",
+        "Vacc Suit",
+        "Tactics",
+        "Heavy Weapons",
+        "Gun Combat",
+        "Stealth"
+      ],
+      "specialist": [
+        "Engineer",
+        "Gunner",
+        "Melee",
+        "Gun Combat",
+        "Explosives",
+        "Recon"
+      ],
+      "advanced": [
+        "Leadership",
+        "Tactics",
+        "Navigation",
+        "Admin",
+        "Advocate",
+        "Pilot"
+      ]
+    },
+    "ranks": [
+      {
+        "level": 0,
+        "title": "Marine",
+        "skill": null
+      },
+      {
+        "level": 1,
+        "title": "Lance Corporal",
+        "skill": "Gun Combat 1"
+      },
+      {
+        "level": 2,
+        "title": "Corporal",
+        "skill": "Melee 1"
+      },
+      {
+        "level": 3,
+        "title": "Lance Sergeant",
+        "skill": "Leadership 1"
+      },
+      {
+        "level": 4,
+        "title": "Sergeant",
+        "skill": null
+      },
+      {
+        "level": 5,
+        "title": "Gunnery Sergeant",
+        "skill": null
+      },
+      {
+        "level": 6,
+        "title": "Sergeant Major",
+        "skill": "Tactics 1"
+      }
+    ],
+    "mustering": {
+      "cash": [
+        2000,
+        5000,
+        10000,
+        20000,
+        30000,
+        40000,
+        50000
+      ],
+      "benefits": [
+        {
+          "roll": 1,
+          "benefit": "Weapon",
+          "description": "Any weapon"
+        },
+        {
+          "roll": 2,
+          "benefit": "Armor",
+          "description": "Combat armor"
+        },
+        {
+          "roll": 3,
+          "benefit": "Weapon",
+          "description": "Any weapon"
+        },
+        {
+          "roll": 4,
+          "benefit": "Ship Share",
+          "description": "One share in a ship"
+        },
+        {
+          "roll": 5,
+          "benefit": "Retirement Pay",
+          "description": "Pension of 2000 per year"
+        },
+        {
+          "roll": 6,
+          "benefit": "Retirement Pay",
+          "description": "Pension of 3000 per year"
+        },
+        {
+          "roll": 7,
+          "benefit": "Retirement Pay",
+          "description": "Pension of 4000 per year"
+        }
+      ]
+    },
+    "events": [
+      {
+        "roll": 2,
+        "event": "Disaster!",
+        "description": "Roll on the mishap table but you are not ejected from this career"
+      },
+      {
+        "roll": 3,
+        "event": "Specialist Training",
+        "description": "Gain Heavy Weapons 1 or Gun Combat 1"
+      },
+      {
+        "roll": 4,
+        "event": "Advanced Training",
+        "description": "Gain Tactics 1 or Leadership 1"
+      },
+      {
+        "roll": 5,
+        "event": "Boarding Action",
+        "description": "Gain Vacc Suit 1 and a contact in the navy"
+      },
+      {
+        "roll": 6,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 7,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 8,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 9,
+        "event": "Planetary Assault",
+        "description": "Gain Recon 1 and a battle wound (roll on Injury table)"
+      },
+      {
+        "roll": 10,
+        "event": "Command",
+        "description": "Gain Leadership 1 or Admin 1"
+      },
+      {
+        "roll": 11,
+        "event": "Heroic Action",
+        "description": "Gain DM+2 to advancement roll this term"
+      },
+      {
+        "roll": 12,
+        "event": "Decorated",
+        "description": "Gain DM+4 to advancement roll this term"
+      }
+    ],
+    "mishaps": [
+      {
+        "roll": 1,
+        "mishap": "Severely Injured",
+        "description": "Roll twice on the Injury table and take the lower result"
+      },
+      {
+        "roll": 2,
+        "mishap": "Psychological Trauma",
+        "description": "You suffer from combat stress. Reduce SOC by 1"
+      },
+      {
+        "roll": 3,
+        "mishap": "Court Martial",
+        "description": "You are convicted of a crime. Lose all benefits"
+      },
+      {
+        "roll": 4,
+        "mishap": "Discharged",
+        "description": "Dishonourable discharge. Lose one benefit roll"
+      },
+      {
+        "roll": 5,
+        "mishap": "Injured",
+        "description": "Roll on the Injury table"
+      },
+      {
+        "roll": 6,
+        "mishap": "Injured",
+        "description": "Roll on the Injury table"
+      }
+    ]
+  },
+  "scout": {
+    "id": "scout",
+    "name": "Scout",
+    "enabled": true,
+    "category": "exploration",
+    "description": "The Scouts explore uncharted worlds and map unknown regions of space. They often work alone in dangerous environments.",
+    "qualification": {
+      "roll": "2D6",
+      "target": 5,
+      "dm": {
+        "int": 1
+      },
+      "description": "Roll 2D6 + INT DM vs 5"
+    },
+    "survival": {
+      "roll": "2D6",
+      "target": 7,
+      "dm": {
+        "int": 2
+      },
+      "description": "Roll 2D6 + INT DM vs 7"
+    },
+    "advancement": {
+      "roll": "2D6",
+      "target": 8,
+      "dm": {
+        "edu": 1
+      },
+      "description": "Roll 2D6 + EDU DM vs 8"
+    },
+    "skills": {
+      "personal": [
+        "+1 STR",
+        "+1 DEX",
+        "+1 END",
+        "+1 INT",
+        "+1 EDU",
+        "+1 SOC"
+      ],
+      "service": [
+        "Pilot",
+        "Survival",
+        "Mechanic",
+        "Astrogation",
+        "Sensors",
+        "Recon"
+      ],
+      "specialist": [
+        "Pilot",
+        "Engineer",
+        "Gun Combat",
+        "Sensors",
+        "Navigation",
+        "Survival"
+      ],
+      "advanced": [
+        "Pilot",
+        "Navigation",
+        "Engineer",
+        "Sensors",
+        "Survival",
+        "Jack of all Trades"
+      ]
+    },
+    "ranks": [
+      {
+        "level": 0,
+        "title": "Scout",
+        "skill": "Pilot 1"
+      },
+      {
+        "level": 1,
+        "title": "Junior Explorer",
+        "skill": "Survival 1"
+      },
+      {
+        "level": 2,
+        "title": "Explorer",
+        "skill": null
+      },
+      {
+        "level": 3,
+        "title": "Senior Explorer",
+        "skill": "Astrogation 1"
+      },
+      {
+        "level": 4,
+        "title": "Chief Explorer",
+        "skill": null
+      },
+      {
+        "level": 5,
+        "title": "Master Explorer",
+        "skill": null
+      },
+      {
+        "level": 6,
+        "title": "Scout Commander",
+        "skill": "Leadership 1"
+      }
+    ],
+    "mustering": {
+      "cash": [
+        20000,
+        20000,
+        40000,
+        40000,
+        60000,
+        100000,
+        100000
+      ],
+      "benefits": [
+        {
+          "roll": 1,
+          "benefit": "Ship",
+          "description": "Scout ship (must pay 10% maintenance per year)"
+        },
+        {
+          "roll": 2,
+          "benefit": "Ship",
+          "description": "Scout ship (must pay 10% maintenance per year)"
+        },
+        {
+          "roll": 3,
+          "benefit": "Ship",
+          "description": "Scout ship (must pay 10% maintenance per year)"
+        },
+        {
+          "roll": 4,
+          "benefit": "Weapon",
+          "description": "Any weapon"
+        },
+        {
+          "roll": 5,
+          "benefit": "Explorers Society",
+          "description": "Membership in the Explorers Society"
+        },
+        {
+          "roll": 6,
+          "benefit": "Starport Access",
+          "description": "Lifetime access to all scout facilities"
+        },
+        {
+          "roll": 7,
+          "benefit": "Scout Pension",
+          "description": "Pension of 10000 per year"
+        }
+      ]
+    },
+    "events": [
+      {
+        "roll": 2,
+        "event": "Disaster!",
+        "description": "Roll on the mishap table but you are not ejected from this career"
+      },
+      {
+        "roll": 3,
+        "event": "New World",
+        "description": "You discover a new world. Gain DM+1 to any one benefit roll"
+      },
+      {
+        "roll": 4,
+        "event": "Alien Contact",
+        "description": "You make contact with an alien race. Gain a contact"
+      },
+      {
+        "roll": 5,
+        "event": "Survey Team",
+        "description": "Lead a planetary survey. Gain Sensors 1 or Navigation 1"
+      },
+      {
+        "roll": 6,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 7,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 8,
+        "event": "Life Event",
+        "description": "Roll on the Life Events table"
+      },
+      {
+        "roll": 9,
+        "event": "Dangerous World",
+        "description": "Survive a dangerous environment. Gain Survival 1 or Recon 1"
+      },
+      {
+        "roll": 10,
+        "event": "Scientific Discovery",
+        "description": "Make a discovery. Gain EDU +1 or a scientific skill"
+      },
+      {
+        "roll": 11,
+        "event": "Exploration Success",
+        "description": "Gain DM+2 to advancement roll this term"
+      },
+      {
+        "roll": 12,
+        "event": "Major Discovery",
+        "description": "Gain DM+4 to advancement roll and DM+2 to one benefit roll"
+      }
+    ],
+    "mishaps": [
+      {
+        "roll": 1,
+        "mishap": "Ship Destroyed",
+        "description": "Your ship is destroyed. Roll twice on Injury table and take lower"
+      },
+      {
+        "roll": 2,
+        "mishap": "Lost",
+        "description": "You are lost in space for months. No benefit roll this term"
+      },
+      {
+        "roll": 3,
+        "mishap": "Hostile Alien",
+        "description": "Attacked by hostile aliens. Roll on Injury table"
+      },
+      {
+        "roll": 4,
+        "mishap": "Equipment Failure",
+        "description": "Stranded due to equipment failure. Lose one benefit roll"
+      },
+      {
+        "roll": 5,
+        "mishap": "Injured",
+        "description": "Roll on the Injury table"
+      },
+      {
+        "roll": 6,
+        "mishap": "Injured",
+        "description": "Roll on the Injury table"
+      }
+    ]
+  }
+}

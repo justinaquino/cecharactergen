@@ -1,0 +1,38 @@
+{
+  "strength": {
+    "id": "strength",
+    "name": "Strength",
+    "category": "physical",
+    "description": "Physical strength and muscle power"
+  },
+  "dexterity": {
+    "id": "dexterity",
+    "name": "Dexterity",
+    "category": "physical",
+    "description": "Agility and hand-eye coordination"
+  },
+  "endurance": {
+    "id": "endurance",
+    "name": "Endurance",
+    "category": "physical",
+    "description": "Stamina and resistance to fatigue"
+  },
+  "intellect": {
+    "id": "intellect",
+    "name": "Intellect",
+    "category": "mental",
+    "description": "Intelligence and cognitive ability"
+  },
+  "education": {
+    "id": "education",
+    "name": "Education",
+    "category": "mental",
+    "description": "Level of formal schooling and training"
+  },
+  "social_standing": {
+    "id": "social_standing",
+    "name": "Social Standing",
+    "category": "social",
+    "description": "Nobility, rank, and social class"
+  }
+}
