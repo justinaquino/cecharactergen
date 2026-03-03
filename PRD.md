@@ -42,31 +42,108 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 **Species Selection (at start of character creation):**
 - **Toggle:** "Random Everything" — Instantly randomize all options for quick generation
 
-**1A. Choose Species:**
-- **Terrestrial Human (Standard):** 
-  - Born on Terra or High-G habitats (MAGICIANS, terrestrial spin gravity habitats of 0.9G+)
-  - Characteristics: Roll 2D6 for STR, DEX, END, INT, EDU, SOC
-  - Standard human with no modifiers
-  - All backgrounds available
-  
-- **Low-G Human (Mneme Variant):**
-  - Description: Specially adapted for low-G conditions with cardiovascular and bone modifications to survive in space habitats of 0.3-0.6G. 1/2 the weight of a normal human at the same height.
-  - **Characteristic Rolls:**
-    - STR: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Bone density reduced
-    - DEX: `adv1` (advantage 1) — Roll 3d6, keep highest 2 — Adapted to free-fall movement
-    - END: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Cardiovascular modifications
-    - INT: 2D6 (standard)
-    - EDU: 2D6 (standard)
-    - SOC: 2D6-1 (roll standard, subtract 1) — Social stigma of spacer heritage
-  - **Starting Skills:**
-    - Zero-G: Level 2
-    - Vacc Suit: Level 1
-    - Survival (Habitat): Level 1
-  - **Penalties:**
-    - Move -1 in 0.7G or higher gravity
-    - Cannot function normally in High-G environments
-  - **Backgrounds:** Only Space backgrounds available
-  - **Toggle:** Settings → Rules → "Use Low-G Human (Mneme Variant)"
+**1A. Choose Species (Human Options):**
+
+**Terrestrial Human (Standard):** 
+- Born on Terra or High-G habitats (MAGICIANS, terrestrial spin gravity habitats of 0.9G+)
+- Description: Standard humans from Earth-like environments or high-gravity habitats
+- Characteristics: Roll 2D6 for all six characteristics (STR, DEX, END, INT, EDU, SOC)
+- Standard human with no racial modifiers or special traits
+- All backgrounds available (Planetary and Space)
+- **Toggle:** Default human selection
+
+**Low-G Human (Mneme Variant):**
+- Born in low-G habitats (0.3-0.6G space stations, orbital habitats)
+- Description: Specially adapted for low-G conditions with cardiovascular and bone modifications to survive in reduced gravity environments. 1/2 the weight of a normal human at the same height. Considered a separate species variant in Mneme CE.
+- **Characteristic Rolls:**
+  - STR: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Bone density reduced
+  - DEX: `adv1` (advantage 1) — Roll 3d6, keep highest 2 — Adapted to free-fall movement
+  - END: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Cardiovascular modifications
+  - INT: 2D6 (standard roll)
+  - EDU: 2D6 (standard roll)
+  - SOC: 2D6-1 (roll standard, subtract 1) — Social stigma of spacer heritage
+- **Starting Skills:**
+  - Zero-G: Level 2
+  - Vacc Suit: Level 1
+  - Survival (Habitat): Level 1
+- **Penalties:**
+  - Move -1 in 0.7G or higher gravity
+  - Cannot function normally in High-G environments (1.0G+)
+- **Backgrounds:** Only Space backgrounds available (no planetary origins)
+- **Toggle:** Settings → Rules → "Use Low-G Human (Mneme Variant)"
+
+**Esper (Psionic Human):**
+- Description: Humans or near-human humanoids that have embraced the commonplace usage of psionics. Espers tend to be tall and slender in build, and their aloof and detached nature makes them inscrutable to other humans not of their culture. They often have a mystical or philosophical bent to their natures.
+- **Physical Traits:**
+  - Tall and slender build
+  - Aloof and detached demeanor
+  - Inscrutable to non-psionic humans
+- **Special Abilities:**
+  - Psionic Strength (PSI) characteristic — 7th characteristic
+  - Access to psionic talents and careers (Psi-Warrior, Mindwalker, etc.)
+  - Psionic skills: Telepathy, Clairvoyance, Telekinesis, Awareness
+- **Characteristic Rolls:**
+  - Standard 2D6 for STR, DEX, END, INT, EDU, SOC
+  - PSI: Generated separately when psionics are learned (requires Referee permission)
+- **Toggle:** Settings → Rules → "Enable Psionics for Campaign" → makes Esper option available
+- **Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
+
+**Merfolk (Water-Adapted Human):**
+- Description: Genetically manipulated from pure human stock to live on waterworlds. Merfolk bear less and less resemblance with their genetic ancestors with each passing generation. The changes include skin coloration toward pale greens and blues, combined with the presence of their gills, webbed appendages and a thin layer of protective blubber.
+- **Physical Traits:**
+  - Pale green/blue skin coloration
+  - Visible gills
+  - Webbed hands and feet
+  - Thin layer of protective blubber
+  - Amphibian-like appearance
+- **Special Abilities:**
+  - **Amphibious:** Can breathe both air and water
+  - **Aquatic:** Can function underwater without penalty
+  - **Natural Swimmer:** Enhanced swimming capabilities
+- **Limitations:**
+  - **Water Dependent:** Must immerse in water regularly (weekly minimum) or suffer penalties
+- **Characteristic Rolls:**
+  - Standard 2D6 for all characteristics
+- **Starting Skills:**
+  - Watercraft: Level 1
+  - Animals (Aquatic): Level 1
+  - Survival (Ocean): Level 1
+- **Backgrounds:** Water World only
+- **Toggle:** Settings → Rules → "Enable Merfolk (Water-Adapted Humans)"
+- **Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
+
+**Species Selection UI:**
+```
+┌────────────────────────────────────────────────────────────┐
+│ STEP 1: SPECIES SELECTION                                   │
+├────────────────────────────────────────────────────────────┤
+│                                                             │
+│ [✓] Random Everything (Instant generation)                │
+│                                                             │
+│ SELECT SPECIES:                                            │
+│ ○ Terrestrial Human (Standard) — Terra/High-G birth      │
+│   • Standard 2D6 for all characteristics                   │
+│   • All backgrounds available                            │
+│                                                             │
+│ ○ Low-G Human (Mneme Variant) — Space habitat birth      │
+│   • STR dis1, DEX adv1, END dis1, SOC-1                   │
+│   • Zero-G 2, Vacc Suit 1, Survival (Habitat) 1            │
+│   • Move -1 in 0.7G+                                      │
+│   • Space backgrounds only                                 │
+│                                                             │
+│ ○ Esper (Psionic Human) — [Requires Psionics Toggle]       │
+│   • Tall, slender build                                   │
+│   • PSI characteristic (7th stat)                         │
+│   • Access to psionic talents                             │
+│                                                             │
+│ ○ Merfolk (Water-Adapted) — [Requires Merfolk Toggle]    │
+│   • Amphibious, gills, webbed appendages                   │
+│   • Water Dependent                                        │
+│   • Water World backgrounds only                           │
+│                                                             │
+│ [Next: Roll Characteristics →]                              │
+└────────────────────────────────────────────────────────────┘
+```
 
 **1B. Roll Characteristics:**
 
