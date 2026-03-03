@@ -1846,12 +1846,12 @@ Build: March 3, 2026 14:30 UTC
 
 | Milestone | Scope | Status |
 |-----------|-------|--------|
-| M1: UI Layout & Foundation | Layout, tiles, PWA setup, basic generation, **FR-027 Test Page** | 🎯 Current — In Progress |
-| M2: Settings & Data Tables | JSON + table editors, **career enable/disable**, all 10+ tables, rule toggles | ⏳ Pending |
-| M2.5: Install UX & Settings System | FR-021 (install), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
-| M2.6: Installed Version Control | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
-| M3: Full Career System | All 24 careers, aging, mustering out, equipment | ⏳ Pending |
-| M4: Persistence & Export | Character library, batch generation, advanced export | ⏳ Pending |
+| **M1: UI Layout & Foundation** | Layout, tiles, PWA setup, React Router, Header, StartupScreen, CharacterGenerationView | ✅ **Complete** |
+| **M2: Settings & Data Tables** | JSON + table editors, **career enable/disable**, **15+ tables** (draft, survival_mishaps, injury, medical_bills, aging, anagathics, retirement_pay, careers, skills, equipment, etc.), rule toggles | 🎯 **Current — In Progress** |
+| **M2.5: Install UX & Settings System** | FR-021 (install), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
+| **M2.6: Installed Version Control** | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
+| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment | ⏳ Blocked on M2.6 |
+| **M4: Persistence & Export** | Character library, batch generation, advanced export | ⏳ Pending |
 
 ---
 

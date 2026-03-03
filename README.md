@@ -30,11 +30,11 @@ A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop R
 
 | Milestone | Scope | Status |
 |-----------|-------|--------|
-| **M1: UI Foundation** | Layout, tiles, PWA setup, basic structure | 🎯 In Progress |
-| **M2: Data Tables** | JSON editors, career enable/disable, 15+ tables | ⏳ Pending |
+| **M1: UI Foundation** | Layout, tiles, PWA setup, React Router, all views | ✅ **Complete** |
+| **M2: Data Tables** | JSON editors, career enable/disable, 15+ tables, rule toggles | 🎯 **In Progress** |
 | **M2.5: Install UX** | PWA install, auto-save, snapshots | ⏳ Pending |
-| **M2.6: Version Control** | Update prompts, rollback | ⏳ Pending |
-| **M3: Full Careers** | All 24 careers, aging, mustering | ⏳ Blocked |
+| **M2.6: Version Control** | Update prompts, rollback, release channels | ⏳ Pending |
+| **M3: Full Careers** | All 24 careers, aging, mustering, equipment | ⏳ Blocked |
 | **M4: Library** | Character library, batch export | ⏳ Pending |
 
 ---
