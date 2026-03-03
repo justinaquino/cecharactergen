@@ -1,73 +1,124 @@
-# React + TypeScript + Vite
+# CE CharacterGen
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Cepheus Engine Character Generator** — A Progressive Web App for generating characters
 
-Currently, two official plugins are available:
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://xunema.github.io/cecharactergen/)
+[![Status](https://img.shields.io/badge/Status-M1%20In%20Progress-yellow)](https://github.com/xunema/cecharactergen)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Live Demo:** https://xunema.github.io/cecharactergen/
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🎯 Overview
 
-## Expanding the ESLint configuration
+A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop RPG characters. Built following the successful patterns from [CE ShipGen](https://github.com/xunema/ce-shipgen).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Current Status: M1 — UI Foundation
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- ✅ React 18 + TypeScript + Vite
+- ✅ Tailwind CSS with space theme
+- ✅ Three-view architecture (Startup/Generate/Library/Settings)
+- ✅ Tile-based UI with focus mode
+- ✅ Desktop/Phone layout toggle
+- ✅ React Router with URL routing
+- ✅ Basic data files (races, careers, skills)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🛣️ Milestones
+
+| Milestone | Scope | Status |
+|-----------|-------|--------|
+| **M1: UI Foundation** | Layout, tiles, PWA setup, basic structure | 🎯 In Progress |
+| **M2: Data Tables** | JSON editors, career enable/disable, 15+ tables | ⏳ Pending |
+| **M2.5: Install UX** | PWA install, auto-save, snapshots | ⏳ Pending |
+| **M2.6: Version Control** | Update prompts, rollback | ⏳ Pending |
+| **M3: Full Careers** | All 24 careers, aging, mustering | ⏳ Blocked |
+| **M4: Library** | Character library, batch export | ⏳ Pending |
+
+---
+
+## 🚀 Development
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Setup
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Build
+```bash
+npm run build
 ```
+
+---
+
+## 📁 Project Structure
+
+```
+cecharactergen/
+├── data/                    # JSON data tables
+│   ├── races.json          # Species definitions
+│   ├── careers.json        # Career paths (3 examples)
+│   └── skills.json         # Skill definitions
+├── public/                 # Static assets
+│   └── manifest.json       # PWA manifest
+├── src/
+│   ├── components/
+│   │   ├── screens/        # Main views
+│   │   │   ├── StartupScreen.tsx
+│   │   │   ├── CharacterGenerationView.tsx
+│   │   │   ├── LibraryView.tsx
+│   │   │   └── SettingsScreen.tsx
+│   │   └── shared/         # Shared components
+│   │       └── Header.tsx   # Navigation + layout toggle
+│   ├── App.tsx             # Router setup
+│   └── index.css           # Tailwind styles
+├── tailwind.config.js      # Space theme colors
+├── vite.config.ts          # Build config
+└── package.json
+```
+
+---
+
+## 🎨 UI Pattern (from CE ShipGen)
+
+### Three Views
+1. **Startup** (`/`) — Entry point with 3 navigation options
+2. **Generate** (`/generate`) — Character generation with tile layout
+3. **Library** (`/library`) — Character library
+4. **Settings** (`/settings`) — App configuration
+
+### Tile System
+- **Collapsed** — Summary only
+- **Expanded** — Full content
+- **Focused** — Full-screen overlay
+- **ESC** to exit focus mode
+
+### Layout Modes
+- **Desktop** — Multi-column (Parameters | Tiles | Log)
+- **Phone** — Vertical stack with collapsible parameters
+
+---
+
+## 📚 Documentation
+
+- [PRD.md](./PRD.md) — Product Requirements Document
+- [PROJECT_NOTES.md](./PROJECT_NOTES.md) — Development log and lessons learned
+
+---
+
+## 📝 License
+
+GPL v3 — See [LICENSE](./LICENSE)
+
+---
+
+**Built with:** React + TypeScript + Vite + Tailwind CSS
+
+**Inspired by:** [CE ShipGen](https://github.com/xunema/ce-shipgen)
