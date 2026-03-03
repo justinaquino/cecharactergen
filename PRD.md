@@ -41,6 +41,11 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 3. **Homeworld** — Background skills based on homeworld type
 4. **Pre-Career Education** — Optional university/military academy
 5. **Career Terms** — Enlistment, survival, advancement, skills per term
+   - **Skill Acquisition Rule:** Character always gains at least 1 skill level per term
+   - **Survival Roll Bonus:** Successfully rolling survival guarantees minimum skill gain
+   - **Skill Tables:** Personal Development (6 options), Service Skills (6 options), Advanced Education (6 options)
+   - **Advancement:** Rank increases may provide additional skills
+   - **Detailed Career Mechanics:** See Section 11 (Career System Details) — to be fully specified in M3
 6. **Aging** — Automated from Term 5 onwards
 7. **Mustering Out** — Cash and benefits selection
 8. **Equipment** — Procedurally generated believable gear
@@ -816,7 +821,10 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - **Ranks & Skills:** 6 fields (rank1-rank6 with title and skill)
 - **Benefits:** 6 material benefit fields + 6 cash benefit fields
 - **Skills & Training:** 6 personal + 6 service + 6 advanced education fields
+- **Skill Mechanics:** Character always gains at least 1 skill level per term (minimum guarantee on survival)
 - GM can toggle `enabled` field via Career Management UI
+
+**Note on Career Mechanics:** The detailed algorithms for career generation (enlistment rolls, survival outcomes, skill selection, advancement probabilities, re-enlistment, and aging) will be fully specified in Section 11 during M3 development. Current PRD documents data structure; procedural logic to follow.
 
 **4. JSON Table Editor** (`/settings/json` or `/settings/tables`)
 - Select table from dropdown (organized by category):
