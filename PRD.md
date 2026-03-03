@@ -37,6 +37,9 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 **Generation Steps:**
 1. **Characteristics** — Roll 2D6 for STR, DEX, END, INT, EDU, SOC (or point buy)
+   - **Standard:** Roll 2D6 for each characteristic
+   - **Advantage/Disadvantage:** Some species use advX/disX rolls (e.g., Low-G Human: STR `dis1`, DEX `adv1`, END `dis1`)
+   - See Section 3.3 for dice mechanics (advX = roll (2+X)d6 keep highest 2, disX = roll (2+X)d6 keep lowest 2)
 2. **Species/Race** — Apply racial modifiers and abilities
 3. **Homeworld** — Background skills based on homeworld type
 4. **Pre-Career Education** — Optional university/military academy
@@ -1315,13 +1318,30 @@ These files are created and populated with canonical data during **M2: Settings 
 **Character Components:**
 
 9. **`races.json`** — Species definitions with modifiers
-   - **Default Human:** STR, DEX, END, INT, EDU, SOC base values
+   - **Regular Human (Terra/High-G):** 
+     - STR, DEX, END, INT, EDU, SOC base values (roll 2D6 each)
+     - Description: Humans born on Terra or High-G habitats (MAGICIANS, terrestrial spin gravity habitats)
+   - **Low-G Human (Mneme Variant):**
+     - **Modifiers:** 
+       - STR: `dis1` (roll 3d6, keep lowest 2) — Bone density reduced
+       - DEX: `adv1` (roll 3d6, keep highest 2) — Adapted to free-fall movement  
+       - END: `dis1` (roll 3d6, keep lowest 2) — Cardiovascular modifications
+       - SOC: -1
+     - **Starting Skills:**
+       - Zero-G: 2
+       - Vacc Suit: 1
+       - Survival (Habitat): 1
+     - **Penalty:** Move -1 in 0.7G or higher gravity
+     - **Physical:** 1/2 weight of regular human at same height
+     - **Description:** Specially adapted for low-G conditions with cardiovascular and bone modifications
+     - **Backgrounds:** Only Space backgrounds available
    - **Optional PSI:** Psionic strength (toggle in settings for psionic campaigns)
    - **Non-Human Species:**
      - Abilities (unique racial capabilities)
      - Traits (distinguishing characteristics)
      - Modifiers (characteristic adjustments)
-   - Structure: `id`, `name`, `baseCharacteristics`, `abilities`, `traits`, `modifiers`, `enabled`
+   - **Toggle:** Settings → Rules → "Use Low-G Human (Mneme Variant)"
+   - Structure: `id`, `name`, `baseCharacteristics`, `characteristicRolls`, `startingSkills`, `abilities`, `traits`, `modifiers`, `enabled`
 
 10. **`backgrounds.json`** — Character Backgrounds Table
     - Pre-career backgrounds and origins
@@ -1374,6 +1394,45 @@ Key entities:
 - Equipment[], Connections
 
 ### 3.3 Calculation Engine
+
+**Dice Rolling Mechanics:**
+
+**Standard 2D6:**
+- Roll two six-sided dice, sum the result (2-12)
+- Base roll for most Cepheus Engine mechanics
+
+**Advantage X (advX):**
+- Roll (2+X)d6, keep highest 2 dice
+- Format: `adv1`, `adv2`, `adv3`, etc.
+- Examples:
+  - `adv1` = Roll 3d6, keep highest 2 (advantage 1)
+  - `adv2` = Roll 4d6, keep highest 2 (advantage 2)
+  - `adv3` = Roll 5d6, keep highest 2 (advantage 3)
+
+**Disadvantage X (disX):**
+- Roll (2+X)d6, keep lowest 2 dice
+- Format: `dis1`, `dis2`, `dis3`, etc.
+- Examples:
+  - `dis1` = Roll 3d6, keep lowest 2 (disadvantage 1)
+  - `dis2` = Roll 4d6, keep lowest 2 (disadvantage 2)
+  - `dis3` = Roll 5d6, keep lowest 2 (disadvantage 3)
+
+**Formula:**
+```javascript
+// Advantage X
+function rollAdvX(X) {
+  const dice = rollDice(2 + X, 6); // Roll (2+X) d6
+  dice.sort((a, b) => b - a); // Sort descending
+  return dice[0] + dice[1]; // Sum highest 2
+}
+
+// Disadvantage X
+function rollDisX(X) {
+  const dice = rollDice(2 + X, 6); // Roll (2+X) d6
+  dice.sort((a, b) => a - b); // Sort ascending
+  return dice[0] + dice[1]; // Sum lowest 2
+}
+```
 
 **Must implement:**
 - Characteristic modifiers
@@ -2075,7 +2134,17 @@ localStorage:
 | **M2.5: Install UX & Settings System** | FR-021 (install prompt), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
 | **M2.6: Installed Version Control** | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
 | **M2.7: Tables In Play** | FR-027 — "List of Tables In Play" view; select active table per category; add/edit custom tables | ⏳ Pending |
-| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment | ⏳ Blocked on M2.7 |
+| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment, **Low-G Human species (Mneme)**, **advX/disX dice mechanic** | ⏳ Blocked on M2.7 |
+
+**M3 Testing Scope:**
+- **Phase 1 (Pre-Career Testing):** Test character creation through background selection, before career roll
+  - Species selection (Regular Human vs Low-G Human toggle)
+  - Characteristic rolls (2D6, advX, disX)
+  - Background selection (Space-only for Low-G humans)
+  - Homeworld selection (CE vs Mneme tables)
+  - Pre-career education (if applicable)
+- **Phase 2 (Career Testing):** Career generation, aging, mustering
+- **Phase 3 (Complete Character):** Equipment, final details, export
 | **M4: Persistence & Export** | Character library, batch generation, advanced export | ⏳ Pending |
 
 ---
