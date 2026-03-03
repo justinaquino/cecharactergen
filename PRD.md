@@ -828,6 +828,10 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 **4. JSON Table Editor** (`/settings/json` or `/settings/tables`)
 - Select table from dropdown (organized by category):
+- **Shows ALL tables:** Canonical (factory) + Custom (user-created)
+- Custom tables marked with "[Custom]" badge
+- Same dual JSON/Table view editor as CE ShipGen
+- **"Save As New Custom Table"** button when editing canonical tables
 
 **Global Character Tables:**
   - `draft.json` — Draft/Conscription assignments
@@ -852,22 +856,50 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
   - `rules.json` — Rule variants and house rules
   - `_summary.json` — Data catalog and index
 
+**Editor Features:**
 - Inline JSON editor with syntax highlighting
 - Real-time schema validation (red squiggles on errors)
 - Preview changes before applying
 - Auto-save on edit (no Save button for table view)
 - Explicit "Apply" button for JSON view (handles invalid mid-edit)
 - Export individual tables as JSON files
+- **Duplicate to Custom Table** — Create editable copy of canonical table
 
-**5. Data Management** (`/settings/data`)
+**5. Tables In Play** (`/settings/tables-in-play`) — **NEW FR-027**
+- **List of active tables** — Shows which table drives each generation step
+- **Switch tables** — Select different table per category (canonical or custom)
+- **Add custom tables** — Create new tables from blank, duplicate, or import
+- **Export custom tables** — Share custom tables with other players
+- **Import tables** — Load community-created tables
+
+**Visual:**
+```
+┌────────────────────────────────────────────────────────────┐
+│ TABLES IN PLAY                                             │
+├────────────────────────────────────────────────────────────┤
+│ AGING TABLE                                                │
+│ ● Canonical Aging (default)                              │
+│   [Switch ▼] [Edit JSON]                                   │
+│ ○ House Rule: Gentler Aging (custom)                   │
+│   [Switch ▼] [Edit JSON] [Export] [Delete]               │
+│                                                              │
+│ CAREERS TABLE                                              │
+│ ● Cepheus Engine Core Careers                            │
+│ ○ My Custom Campaign Careers                               │
+│                                                              │
+│ [+ Add New Custom Table]                                   │
+└────────────────────────────────────────────────────────────┘
+```
+
+**6. Data Management** (`/settings/data`)
 - Export Settings Snapshot — Save current tables + rules as named configuration
 - Import Settings Snapshot — Load previously saved or shared configuration
-- Export All Data — Complete backup (settings + characters)
+- Export All Data — Complete backup (settings + characters + custom tables)
 - Import All Data — Restore from backup
 - Reset to Factory Defaults — Clear all customizations, restore canonical data
-  - ⚠️ Confirmation: "Reset all tables and rules to factory defaults? Your saved characters will not be affected."
+  - ⚠️ Confirmation: "Reset all tables and rules to factory defaults? Your custom tables and saved characters will not be affected."
 
-**6. Version Control** (`/settings/version`)
+**7. Version Control** (`/settings/version`)
 - Current Version Display — Version number, build date, channel (stable/beta)
 - Update Status — "Up to date" or "Update Available: X.Y.Z"
 - Changelog Preview — What's new in available update
@@ -877,20 +909,24 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - Last Checked — Timestamp of last update check
 
 **Section Navigation:**
-- Sidebar with icons: 📐 Layout, 📋 Rules, 🎖️ Careers, 📝 Tables, 💾 Data, 🔄 Version
+- Sidebar with icons: 📐 Layout, 📋 Rules, 🎖️ Careers, 📝 Tables, **🎲 Tables In Play**, 💾 Data, 🔄 Version
 - Active section highlighted
 - URL updates when switching sections (deep-linkable)
 
 **Acceptance:** 
-- [ ] All 6 sections accessible via sidebar
-- [ ] URL reflects current section (`/settings/careers`, `/settings/json`, `/settings/version`)
+- [ ] All 7 sections accessible via sidebar
+- [ ] URL reflects current section (`/settings/careers`, `/settings/json`, `/settings/tables-in-play`, `/settings/version`)
 - [ ] Career enable/disable works in generation (disabled careers hidden)
 - [ ] JSON editor validates schema, shows errors
 - [ ] Table edits auto-save with "Saved" toast
+- [ ] "Tables In Play" shows active table per category
+- [ ] Can switch active tables via dropdown
+- [ ] Can add custom tables (blank/duplicate/import)
+- [ ] Custom tables persist in localStorage
 - [ ] "Reset to Factory Defaults" works with confirmation
 - [ ] Version section shows current version and update status
 - [ ] Settings persist across sessions (localStorage)
-- [ ] Import/export works for snapshots and full data
+- [ ] Import/export works for snapshots, tables, and full data
 
 ---
 
@@ -1840,6 +1876,215 @@ Build: March 3, 2026 14:30 UTC
 
 ---
 
+## 13. ADDENDUM — M2.7 Tables In Play (FR-027)
+
+**Added:** March 3, 2026  
+**Priority:** High  
+**Milestone:** M2.7 — Must complete before M3  
+**Pattern:** Based on CE ShipGen FR-027 implementation
+
+### 13.1 Problem Statement
+
+Users want to create **custom character tables** (house rules, alternate settings, homebrew careers) and switch between them without editing the canonical tables. Currently, the app only supports editing the default tables in-place. Users need:
+1. Ability to add new custom tables alongside canonical ones
+2. "Tables In Play" view to see which tables are currently active
+3. Select which table drives each character generation component
+4. Export/import custom tables to share with other players
+
+**Example Use Cases:**
+- GM creates custom careers for their specific campaign setting
+- Player wants to use alternate skill tables from a different Traveller edition
+- Group agrees on house-ruled aging mechanics and switches to custom aging table
+- Community shares custom career packs via JSON files
+
+### 13.2 Solution: Tables In Play System
+
+**Core Concept:** Like CE ShipGen, users can have multiple versions of each table type and select which one is "active" (in play) for character generation.
+
+**Table Categories (with selectable variants):**
+
+| Category | Canonical Table | Can Add Custom |
+|----------|------------------|----------------|
+| **Draft** | `draft.json` | ✅ Yes |
+| **Survival Mishaps** | `survival_mishaps.json` | ✅ Yes |
+| **Injury** | `injury.json` | ✅ Yes |
+| **Medical Bills** | `medical_bills.json` | ✅ Yes |
+| **Aging** | `aging.json` | ✅ Yes |
+| **Anagathics** | `anagathics.json` | ✅ Yes |
+| **Retirement Pay** | `retirement_pay.json` | ✅ Yes |
+| **Careers** | `careers.json` | ✅ Yes — Can have multiple career packs |
+| **Skills** | `skills.json` | ✅ Yes |
+| **Equipment** | `equipment.json` | ✅ Yes |
+| **Races** | `races.json` | ✅ Yes |
+| **Homeworlds** | `homeworlds.json` | ✅ Yes |
+
+**Key Rule:** Each category has exactly ONE table "in play" at a time. Users can switch between canonical and custom tables per category.
+
+### 13.3 Requirements
+
+#### FR-027a: List of Tables In Play
+
+**Location:** Settings → Tables In Play (`/settings/tables-in-play`)
+
+**UI Layout:**
+```
+┌────────────────────────────────────────────────────────────┐
+│ TABLES IN PLAY                                             │
+├────────────────────────────────────────────────────────────┤
+│                                                              │
+│ DRAFT TABLE                                                │
+│ ● Canonical Draft Table (default)                        │
+│   [Switch ▼] [Edit JSON] [Export]                          │
+│                                                              │
+│ SURVIVAL MISHAPS TABLE                                     │
+│ ● Canonical Survival Mishaps (default)                   │
+│   [Switch ▼] [Edit JSON] [Export]                          │
+│                                                              │
+│ AGING TABLE                                                │
+│ ○ House Rule: Gentler Aging (custom)                     │
+│   [Switch ▼] [Edit JSON] [Export] [Delete]               │
+│                                                              │
+│ CAREERS TABLE                                              │
+│ ● Cepheus Engine Core Careers (canonical)                │
+│   [Switch ▼] [Edit JSON] [Export]                          │
+│ ○ My Custom Campaign Careers (custom)                      │
+│   [Switch ▼] [Edit JSON] [Export] [Delete]               │
+│                                                              │
+│ [+ Add New Custom Table]                                   │
+├────────────────────────────────────────────────────────────┤
+│ Legend: ● Active (currently used in generation)            │
+│         ○ Inactive (available but not selected)            │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Columns Displayed:**
+- Radio button or indicator for "active" table
+- Table name (canonical or custom)
+- Source indicator ("Canonical" or "Custom")
+- Actions: Switch, Edit JSON, Export, Delete (custom only)
+
+#### FR-027b: Add Custom Table
+
+**Flow:**
+1. User clicks "+ Add New Custom Table"
+2. Dialog appears:
+   ```
+   ┌─────────────────────────┐
+   │ Add Custom Table        │
+   ├─────────────────────────┤
+   │ Category: [Careers ▼]   │
+   │ Name: [My Custom...]  │
+   │                         │
+   │ [Start from Blank]      │
+   │ [Duplicate Canonical] ← Recommended │
+   │ [Import JSON]           │
+   │                         │
+   │ [Cancel]  [Create]      │
+   └─────────────────────────┘
+   ```
+3. New table created with unique ID (e.g., `careers_custom_mycampaign_20260303`)
+4. Auto-switches to new table as "in play" for that category
+5. Table appears in JSON editor alongside canonical tables
+
+#### FR-027c: Switch Active Table
+
+**Dropdown Behavior:**
+- Click "Switch ▼" to see all tables for that category
+- Shows: Table name, source (Canonical/Custom), last modified
+- Select table → becomes active immediately
+- Confirmation if switching away from custom table with unsaved changes
+
+**Visual Indicators:**
+- Active table: Green dot ●, bold text
+- Inactive canonical: Gray ○, normal text  
+- Inactive custom: Gray ○, "Custom" badge
+
+#### FR-027d: Edit Custom Tables
+
+**From Tables In Play view:**
+- Click "Edit JSON" → Opens JSON editor for that specific table
+- Same JSON/Table dual-view editor as canonical tables
+- Auto-save applies to custom tables too
+- Schema validation ensures custom tables match expected structure
+
+#### FR-027e: Export/Import Custom Tables
+
+**Export:**
+- Click "Export" on any custom table
+- Downloads as `cecg-[category]-[name]-[date].json`
+- Includes metadata: category, name, created date, source version
+
+**Import:**
+- "Import Custom Table" button in Tables In Play view
+- Validates:
+  - Correct JSON syntax
+  - Required fields present
+  - Schema matches category expectations
+- On success: Adds to table list, user can switch to it
+
+#### FR-027f: Table Naming & Storage
+
+**Storage Pattern:**
+```
+localStorage:
+├── ce_char_tables_canonical (read-only reference copies)
+├── ce_char_tables_custom (user-created tables)
+│   ├── careers_custom_mycampaign_20260303
+│   ├── aging_custom_gentle_20260303
+│   └── ...
+└── ce_char_tables_in_play (which table is active per category)
+    ├── draft: "draft_canonical"
+    ├── survival_mishaps: "survival_mishaps_canonical"
+    ├── aging: "aging_custom_gentle_20260303"
+    └── ...
+```
+
+**Naming Convention:**
+- Canonical: `[category]_canonical` (e.g., `careers_canonical`)
+- Custom: `[category]_custom_[name]_[YYYYMMDD]` (e.g., `careers_custom_mercenarypack_20260303`)
+
+**File Storage:**
+- Canonical tables: Served from `data/*.json` (factory defaults)
+- Custom tables: Stored in localStorage only
+- Tables In Play state: Stored in localStorage
+
+### 13.4 Settings Screen Integration
+
+**Settings Sections Updated:**
+
+**4. JSON Table Editor** (`/settings/json`)
+- Now shows ALL tables (canonical + custom) in category dropdown
+- Custom tables marked with "[Custom]" badge
+- Can edit both canonical and custom tables
+- "Save As New Custom Table" button when editing canonical tables
+
+**NEW: 7. Tables In Play** (`/settings/tables-in-play`)
+- Dedicated view for selecting active tables per category
+- Add custom tables
+- Switch between canonical and custom
+- Export custom tables
+
+**Section Navigation:**
+- Sidebar with icons: 📐 Layout, 📋 Rules, 🎖️ Careers, 📝 Tables, 💾 Data, 🔄 Version, **🎲 Tables In Play**
+
+### 13.5 Acceptance Criteria
+
+- [ ] "Tables In Play" section visible in Settings sidebar
+- [ ] Lists all table categories with currently active table shown
+- [ ] Can switch active table per category via dropdown
+- [ ] Can add new custom table (blank, duplicate, or import)
+- [ ] Custom tables persist in localStorage
+- [ ] Can edit custom tables in JSON editor
+- [ ] Can export custom tables as JSON files
+- [ ] Can import custom tables (with validation)
+- [ ] Active table selection persists across sessions
+- [ ] Character generation uses selected "in play" tables
+- [ ] UI clearly distinguishes canonical vs custom tables
+- [ ] Can delete custom tables (with confirmation)
+- [ ] Cannot delete canonical tables (only custom)
+
+---
+
 ---
 
 ### 12.6 Updated Milestone Plan
@@ -1847,10 +2092,11 @@ Build: March 3, 2026 14:30 UTC
 | Milestone | Scope | Status |
 |-----------|-------|--------|
 | **M1: UI Layout & Foundation** | Layout, tiles, PWA setup, React Router, Header, StartupScreen, CharacterGenerationView | ✅ **Complete** |
-| **M2: Settings & Data Tables** | JSON + table editors, **career enable/disable**, **15+ tables** (draft, survival_mishaps, injury, medical_bills, aging, anagathics, retirement_pay, careers, skills, equipment, etc.), rule toggles | 🎯 **Current — In Progress** |
-| **M2.5: Install UX & Settings System** | FR-021 (install), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
+| **M2: Settings & Data Tables** | JSON + table editors (JSON/Table dual view like CE ShipGen), **15+ tables**, rule toggles, add/edit custom tables | 🎯 **Current — In Progress** |
+| **M2.5: Install UX & Settings System** | FR-021 (install prompt), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
 | **M2.6: Installed Version Control** | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
-| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment | ⏳ Blocked on M2.6 |
+| **M2.7: Tables In Play** | FR-027 — "List of Tables In Play" view; select active table per category; add/edit custom tables | ⏳ Pending |
+| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment | ⏳ Blocked on M2.7 |
 | **M4: Persistence & Export** | Character library, batch generation, advanced export | ⏳ Pending |
 
 ---

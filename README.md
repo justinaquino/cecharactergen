@@ -14,7 +14,7 @@
 
 A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop RPG characters. Built following the successful patterns from [CE ShipGen](https://github.com/xunema/ce-shipgen).
 
-### Current Status: M1 — UI Foundation
+### Current Status: M2 — Data Tables (In Progress)
 
 - ✅ React 18 + TypeScript + Vite
 - ✅ Tailwind CSS with space theme
@@ -23,6 +23,14 @@ A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop R
 - ✅ Desktop/Phone layout toggle
 - ✅ React Router with URL routing
 - ✅ Basic data files (races, careers, skills)
+- 🎯 **M2: JSON Table Editor** (like CE ShipGen) — dual JSON/Table view
+- 🎯 **M2.7: Tables In Play** — Select active tables, add custom tables
+
+**Coming Soon:**
+- Add and edit custom tables (house rules, alternate careers)
+- "Tables In Play" view to select which table drives each generation step
+- Export/import custom tables to share with other players
+- 15+ data tables (draft, survival mishaps, injury, medical bills, aging, anagathics, retirement pay, careers, skills, equipment, etc.)
 
 ---
 
@@ -31,11 +39,12 @@ A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop R
 | Milestone | Scope | Status |
 |-----------|-------|--------|
 | **M1: UI Foundation** | Layout, tiles, PWA setup, React Router, all views | ✅ **Complete** |
-| **M2: Data Tables** | JSON editors, career enable/disable, 15+ tables, rule toggles | 🎯 **In Progress** |
-| **M2.5: Install UX** | PWA install, auto-save, snapshots | ⏳ Pending |
-| **M2.6: Version Control** | Update prompts, rollback, release channels | ⏳ Pending |
-| **M3: Full Careers** | All 24 careers, aging, mustering, equipment | ⏳ Blocked |
-| **M4: Library** | Character library, batch export | ⏳ Pending |
+| **M2: Data Tables** | JSON editors (dual JSON/Table view like CE ShipGen), **15+ tables**, rule toggles | 🎯 **In Progress** |
+| **M2.5: Install UX** | PWA install prompt, auto-save, settings snapshots, CI/CD | ⏳ Pending |
+| **M2.6: Version Control** | Update prompts, version display, changelog, user-controlled updates | ⏳ Pending |
+| **M2.7: Tables In Play** | **List of active tables**, switch tables per category, **add/edit custom tables**, export/import | ⏳ Pending |
+| **M3: Full Careers** | All 24 careers, aging mechanics, mustering out, equipment | ⏳ Blocked on M2.7 |
+| **M4: Library** | Character library, batch generation, advanced export | ⏳ Pending |
 
 ---
 
@@ -62,11 +71,22 @@ npm run build
 
 ```
 cecharactergen/
-├── data/                    # JSON data tables
+├── data/                    # JSON data tables (canonical/factory defaults)
 │   ├── races.json          # Species definitions
 │   ├── careers.json        # ALL 24 careers in ONE file with metadata header
 │   └── skills.json         # Skill definitions
+│   └── ...                 # 15+ total tables (draft, survival_mishaps, injury, etc.)
+└── Custom Tables (stored in localStorage):
+    ├── careers_custom_mycampaign.json
+    ├── aging_custom_gentler.json
+    └── ...                 # User-created custom tables
 ```
+
+**Data Table Architecture:**
+- **Canonical Tables:** Factory defaults in `data/*.json` (read-only reference)
+- **Custom Tables:** User-created tables stored in localStorage
+- **Tables In Play:** User selects which table (canonical or custom) drives each generation step
+- **Share Tables:** Export custom tables as JSON files to share with other players
 
 ---
 
@@ -87,6 +107,25 @@ cecharactergen/
 ### Layout Modes
 - **Desktop** — Multi-column (Parameters | Tiles | Log)
 - **Phone** — Vertical stack with collapsible parameters
+
+### Tables In Play (M2.7 Feature — Coming Soon)
+Like CE ShipGen, users can create **custom tables** and select which ones are "in play" for character generation.
+
+**How It Works:**
+1. **Canonical Tables** — Factory defaults (Cepheus Engine core rules)
+2. **Custom Tables** — User-created (house rules, alternate careers, homebrew)
+3. **Tables In Play View** — See which table drives each generation step
+4. **Switch Tables** — Select canonical OR custom table per category
+5. **Export/Import** — Share custom tables with other players
+
+**Example Use Cases:**
+- GM creates custom careers for their specific campaign setting
+- Group agrees on gentler aging mechanics → switch to custom aging table
+- Community shares career packs via JSON files
+
+**Table Categories (all swappable):**
+- Draft, Survival Mishaps, Injury, Medical Bills, Aging, Anagathics, Retirement Pay
+- Careers, Skills, Equipment, Races, Homeworlds
 
 ---
 
