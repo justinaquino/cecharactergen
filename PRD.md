@@ -36,10 +36,71 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 **Description:** Complete character generation following Cepheus Engine rules
 
 **Generation Steps:**
-1. **Characteristics** — Roll 2D6 for STR, DEX, END, INT, EDU, SOC (or point buy)
-   - **Standard:** Roll 2D6 for each characteristic
-   - **Advantage/Disadvantage:** Some species use advX/disX rolls (e.g., Low-G Human: STR `dis1`, DEX `adv1`, END `dis1`)
-   - See Section 3.3 for dice mechanics (advX = roll (2+X)d6 keep highest 2, disX = roll (2+X)d6 keep lowest 2)
+
+**Step 1: Characteristics & Species Selection**
+
+**Species Selection (at start of character creation):**
+- **Toggle:** "Random Everything" — Instantly randomize all options for quick generation
+
+**1A. Choose Species:**
+- **Terrestrial Human (Standard):** 
+  - Born on Terra or High-G habitats (MAGICIANS, terrestrial spin gravity habitats of 0.9G+)
+  - Characteristics: Roll 2D6 for STR, DEX, END, INT, EDU, SOC
+  - Standard human with no modifiers
+  - All backgrounds available
+  
+- **Low-G Human (Mneme Variant):**
+  - Description: Specially adapted for low-G conditions with cardiovascular and bone modifications to survive in space habitats of 0.3-0.6G. 1/2 the weight of a normal human at the same height.
+  - **Characteristic Rolls:**
+    - STR: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Bone density reduced
+    - DEX: `adv1` (advantage 1) — Roll 3d6, keep highest 2 — Adapted to free-fall movement
+    - END: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Cardiovascular modifications
+    - INT: 2D6 (standard)
+    - EDU: 2D6 (standard)
+    - SOC: 2D6-1 (roll standard, subtract 1) — Social stigma of spacer heritage
+  - **Starting Skills:**
+    - Zero-G: Level 2
+    - Vacc Suit: Level 1
+    - Survival (Habitat): Level 1
+  - **Penalties:**
+    - Move -1 in 0.7G or higher gravity
+    - Cannot function normally in High-G environments
+  - **Backgrounds:** Only Space backgrounds available
+  - **Toggle:** Settings → Rules → "Use Low-G Human (Mneme Variant)"
+
+**1B. Roll Characteristics:**
+
+**Standard Roll:** 2D6
+- Roll two six-sided dice, sum the result (2-12)
+- Base roll for standard characteristics
+
+**Advantage X (advX):**
+- Format: `adv1`, `adv2`, `adv3`, etc.
+- Roll: (2+X)d6, keep highest 2 dice
+- Examples:
+  - `adv1` = Roll 3d6, keep highest 2
+  - `adv2` = Roll 4d6, keep highest 2
+  - `adv3` = Roll 5d6, keep highest 2
+- **Use Case:** Low-G Human DEX `adv1` — More agile in free-fall
+
+**Disadvantage X (disX):**
+- Format: `dis1`, `dis2`, `dis3`, etc.
+- Roll: (2+X)d6, keep lowest 2 dice
+- Examples:
+  - `dis1` = Roll 3d6, keep lowest 2
+  - `dis2` = Roll 4d6, keep lowest 2
+  - `dis3` = Roll 5d6, keep lowest 2
+- **Use Case:** Low-G Human STR `dis1` and END `dis1` — Reduced bone density and cardiovascular capacity
+
+**Characteristic Scores:**
+- **STR** (Strength): Physical strength, fitness, forcefulness
+- **DEX** (Dexterity): Physical coordination, agility, reflexes
+- **END** (Endurance): Ability to sustain damage, stamina, determination
+- **INT** (Intelligence): Intellect and quickness of mind
+- **EDU** (Education): Learning and experience
+- **SOC** (Social Standing): Place in society (SOC 10+ = Nobility)
+
+**Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation — Section 1.5 "Characteristics"
 2. **Species/Race** — Apply racial modifiers and abilities
 3. **Homeworld** — Background skills based on homeworld type
 4. **Pre-Career Education** — Optional university/military academy
