@@ -27,9 +27,56 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 ---
 
-## 2. FUNCTIONAL REQUIREMENTS
+## 2. GI7B UI STANDARD REFERENCE
 
-### 2.1 Core Character Generator (FR-001 to FR-020)
+This app is part of the **GI7B Generator Suite** and follows the **GI7B Generator UI Standard** (canonical reference: [ce-shipgen PROJECT_NOTES.md](https://github.com/xunema/ce-shipgen/blob/main/PROJECT_NOTES.md)).
+
+### App Navigation Tree (GI7B Standard)
+
+```
+Landing Page (/)
+│
+├── 🌙/☀️ Theme Toggle      [header — always visible]
+├── 🖥️/📱 Layout Toggle     [header — always visible]
+│
+├── ✨ Generate Now (/generate)
+│   └── Character Generation (tile-based)
+│
+├── 📚 Library (/library)
+│   └── Saved characters — search, filter, export
+│
+└── ⚙️ Settings (/settings)
+    ├── 📄 JSON Tables        (/settings/tables)
+    │   └── Edit all data tables (careers, skills, names, equipment, etc.)
+    ├── 🧩 Mechanics Modules  (/settings/mechanics)
+    │   └── Rule toggles (CE/Mneme), career enable/disable
+    ├── 🎲 Generation Options (/settings/options)
+    │   └── Presets, species defaults, export format
+    └── 🔧 Other Settings     (/settings/other)
+        └── Theme, layout, version control, about
+```
+
+### Tile System
+
+| State | Description |
+|-------|-------------|
+| **Collapsed** | Summary line only — default |
+| **Expanded** | Full content visible |
+| **Focused** | Full-screen overlay — ESC to exit |
+
+### GI7B Suite
+
+| Generator | Repo | UI Role |
+|-----------|------|---------|
+| CE ShipGen | xunema/ce-shipgen | Canonical UI reference |
+| CE CharacterGen | xunema/cecharactergen | This repo — M2 UI alignment pending |
+| Mneme World Gen | xunema/mneme-world-generator-pwa | M7 UI alignment pending |
+
+---
+
+## 3. FUNCTIONAL REQUIREMENTS
+
+### 3.1 Core Character Generator (FR-001 to FR-020)
 
 #### FR-001: Character Generation Engine
 **Priority:** Critical  
@@ -307,14 +354,14 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 ### 2.2 User Interface (FR-006 to FR-015)
 
-#### FR-006: Responsive Layout with Mode Toggle (CE ShipGen Pattern)
-**Priority:** Critical  
-**Description:** Two distinct layout modes with manual toggle — **exactly like CE ShipGen**
+#### FR-006: Responsive Layout with Mode Toggle and Theme Toggle (GI7B Standard)
+**Priority:** Critical
+**Description:** Two distinct layout modes with manual toggle, plus a Night/Day theme toggle — **matching GI7B UI Standard**
 
-**UI Pattern from CE ShipGen:**
+**UI Pattern (GI7B Standard Header):**
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ Header: [Logo] [Generate] [Library] [Settings] [Phone▼]    │
+│ Header: [Logo] [Generate] [Library] [Settings] [🌙/☀️] [Phone▼] │
 ├────────────────────────────────────────────────────────────┤
 │                                                            │
 │  DESKTOP MODE (Multi-Column)                               │
@@ -402,12 +449,22 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - **Persistence:** Store `ce_char_layout_mode` preference in localStorage
 - **Transition:** Instant switch, no page reload
 
-**Acceptance:** 
+**Theme Toggle (🌙/☀️) — GI7B Standard:**
+- **Location:** Header bar, right side, left of layout toggle
+- **Icon:** 🌙 (Night/Dark mode) or ☀️ (Day/Light mode)
+- **Manual toggle:** User clicks to switch theme
+- **Persistence:** Store `ce_char_theme` preference in localStorage
+- **Transition:** Instant CSS class switch on `<html>` element
+- **Default:** System preference (`prefers-color-scheme`) on first load
+
+**Acceptance:**
 - [ ] Desktop mode shows tiles side-by-side (multi-column)
 - [ ] Phone mode shows tiles stacked vertically
-- [ ] Toggle button visible in header on all views
-- [ ] Clicking toggle instantly switches layout
-- [ ] Layout preference persists across sessions
+- [ ] Layout toggle visible in header on all views
+- [ ] Theme toggle (🌙/☀️) visible in header on all views, left of layout toggle
+- [ ] Clicking layout toggle instantly switches layout
+- [ ] Clicking theme toggle instantly switches Night/Day mode
+- [ ] Both preferences persist across sessions
 - [ ] No horizontal scroll on mobile
 - [ ] All features accessible in both modes
 - [ ] Focus mode works correctly in both layouts
@@ -638,15 +695,15 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 3. **Click "Settings"** → Navigate to `/settings`
 4. **Click "Install App"** (if shown) → Trigger PWA install
 
-**From Any Other Screen (Header Navigation):**
+**From Any Other Screen (Header Navigation — GI7B Standard):**
 ```
-┌────────────────────────────────────────────────────────────┐
-│ [Logo]  CharacterGen   [Generate] [Library] [Settings] [📱] │
-└────────────────────────────────────────────────────────────┘
-         │                  │         │         │      │
-         ▼                  ▼         ▼         ▼      ▼
-    Return to         Character   Character  App    Layout
-    Startup          Generation   Library    Config   Toggle
+┌────────────────────────────────────────────────────────────────┐
+│ [Logo]  CharacterGen   [Generate] [Library] [Settings] [🌙] [📱] │
+└────────────────────────────────────────────────────────────────┘
+         │                  │         │         │        │     │
+         ▼                  ▼         ▼         ▼        ▼     ▼
+    Return to         Character   Character  App     Theme  Layout
+    Startup          Generation   Library    Config  Toggle Toggle
 ```
 
 **Header Navigation (All non-startup screens):**
@@ -654,18 +711,22 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - **"Generate"** → Navigate to `/generate`
 - **"Library"** → Navigate to `/library`
 - **"Settings"** → Navigate to `/settings`
+- **Theme Toggle (🌙/☀️)** → Switch between Night/Day mode — always visible
 - **Layout Toggle (📱/🖥️)** → Switch between Phone/Desktop mode
 - **"Installed" badge** (if in standalone mode)
 
-**URL Routing:**
+**URL Routing (GI7B Standard):**
 | Route | View | Description | Accessible From |
 |-------|------|-------------|-----------------|
 | `/` | `StartupScreen` | Entry point, app branding, navigation | Initial load, Logo click |
 | `/generate` | `CharacterGenerationView` | Main generation interface | "Generate" button |
 | `/library` | `LibraryView` | Character library, search/filter | "Library" button |
 | `/character/:id` | `CharacterView` | View specific character details | Library selection |
-| `/settings` | `SettingsScreen` | App config, data table editing | "Settings" button |
-| `/settings/:section` | `SettingsScreen` | Deep link to settings section | Direct URL |
+| `/settings` | `SettingsScreen` | Settings landing (redirects to /settings/tables) | "Settings" button |
+| `/settings/tables` | `SettingsScreen` | 📄 JSON Tables — edit all data tables | Settings nav |
+| `/settings/mechanics` | `SettingsScreen` | 🧩 Mechanics Modules — rule toggles, career management | Settings nav |
+| `/settings/options` | `SettingsScreen` | 🎲 Generation Options — presets, species defaults | Settings nav |
+| `/settings/other` | `SettingsScreen` | 🔧 Other Settings — theme, layout, version, about | Settings nav |
 
 **Navigation Rules:**
 - **Startup screen** (`/`) has **NO header** — clean entry point
@@ -747,12 +808,11 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 ### 3. Settings (`/settings`)
 **Purpose:** Configure app, edit data tables, manage versions
 
-**Sections:**
-- **Rules** — Toggle CE/Mneme, individual rule options
-- **JSON Editor** — Edit careers, skills, equipment tables
-- **Data Management** — Import/export settings, reset to defaults
-- **Version Control** — Update prompts, rollback, release channels
-- **About** — Version info, credits, links
+**Sections (GI7B Standard):**
+- **📄 JSON Tables** (`/settings/tables`) — Edit all data tables (careers, skills, equipment, names, etc.)
+- **🧩 Mechanics Modules** (`/settings/mechanics`) — Rule toggles (CE/Mneme), career enable/disable, rule variants
+- **🎲 Generation Options** (`/settings/options`) — Presets, species defaults, export format preferences
+- **🔧 Other Settings** (`/settings/other`) — Theme, layout defaults, version control, about/credits
 
 **Key Features:**
 - Auto-save on all edits (no "Save" button in table view)
@@ -761,10 +821,11 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - Release channel selection (stable/beta)
 
 **URL Integration:**
-- `/settings` — Overview/settings landing
-- `/settings/rules` — Deep link to rules section
-- `/settings/json` — JSON editor open
-- `/settings/version` — Version control section
+- `/settings` — Redirects to `/settings/tables`
+- `/settings/tables` — JSON data table editor
+- `/settings/mechanics` — Rule toggles and career management
+- `/settings/options` — Generation presets
+- `/settings/other` — Layout, theme, version control
 
 **Navigation Between Views:**
 ```
@@ -803,10 +864,10 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 │  ┌────────────┐  ┌──────────────────────────────────┐   │
 │  │  Sidebar   │  │          Content Area            │   │
 │  │            │  │                                  │   │
-│  │ ○ Rules    │  │  [Active Section Content]       │   │
-│  │ ● JSON     │  │                                  │   │
-│  │ ○ Data     │  │  [Tables, Editors, Controls]    │   │
-│  │ ○ Version  │  │                                  │   │
+│  │ ● Tables   │  │  [Active Section Content]       │   │
+│  │ ○ Mechanics│  │                                  │   │
+│  │ ○ Options  │  │  [Tables, Editors, Controls]    │   │
+│  │ ○ Other    │  │                                  │   │
 │  │            │  │                                  │   │
 │  └────────────┘  └──────────────────────────────────┘   │
 │                                                         │
@@ -817,30 +878,65 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 ---
 
-#### FR-009: Settings Screen with JSON Editor
-**Priority:** High  
-**Description:** Pre-generation configuration with editable data tables and version control
+#### FR-009: Settings Screen — GI7B Standard Sections
+**Priority:** High
+**Description:** Pre-generation configuration with editable data tables, rule toggles, and app settings. Follows the **GI7B UI Standard** with four fixed sections.
 
-**URL:** `/settings` or `/settings/:section`
+**URL:** `/settings` (redirects to `/settings/tables`) or `/settings/:section`
 
-**Sections:**
+**Section Overview:**
 
-**1. Layout Settings** (`/settings/layout`)
-- Desktop/Phone mode toggle
-- Theme: Dark/Light/Auto
-- Animation preferences
-- Font size adjustments
+| Section | Route | Icon | Purpose |
+|---------|-------|------|---------|
+| JSON Tables | `/settings/tables` | 📄 | Edit all data tables (canonical + custom) |
+| Mechanics Modules | `/settings/mechanics` | 🧩 | Rule toggles, career enable/disable |
+| Generation Options | `/settings/options` | 🎲 | Presets, species defaults, output format |
+| Other Settings | `/settings/other` | 🔧 | Theme, layout, version control, about |
 
-**2. Rule Settings** (`/settings/rules`)
-- Master toggle: Cepheus / Mneme / Custom
+---
+
+**1. 📄 JSON Tables** (`/settings/tables`)
+
+The data table editor. All data tables are editable here.
+
+- Select table from dropdown (organized by category)
+- Shows ALL tables: Canonical (factory) + Custom (user-created)
+- Custom tables marked with "[Custom]" badge
+- Dual JSON/Table view editor (same as CE ShipGen)
+- **"Duplicate to Custom Table"** — editable copy of canonical table
+- Export/import individual tables as JSON files
+
+**Tables available:**
+
+| Category | Files |
+|----------|-------|
+| Species | `races.json` |
+| Names & Cultures | `cultures_names.json`, `name_generation_rules.json` |
+| Backgrounds | `backgrounds.json`, `homeworlds.json` |
+| Careers | `careers.json`, `draft.json` |
+| Career Events | `survival_mishaps.json`, `injury.json`, `medical_bills.json` |
+| Aging | `aging.json`, `anagathics.json` |
+| Mustering Out | `retirement_pay.json`, `soc_table.json` |
+| Equipment | `equipment.json`, `skills.json` |
+| Meta | `rules.json`, `_summary.json` |
+
+---
+
+**2. 🧩 Mechanics Modules** (`/settings/mechanics`)
+
+Rule toggles and career management.
+
+**Rule Set Selection:**
+- Master toggle: Cepheus Engine / Mneme CE / Custom
 - Individual rule options:
   - Unified Roll System (on/off)
   - Automatic Re-Enlistment (on/off)
   - Aging mechanics (Term 5 start / RAW)
   - Anagathics complexity (Simplified / RAW)
+  - Low-G Human variant (on/off)
 - Custom rule import (for house rules)
 
-**3. Career Management** (`/settings/careers`) — NEW in M2
+**Career Management** — NEW in M2
 **Purpose:** Select which careers from `careers.json` are "active" (available for generation)
 
 **How It Works:**
@@ -1009,47 +1105,41 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 **Note on Career Mechanics:** The detailed algorithms for career generation (enlistment rolls, survival outcomes, skill selection, advancement probabilities, re-enlistment, and aging) will be fully specified in Section 11 during M3 development. Current PRD documents data structure; procedural logic to follow.
 
-**4. JSON Table Editor** (`/settings/json` or `/settings/tables`)
-- Select table from dropdown (organized by category):
-- **Shows ALL tables:** Canonical (factory) + Custom (user-created)
-- Custom tables marked with "[Custom]" badge
-- Same dual JSON/Table view editor as CE ShipGen
-- **"Save As New Custom Table"** button when editing canonical tables
+> **Note:** The JSON table editor (previously described separately as `/settings/json`) is now unified as `/settings/tables` per GI7B standard. Editor features: inline JSON with syntax highlighting, real-time schema validation, dual JSON/Table view, auto-save, export, and "Duplicate to Custom Table".
 
-**Global Character Tables:**
-  - `draft.json` — Draft/Conscription assignments
-  - `survival_mishaps.json` — Survival failure consequences
-  - `injury.json` — Injury severity and effects
-  - `medical_bills.json` — Medical treatment costs
-  - `aging.json` — Characteristic loss by age
-  - `anagathics.json` — Anti-aging drugs (CE and Mneme variants)
-  - `retirement_pay.json` — Pension by terms served
-  - `soc_table.json` — Social Standing effects (CE and Mneme variants)
+---
 
-**Career Table:**
-  - `careers.json` — All 24 careers with full rules data
+**3. 🎲 Generation Options** (`/settings/options`)
 
-**Character Components:**
-  - `races.json` — Species definitions (humans + non-humans with abilities/traits)
-  - `backgrounds.json` — Character backgrounds and origins
-  - `skills.json` — Skill definitions and categories
-  - `equipment.json` — Weapons, armor, gear, assets
-  - `homeworlds.json` — World types (CE and Mneme variants)
-  - `cultures_names.json` — Flat array of all names (first + surnames) by culture/heritage/gender — spreadsheet-editable (M2.8)
-  - `name_generation_rules.json` — Generation mechanism (probabilities, fallback culture) — swappable via Tables In Play (M2.8)
+Quick presets and generation defaults.
 
-**Settings:**
-  - `rules.json` — Rule variants (CE/Mneme, psionics toggle)
-  - `_summary.json` — Data catalog and index
+- **"Random Everything"** — Ignore all filters, fully random character
+- **Presets:** "CE Standard", "Mneme Setting", "Frontier Campaign", etc.
+  - Each preset sets default species, active careers, rule set
+- **Species default:** Pre-select Terrestrial Human or Low-G Human
+- **Export format:** Default output format (JSON / Markdown / Plain Text)
+- **Name generation rule:** Select active rule set from `name_generation_rules.json`
 
-**Editor Features:**
-- Inline JSON editor with syntax highlighting
-- Real-time schema validation (red squiggles on errors)
-- Preview changes before applying
-- Auto-save on edit (no Save button for table view)
-- Explicit "Apply" button for JSON view (handles invalid mid-edit)
-- Export individual tables as JSON files
-- **Duplicate to Custom Table** — Create editable copy of canonical table
+---
+
+**4. 🔧 Other Settings** (`/settings/other`)
+
+App configuration, version management, and about.
+
+- **Theme:** Dark / Light / Auto (system) — mirrors header 🌙/☀️ toggle
+- **Layout default:** Desktop / Phone (default on first load)
+- **Animation preferences:** Reduced motion, tile animation speed
+- **Font size:** Compact / Normal / Large
+- **Version Control:**
+  - Current version and milestone
+  - Update prompt (PWA update available)
+  - Version history and rollback
+  - Release channel: Stable / Beta
+- **Data Management:**
+  - Import settings snapshot
+  - Export all settings as JSON
+  - Reset to factory defaults
+- **About:** Credits, license, links to source material
 
 ## Tables in Process Order
 
