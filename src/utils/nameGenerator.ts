@@ -1,5 +1,23 @@
-import firstNamesData from '../data/names_database.json'
-import surnamesData from '../data/surnames_database.json'
+import culturesNamesData from '../data/cultures_names.json'
+import rulesData from '../data/name_generation_rules.json'
+
+export interface NameRow {
+  culture: string
+  heritage: string
+  type: 'first' | 'surname'
+  gender: 'male' | 'female' | 'unisex' | 'any'
+  name: string
+}
+
+export interface NameGenerationRules {
+  id: string
+  name: string
+  description: string
+  parent2_same_culture_probability: number
+  surname_from_parent1_probability: number
+  firstname_from_parent1_probability: number
+  fallback_culture: string
+}
 
 export interface NameData {
   full_name: string
@@ -13,185 +31,165 @@ export interface NameData {
 }
 
 export interface CultureStats {
+  heritage: string
   male_names: number
   female_names: number
   unisex_names: number
   surnames: number
 }
 
-/**
- * Cultural name generator for Cepheus Engine Character Generator.
- * 
- * Rules:
- * 1. Roll for the parents culture, first parent first
- * 2. The second parents culture is significantly more likely the same as the first parent
- * 3. This determines the Last name options of the Character - last name are rolled
- * 4. The first name is based on the gender and from either parents culture
- */
 class NameGenerator {
-  private cultures: string[]
-  private namesByCulture: Record<string, { male: string[], female: string[], unisex: string[] }>
-  private surnamesByCulture: Record<string, string[]>
+  private rows: NameRow[]
   private availableCultures: string[]
+  // Indexed lookups built once from the flat array
+  private firstNames: Record<string, Record<string, string[]>>   // culture -> gender -> names[]
+  private surnames: Record<string, string[]>                     // culture -> names[]
+  private rules: NameGenerationRules
+  private heritageMap: Record<string, string>
 
   constructor() {
-    this.cultures = firstNamesData.cultures
-    this.namesByCulture = firstNamesData.names
-    this.surnamesByCulture = surnamesData.surnames
+    this.rows = culturesNamesData.names as NameRow[]
 
-    // Filter to only cultures that have both first names AND surnames
-    this.availableCultures = this.cultures.filter(cult => {
-      const hasSurnames = this.surnamesByCulture[cult] && this.surnamesByCulture[cult].length > 0
-      const firstNames = this.namesByCulture[cult] || {}
-      const hasFirstNames = (firstNames.male?.length > 0) || 
-                           (firstNames.female?.length > 0) || 
-                           (firstNames.unisex?.length > 0)
-      return hasSurnames && hasFirstNames
-    })
+    // Build indexes
+    this.firstNames = {}
+    this.surnames = {}
+    this.heritageMap = {}
+
+    for (const row of this.rows) {
+      this.heritageMap[row.culture] = row.heritage
+      if (row.type === 'first') {
+        if (!this.firstNames[row.culture]) this.firstNames[row.culture] = {}
+        if (!this.firstNames[row.culture][row.gender]) this.firstNames[row.culture][row.gender] = []
+        this.firstNames[row.culture][row.gender].push(row.name)
+      } else {
+        if (!this.surnames[row.culture]) this.surnames[row.culture] = []
+        this.surnames[row.culture].push(row.name)
+      }
+    }
+
+    // Only use cultures that have both first names AND surnames
+    const allCultures = new Set([
+      ...Object.keys(this.firstNames),
+      ...Object.keys(this.surnames),
+    ])
+    this.availableCultures = [...allCultures].filter(c =>
+      this.surnames[c]?.length > 0 &&
+      (this.firstNames[c]?.male?.length > 0 ||
+       this.firstNames[c]?.female?.length > 0 ||
+       this.firstNames[c]?.unisex?.length > 0)
+    )
+
+    // Load active rules
+    this.rules = this._loadRules()
   }
 
-  /**
-   * Select cultures for both parents.
-   * Parent 1: Randomly selected from available cultures
-   * Parent 2: 70% chance to match Parent 1, 30% chance to be different
-   */
-  selectParentCultures(): [string, string] {
-    // Select parent 1 culture randomly
-    const parent1Culture = this.availableCultures[Math.floor(Math.random() * this.availableCultures.length)]
-    
-    // Parent 2 has 70% chance to match parent 1
-    let parent2Culture: string
-    if (Math.random() < 0.7) {
-      parent2Culture = parent1Culture
-    } else {
-      // 30% chance: select a different culture
-      const remainingCultures = this.availableCultures.filter(c => c !== parent1Culture)
-      parent2Culture = remainingCultures[Math.floor(Math.random() * remainingCultures.length)]
-    }
-    
-    return [parent1Culture, parent2Culture]
+  private _loadRules(): NameGenerationRules {
+    const activeId = rulesData.active
+    const found = rulesData.rules.find(r => r.id === activeId)
+    return (found ?? rulesData.rules[0]) as NameGenerationRules
   }
 
-  /**
-   * Select a last name from either parent's culture.
-   * Each parent culture has equal chance of providing the surname.
-   */
-  selectLastName(parent1Culture: string, parent2Culture: string): [string, string] {
-    // 50/50 chance which parent's culture provides the surname
-    const surnameCulture = Math.random() < 0.5 ? parent1Culture : parent2Culture
-    
-    const surnames = this.surnamesByCulture[surnameCulture] || []
-    if (surnames.length === 0) {
-      // Fallback to English if culture has no surnames
-      const englishSurnames = this.surnamesByCulture['English'] || ['Smith']
-      return [englishSurnames[Math.floor(Math.random() * englishSurnames.length)], 'English']
-    }
-    
-    const surname = surnames[Math.floor(Math.random() * surnames.length)]
-    return [surname, surnameCulture]
+  /** Swap the active rule set by id. Persists for the session. */
+  setRules(ruleId: string): boolean {
+    const found = rulesData.rules.find(r => r.id === ruleId)
+    if (!found) return false
+    this.rules = found as NameGenerationRules
+    return true
   }
 
-  /**
-   * Select a first name based on gender and parent cultures.
-   * Can come from either parent's culture (equal chance).
-   */
-  selectFirstName(gender: string, parent1Culture: string, parent2Culture: string): [string, string] {
-    // Normalize gender
-    let genderKey: 'male' | 'female' | 'unisex'
-    if (gender.toLowerCase() === 'm' || gender.toLowerCase() === 'male') {
-      genderKey = 'male'
-    } else if (gender.toLowerCase() === 'f' || gender.toLowerCase() === 'female') {
-      genderKey = 'female'
-    } else {
-      genderKey = 'unisex'
-    }
-    
-    // 50/50 chance which parent's culture provides the first name
-    const nameCulture = Math.random() < 0.5 ? parent1Culture : parent2Culture
-    
-    // Get names for this culture and gender
-    const cultureNames = this.namesByCulture[nameCulture] || { male: [], female: [], unisex: [] }
-    let names: string[] = cultureNames[genderKey] || []
-    
-    // If no names of that gender, try unisex, then try other gender
-    if (names.length === 0) {
-      names = cultureNames.unisex || []
-    }
-    if (names.length === 0) {
-      const otherGender = genderKey === 'male' ? 'female' : 'male'
-      names = cultureNames[otherGender] || []
-    }
-    
-    // If still no names, fallback to English
-    if (names.length === 0) {
-      const englishNames = this.namesByCulture['English'] || { male: [], female: [], unisex: ['Unknown'] }
-      names = englishNames[genderKey] || englishNames.unisex || ['Unknown']
-      const firstName = names[Math.floor(Math.random() * names.length)]
-      return [firstName, 'English']
-    }
-    
-    const firstName = names[Math.floor(Math.random() * names.length)]
-    return [firstName, nameCulture]
+  /** Return all available rule sets. */
+  getAvailableRules(): NameGenerationRules[] {
+    return rulesData.rules as NameGenerationRules[]
   }
 
-  /**
-   * Generate a complete character name with cultural background.
-   */
+  /** Return the currently active rules. */
+  getActiveRules(): NameGenerationRules {
+    return this.rules
+  }
+
+  private _pickRandom<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)]
+  }
+
+  private _selectParentCultures(): [string, string] {
+    const p1 = this._pickRandom(this.availableCultures)
+    const p2 = Math.random() < this.rules.parent2_same_culture_probability
+      ? p1
+      : this._pickRandom(this.availableCultures.filter(c => c !== p1))
+    return [p1, p2]
+  }
+
+  private _selectLastName(p1: string, p2: string): [string, string] {
+    const culture = Math.random() < this.rules.surname_from_parent1_probability ? p1 : p2
+    const pool = this.surnames[culture]
+    if (pool?.length) return [this._pickRandom(pool), culture]
+    // Fallback
+    const fb = this.surnames[this.rules.fallback_culture] ?? ['Smith']
+    return [this._pickRandom(fb), this.rules.fallback_culture]
+  }
+
+  private _selectFirstName(gender: string, p1: string, p2: string): [string, string] {
+    const gKey = gender === 'male' || gender === 'm' ? 'male'
+               : gender === 'female' || gender === 'f' ? 'female'
+               : 'unisex'
+
+    const culture = Math.random() < this.rules.firstname_from_parent1_probability ? p1 : p2
+    const cultureNames = this.firstNames[culture] ?? {}
+
+    const pool = cultureNames[gKey]?.length ? cultureNames[gKey]
+               : cultureNames['unisex']?.length ? cultureNames['unisex']
+               : gKey === 'male' ? (cultureNames['female'] ?? [])
+               : (cultureNames['male'] ?? [])
+
+    if (pool.length) return [this._pickRandom(pool), culture]
+
+    // Fallback culture
+    const fbNames = this.firstNames[this.rules.fallback_culture] ?? {}
+    const fbPool = fbNames[gKey] ?? fbNames['unisex'] ?? ['Unknown']
+    return [this._pickRandom(fbPool), this.rules.fallback_culture]
+  }
+
+  /** Generate a complete character name with cultural background. */
   generateName(gender: string = 'male'): NameData {
-    // Select parent cultures
-    const [parent1Culture, parent2Culture] = this.selectParentCultures()
-    
-    // Select last name
-    const [lastName, surnameCulture] = this.selectLastName(parent1Culture, parent2Culture)
-    
-    // Select first name
-    const [firstName, firstNameCulture] = this.selectFirstName(gender, parent1Culture, parent2Culture)
-    
-    // Combine into full name
-    const fullName = `${firstName} ${lastName}`
-    
+    const [p1, p2] = this._selectParentCultures()
+    const [lastName, surnameCulture] = this._selectLastName(p1, p2)
+    const [firstName, firstNameCulture] = this._selectFirstName(gender, p1, p2)
+
     return {
-      full_name: fullName,
+      full_name: `${firstName} ${lastName}`,
       first_name: firstName,
       last_name: lastName,
-      parent1_culture: parent1Culture,
-      parent2_culture: parent2Culture,
+      parent1_culture: p1,
+      parent2_culture: p2,
       first_name_culture: firstNameCulture,
       surname_culture: surnameCulture,
-      gender: gender
+      gender,
     }
   }
 
-  /**
-   * Return list of available cultures for name generation.
-   */
+  /** Return list of available cultures (those with both first names and surnames). */
   getAvailableCultures(): string[] {
     return [...this.availableCultures]
   }
 
-  /**
-   * Return statistics about available cultures.
-   */
+  /** Return statistics about available cultures. */
   getCultureStats(): Record<string, CultureStats> {
     const stats: Record<string, CultureStats> = {}
-    
-    for (const cult of this.availableCultures) {
-      const firstNames = this.namesByCulture[cult] || { male: [], female: [], unisex: [] }
-      const surnames = this.surnamesByCulture[cult] || []
-      
-      stats[cult] = {
-        male_names: firstNames.male?.length || 0,
-        female_names: firstNames.female?.length || 0,
-        unisex_names: firstNames.unisex?.length || 0,
-        surnames: surnames.length
+    for (const culture of this.availableCultures) {
+      const fn = this.firstNames[culture] ?? {}
+      stats[culture] = {
+        heritage: this.heritageMap[culture] ?? 'Other',
+        male_names: fn['male']?.length ?? 0,
+        female_names: fn['female']?.length ?? 0,
+        unisex_names: fn['unisex']?.length ?? 0,
+        surnames: this.surnames[culture]?.length ?? 0,
       }
     }
-    
     return stats
   }
 }
 
-// Create singleton instance
+// Singleton instance
 const nameGenerator = new NameGenerator()
 
 export default nameGenerator
