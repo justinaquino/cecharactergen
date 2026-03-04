@@ -140,37 +140,37 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 6. **Aging** — Automated from Term 5 onwards
 7. **Mustering Out** — Cash and benefits selection
 8. **Equipment** — Procedurally generated believable gear
-9. **Name Generation** — Cultural name assignment with parent heritage
-   
-   **Name Generator Process:**
-   
+9. **Name Generation** — Cultural name assignment with parent heritage ✅ **Implemented in M2**
+
+   **Name Generator Process** (default rules — configurable via `name_generation_rules.json`):
+
    **Step 1: Determine Parent Cultures**
-   - **Parent 1 Culture**: Randomly selected from 84+ available cultures
-   - **Parent 2 Culture**: 
-     - 70% chance: Same as Parent 1
-     - 30% chance: Different culture (randomly selected from remaining cultures)
-   
+   - **Parent 1 Culture**: Randomly selected from available cultures in `cultures_names.json`
+   - **Parent 2 Culture**:
+     - `parent2_same_culture_probability` (default 70%): Same as Parent 1
+     - Remaining chance: Different culture (randomly selected from remaining cultures)
+
    **Step 2: Generate Last Name (Surname)**
    - Roll to determine which parent culture provides the surname:
-     - 50% chance: Parent 1's culture
-     - 50% chance: Parent 2's culture
-   - Randomly select surname from that culture's surname pool (30+ surnames per culture)
-   
+     - `surname_from_parent1_probability` (default 50%): Parent 1's culture
+     - Remaining: Parent 2's culture
+   - Randomly select surname from that culture's surname entries in `cultures_names.json`
+
    **Step 3: Generate First Name**
    - Roll to determine which parent culture provides the first name:
-     - 50% chance: Parent 1's culture
-     - 50% chance: Parent 2's culture
+     - `firstname_from_parent1_probability` (default 50%): Parent 1's culture
+     - Remaining: Parent 2's culture
    - Filter by character gender (male/female/unisex)
-   - Randomly select from that culture's first name pool
-   - Fallback to English names if gender-specific names unavailable
-   
+   - Randomly select from that culture's first name entries
+   - Fallback to `fallback_culture` (default "English") if gender-specific names unavailable
+
    **Step 4: Store Name Data**
    - `full_name`: "{first_name} {last_name}"
    - `parent1_culture`: Culture of first parent
    - `parent2_culture`: Culture of second parent
    - `first_name_culture`: Culture first name came from
    - `surname_culture`: Culture surname came from
-   
+
    **Example Output:**
    ```
    Character: Alejandro Fernández
@@ -180,11 +180,59 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
    Gender: Male
    ```
 
+   **Data Format — Spreadsheet-Friendly Flat JSON (`cultures_names.json`):**
+
+   Names and cultures are stored in a **flat array** — one row per name — so the file can be:
+   - Downloaded and opened directly in Excel or Google Sheets
+   - Edited to add, rename, or remove cultures and names
+   - Re-imported via Settings → Tables In Play
+
+   ```json
+   {
+     "version": "1.0",
+     "description": "Culture and name database — one row per name",
+     "columns": ["culture", "heritage", "type", "gender", "name"],
+     "names": [
+       { "culture": "English", "heritage": "European", "type": "first", "gender": "male",   "name": "James" },
+       { "culture": "English", "heritage": "European", "type": "first", "gender": "female", "name": "Mary" },
+       { "culture": "English", "heritage": "European", "type": "first", "gender": "unisex", "name": "Alex" },
+       { "culture": "English", "heritage": "European", "type": "surname", "gender": "any",  "name": "Smith" },
+       { "culture": "Spanish", "heritage": "European", "type": "first", "gender": "male",   "name": "Alejandro" },
+       { "culture": "Spanish", "heritage": "European", "type": "surname", "gender": "any",  "name": "Fernández" }
+     ]
+   }
+   ```
+
+   **Column definitions:**
+   - `culture` — Culture name (unique key within heritage group)
+   - `heritage` — Parent group: European, Asian, African, Middle Eastern, American, Pacific, Alien
+   - `type` — `first` or `surname`
+   - `gender` — `male`, `female`, `unisex`, or `any` (surnames use `any`)
+   - `name` — The actual name string
+
+   **Mechanism File — `name_generation_rules.json`:**
+
+   The generation algorithm's probabilities are stored separately and are swappable via Tables In Play:
+
+   ```json
+   {
+     "id": "default",
+     "name": "Default Heritage Rules",
+     "description": "Standard parent-heritage name generation",
+     "parent2_same_culture_probability": 0.70,
+     "surname_from_parent1_probability": 0.50,
+     "firstname_from_parent1_probability": 0.50,
+     "fallback_culture": "English"
+   }
+   ```
+
+   Users can create alternate rule sets (e.g., "Single Culture" with `parent2_same_culture_probability: 1.0`, or "Melting Pot" with `parent2_same_culture_probability: 0.3`) and switch between them in Tables In Play.
+
 10. **Final Details** — Age, connections, wounds, background summary
 
 **Data Sources:**
-- **First Names**: Behind The Name database (20,505 names, 84+ cultures)
-- **Surnames**: Curated cultural surname lists (100+ cultures, 30+ surnames each)
+- **First Names + Surnames**: Behind The Name database (20,505 names, 84+ cultures) — stored in flat `cultures_names.json`
+- **Generation Mechanism**: Configurable probabilities in `name_generation_rules.json`
 
 **Acceptance:** User can generate characters, data persists, calculations accurate
 
@@ -987,8 +1035,8 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
   - `skills.json` — Skill definitions and categories
   - `equipment.json` — Weapons, armor, gear, assets
   - `homeworlds.json` — World types (CE and Mneme variants)
-  - `names_database.json` — First names by culture/gender (Behind The Name dataset)
-  - `surnames_database.json` — Surnames by culture
+  - `cultures_names.json` — Flat array of all names (first + surnames) by culture/heritage/gender — spreadsheet-editable (M2.8)
+  - `name_generation_rules.json` — Generation mechanism (probabilities, fallback culture) — swappable via Tables In Play (M2.8)
 
 **Settings:**
   - `rules.json` — Rule variants (CE/Mneme, psionics toggle)
@@ -1008,20 +1056,18 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 ### 1. **Species/Origin Tables**
 - `races.json` — Species definitions (Terrestrial Human, Low-G Human)
 
-### 2. **Name Generation System**
-- **`names_database.json`** — First names by culture/gender (Behind The Name dataset)
-  - 84+ cultures
-  - 20,505 first names
-  - Gender: male, female, unisex
-- **`surnames_database.json`** — Surnames by culture
-  - 100+ cultures
-  - 30+ surnames per culture
+### 2. **Name Generation System** ✅ Implemented (M2) — Format refactor in M2.8
 
-**Name Generation Rules:**
-1. **Parent 1 Culture**: Randomly selected from available cultures
-2. **Parent 2 Culture**: 70% chance to match Parent 1, 30% chance different
-3. **Last Name**: 50/50 chance from either parent's culture
-4. **First Name**: 50/50 chance from either parent's culture, filtered by gender
+- **`cultures_names.json`** — Flat array, one row per name (M2.8 target format)
+  - 84+ cultures, 20,505 first names, 100+ cultures of surnames
+  - Columns: `culture`, `heritage`, `type` (first/surname), `gender`, `name`
+  - Downloadable and editable in Excel / Google Sheets
+  - Re-importable via Settings → Tables In Play
+
+- **`name_generation_rules.json`** — Generation mechanism (M2.8 target)
+  - Configurable probabilities: `parent2_same_culture_probability`, `surname_from_parent1_probability`, `firstname_from_parent1_probability`
+  - Swappable via Tables In Play — users can define alternate rule sets (e.g., "Single Culture", "Melting Pot")
+  - Default: 70% same-culture, 50/50 surname/firstname from either parent
 
 ### 3. **Background Tables**
 - `backgrounds.json` — Character backgrounds and origins
@@ -2184,7 +2230,8 @@ Users want to create **custom character tables** (house rules, alternate setting
 | **Skills** | `skills.json` | ✅ Yes |
 | **Equipment** | `equipment.json` | ✅ Yes |
 | **Homeworlds** | `homeworlds.json` | ✅ Yes — CE or Mneme variant |
-| **Names** | `names.json` | ✅ Yes |
+| **Names & Cultures** | `cultures_names.json` | ✅ Yes — flat/spreadsheet-editable, downloadable |
+| **Name Generation Rules** | `name_generation_rules.json` | ✅ Yes — swap mechanism (probabilities) per campaign |
 
 **Key Rule:** Each category has exactly ONE table "in play" at a time. Users can switch between canonical and custom tables per category.
 
@@ -2364,13 +2411,14 @@ localStorage:
 | **M2.5: Install UX & Settings System** | FR-021 (install prompt), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
 | **M2.6: Installed Version Control** | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
 | **M2.7: Tables In Play** | FR-027 — "List of Tables In Play" view; select active table per category; add/edit custom tables | ⏳ Pending |
-| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment, **Low-G Human species (Mneme)**, **advX/disX dice mechanic** | ⏳ Blocked on M2.7 |
+| **M2.8: Culture & Name Data** | Refactor names into flat/spreadsheet-friendly `cultures_names.json` (downloadable, editable in Excel/Sheets, re-importable); extract generation probabilities into discrete `name_generation_rules.json` (swappable via Tables In Play); add export/import for both files | ⏳ Pending — after M2.7 |
+| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment, **Low-G Human species (Mneme)**, **advX/disX dice mechanic** | ⏳ Blocked on M2.8 |
 
 **M3 Testing Scope:**
 - **Phase 1 (Pre-Career):** Species, characteristics, name generation, background, homeworld, pre-career education
   - Species selection (Regular Human vs Low-G Human toggle)
   - Characteristic rolls (2D6, advX, disX)
-  - **Name Generator:** Cultural names based on UNESCO heritage, grouped by gender
+  - **Name Generator:** ✅ Implemented in M2 — gender selector, Generate Name button, cultural heritage display. M2.8 refactors data format and externalises mechanism.
   - Background selection (Space-only for Low-G humans)
   - Homeworld selection (CE vs Mneme tables)
   - Pre-career education (if applicable)

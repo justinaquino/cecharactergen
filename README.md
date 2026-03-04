@@ -53,7 +53,8 @@ A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop R
 | **M2.5: Install UX** | PWA install prompt, auto-save, settings snapshots, CI/CD | ⏳ Pending |
 | **M2.6: Version Control** | Update prompts, version display, changelog, user-controlled updates | ⏳ Pending |
 | **M2.7: Tables In Play** | **List of active tables**, switch tables per category, **add/edit custom tables**, export/import | ⏳ Pending |
-| **M3: Full Careers** | All 24 careers, aging, mustering, **advX/disX dice**, **Low-G Human**, **UNESCO name generator**, **career rule toggle (CE/Mneme)**, **"Random Everything" toggle** | ⏳ Blocked on M2.7 |
+| **M2.8: Culture & Name Data** | Flat `cultures_names.json` (downloadable, Excel/Sheets-editable); discrete `name_generation_rules.json` (swappable mechanism); export/import both | ⏳ Pending |
+| **M3: Full Careers** | All 24 careers, aging, mustering, **advX/disX dice**, **Low-G Human**, **career rule toggle (CE/Mneme)**, **"Random Everything" toggle** | ⏳ Blocked on M2.8 |
 | **M4: Library** | Character library, batch generation, advanced export | ⏳ Pending |
 
 ---
