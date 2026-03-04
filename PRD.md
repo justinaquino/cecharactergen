@@ -2411,7 +2411,7 @@ localStorage:
 | **M2.5: Install UX & Settings System** | FR-021 (install prompt), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
 | **M2.6: Installed Version Control** | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
 | **M2.7: Tables In Play** | FR-027 — "List of Tables In Play" view; select active table per category; add/edit custom tables | ⏳ Pending |
-| **M2.8: Culture & Name Data** | Refactor names into flat/spreadsheet-friendly `cultures_names.json` (downloadable, editable in Excel/Sheets, re-importable); extract generation probabilities into discrete `name_generation_rules.json` (swappable via Tables In Play); add export/import for both files | ⏳ Pending — after M2.7 |
+| **M2.8: Culture & Name Data** | Refactor names into flat/spreadsheet-friendly `cultures_names.json` (downloadable, editable in Excel/Sheets, re-importable); extract generation probabilities into discrete `name_generation_rules.json` (swappable via Tables In Play); add export/import for both files | ✅ **Complete** |
 | **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment, **Low-G Human species (Mneme)**, **advX/disX dice mechanic** | ⏳ Blocked on M2.8 |
 
 **M3 Testing Scope:**
