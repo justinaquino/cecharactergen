@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '../shared/Header'
+import nameGenerator from '../../utils/nameGenerator'
+import type { NameData } from '../../utils/nameGenerator'
 
 // Character Tile Component
 interface CharacterTileProps {
@@ -80,6 +82,19 @@ function CharacterGenerationView() {
   const [layoutMode, setLayoutMode] = useState<'desktop' | 'phone'>('desktop')
   const [activeTiles, setActiveTiles] = useState<Set<string>>(new Set(['header']))
   const [focusedTile, setFocusedTile] = useState<string | null>(null)
+  const [gender, setGender] = useState<'male' | 'female'>('male')
+  const [characterName, setCharacterName] = useState<NameData | null>(null)
+  
+  // Generate a new random name
+  const generateNewName = () => {
+    const newName = nameGenerator.generateName(gender)
+    setCharacterName(newName)
+  }
+  
+  // Generate initial name on component mount
+  useEffect(() => {
+    generateNewName()
+  }, [])
   
   const toggleLayout = () => {
     setLayoutMode(prev => prev === 'desktop' ? 'phone' : 'desktop')
@@ -133,6 +148,17 @@ function CharacterGenerationView() {
                 <h3 className="text-accent-cyan font-semibold mb-4">Parameters</h3>
                 <div className="space-y-4">
                   <div>
+                    <label className="text-sm text-space-300 block mb-1">Gender</label>
+                    <select 
+                      className="w-full"
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value as 'male' | 'female')}
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                  <div>
                     <label className="text-sm text-space-300 block mb-1">Species</label>
                     <select className="w-full">
                       <option>Human</option>
@@ -155,8 +181,14 @@ function CharacterGenerationView() {
                     <label className="text-sm text-space-300 block mb-1">Max Terms</label>
                     <input type="number" defaultValue={7} min={1} max={12} className="w-full" />
                   </div>
-                  <button className="btn-primary w-full mt-4">
-                    Generate
+                  <button 
+                    className="btn-primary w-full mt-4"
+                    onClick={generateNewName}
+                  >
+                    Generate Name
+                  </button>
+                  <button className="btn-primary w-full">
+                    Generate Character
                   </button>
                 </div>
               </div>
@@ -171,11 +203,31 @@ function CharacterGenerationView() {
                 onToggle={() => toggleTile('header')}
                 onFocus={() => focusTile('header')}
               >
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div>
                     <label className="text-sm text-space-400">Name</label>
-                    <input type="text" defaultValue="John Smith" className="w-full mt-1" />
+                    <input 
+                      type="text" 
+                      value={characterName?.full_name || ''} 
+                      className="w-full mt-1 font-semibold"
+                      readOnly 
+                    />
                   </div>
+                  {characterName && (
+                    <div className="text-xs text-space-400 bg-space-800 p-2 rounded">
+                      <div className="mb-1">
+                        <span className="text-accent-cyan">Parents:</span> {characterName.parent1_culture} + {characterName.parent2_culture}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-accent-cyan">First:</span> {characterName.first_name_culture}
+                        </div>
+                        <div>
+                          <span className="text-accent-cyan">Surname:</span> {characterName.surname_culture}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="text-sm text-space-400">Species</label>
@@ -268,6 +320,17 @@ function CharacterGenerationView() {
               </summary>
               <div className="p-4 space-y-4">
                 <div>
+                  <label className="text-sm text-space-300 block mb-1">Gender</label>
+                  <select 
+                    className="w-full"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value as 'male' | 'female')}
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+                <div>
                   <label className="text-sm text-space-300 block mb-1">Species</label>
                   <select className="w-full">
                     <option>Human</option>
@@ -294,6 +357,12 @@ function CharacterGenerationView() {
             </details>
             
             {/* Generate Button */}
+            <button 
+              className="btn-primary w-full py-3"
+              onClick={generateNewName}
+            >
+              Generate Name
+            </button>
             <button className="btn-primary w-full py-4 text-lg">
               + Generate Character
             </button>
@@ -307,11 +376,31 @@ function CharacterGenerationView() {
                 onToggle={() => toggleTile('header')}
                 onFocus={() => focusTile('header')}
               >
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div>
                     <label className="text-sm text-space-400">Name</label>
-                    <input type="text" defaultValue="John Smith" className="w-full mt-1" />
+                    <input 
+                      type="text" 
+                      value={characterName?.full_name || ''} 
+                      className="w-full mt-1 font-semibold"
+                      readOnly 
+                    />
                   </div>
+                  {characterName && (
+                    <div className="text-xs text-space-400 bg-space-800 p-2 rounded">
+                      <div className="mb-1">
+                        <span className="text-accent-cyan">Parents:</span> {characterName.parent1_culture} + {characterName.parent2_culture}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-accent-cyan">First:</span> {characterName.first_name_culture}
+                        </div>
+                        <div>
+                          <span className="text-accent-cyan">Surname:</span> {characterName.surname_culture}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CharacterTile>
               

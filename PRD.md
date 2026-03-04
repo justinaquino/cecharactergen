@@ -72,46 +72,6 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - **Backgrounds:** Only Space backgrounds available (no planetary origins)
 - **Toggle:** Settings → Rules → "Use Low-G Human (Mneme Variant)"
 
-**Esper (Psionic Human):**
-- Description: Humans or near-human humanoids that have embraced the commonplace usage of psionics. Espers tend to be tall and slender in build, and their aloof and detached nature makes them inscrutable to other humans not of their culture. They often have a mystical or philosophical bent to their natures.
-- **Physical Traits:**
-  - Tall and slender build
-  - Aloof and detached demeanor
-  - Inscrutable to non-psionic humans
-- **Special Abilities:**
-  - Psionic Strength (PSI) characteristic — 7th characteristic
-  - Access to psionic talents and careers (Psi-Warrior, Mindwalker, etc.)
-  - Psionic skills: Telepathy, Clairvoyance, Telekinesis, Awareness
-- **Characteristic Rolls:**
-  - Standard 2D6 for STR, DEX, END, INT, EDU, SOC
-  - PSI: Generated separately when psionics are learned (requires Referee permission)
-- **Toggle:** Settings → Rules → "Enable Psionics for Campaign" → makes Esper option available
-- **Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
-
-**Merfolk (Water-Adapted Human):**
-- Description: Genetically manipulated from pure human stock to live on waterworlds. Merfolk bear less and less resemblance with their genetic ancestors with each passing generation. The changes include skin coloration toward pale greens and blues, combined with the presence of their gills, webbed appendages and a thin layer of protective blubber.
-- **Physical Traits:**
-  - Pale green/blue skin coloration
-  - Visible gills
-  - Webbed hands and feet
-  - Thin layer of protective blubber
-  - Amphibian-like appearance
-- **Special Abilities:**
-  - **Amphibious:** Can breathe both air and water
-  - **Aquatic:** Can function underwater without penalty
-  - **Natural Swimmer:** Enhanced swimming capabilities
-- **Limitations:**
-  - **Water Dependent:** Must immerse in water regularly (weekly minimum) or suffer penalties
-- **Characteristic Rolls:**
-  - Standard 2D6 for all characteristics
-- **Starting Skills:**
-  - Watercraft: Level 1
-  - Animals (Aquatic): Level 1
-  - Survival (Ocean): Level 1
-- **Backgrounds:** Water World only
-- **Toggle:** Settings → Rules → "Enable Merfolk (Water-Adapted Humans)"
-- **Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
-
 **Species Selection UI:**
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -130,16 +90,6 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 │   • Zero-G 2, Vacc Suit 1, Survival (Habitat) 1            │
 │   • Move -1 in 0.7G+                                      │
 │   • Space backgrounds only                                 │
-│                                                             │
-│ ○ Esper (Psionic Human) — [Requires Psionics Toggle]       │
-│   • Tall, slender build                                   │
-│   • PSI characteristic (7th stat)                         │
-│   • Access to psionic talents                             │
-│                                                             │
-│ ○ Merfolk (Water-Adapted) — [Requires Merfolk Toggle]    │
-│   • Amphibious, gills, webbed appendages                   │
-│   • Water Dependent                                        │
-│   • Water World backgrounds only                           │
 │                                                             │
 │ [Next: Roll Characteristics →]                              │
 └────────────────────────────────────────────────────────────┘
@@ -190,7 +140,51 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 6. **Aging** — Automated from Term 5 onwards
 7. **Mustering Out** — Cash and benefits selection
 8. **Equipment** — Procedurally generated believable gear
-9. **Final Details** — Name, age, connections, wounds
+9. **Name Generation** — Cultural name assignment with parent heritage
+   
+   **Name Generator Process:**
+   
+   **Step 1: Determine Parent Cultures**
+   - **Parent 1 Culture**: Randomly selected from 84+ available cultures
+   - **Parent 2 Culture**: 
+     - 70% chance: Same as Parent 1
+     - 30% chance: Different culture (randomly selected from remaining cultures)
+   
+   **Step 2: Generate Last Name (Surname)**
+   - Roll to determine which parent culture provides the surname:
+     - 50% chance: Parent 1's culture
+     - 50% chance: Parent 2's culture
+   - Randomly select surname from that culture's surname pool (30+ surnames per culture)
+   
+   **Step 3: Generate First Name**
+   - Roll to determine which parent culture provides the first name:
+     - 50% chance: Parent 1's culture
+     - 50% chance: Parent 2's culture
+   - Filter by character gender (male/female/unisex)
+   - Randomly select from that culture's first name pool
+   - Fallback to English names if gender-specific names unavailable
+   
+   **Step 4: Store Name Data**
+   - `full_name`: "{first_name} {last_name}"
+   - `parent1_culture`: Culture of first parent
+   - `parent2_culture`: Culture of second parent
+   - `first_name_culture`: Culture first name came from
+   - `surname_culture`: Culture surname came from
+   
+   **Example Output:**
+   ```
+   Character: Alejandro Fernández
+   Parents: Spanish + Spanish (70% same-culture probability)
+   First Name: Alejandro (from Spanish culture)
+   Last Name: Fernández (from Spanish culture)
+   Gender: Male
+   ```
+
+10. **Final Details** — Age, connections, wounds, background summary
+
+**Data Sources:**
+- **First Names**: Behind The Name database (20,505 names, 84+ cultures)
+- **Surnames**: Curated cultural surname lists (100+ cultures, 30+ surnames each)
 
 **Acceptance:** User can generate characters, data persists, calculations accurate
 
@@ -993,7 +987,8 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
   - `skills.json` — Skill definitions and categories
   - `equipment.json` — Weapons, armor, gear, assets
   - `homeworlds.json` — World types (CE and Mneme variants)
-  - `names.json` — Name generators by culture/species
+  - `names_database.json` — First names by culture/gender (Behind The Name dataset)
+  - `surnames_database.json` — Surnames by culture
 
 **Settings:**
   - `rules.json` — Rule variants (CE/Mneme, psionics toggle)
@@ -1008,31 +1003,81 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 - Export individual tables as JSON files
 - **Duplicate to Custom Table** — Create editable copy of canonical table
 
-**5. Tables In Play** (`/settings/tables-in-play`) — **NEW FR-027**
-- **List of active tables** — Shows which table drives each generation step
-- **Switch tables** — Select different table per category (canonical or custom)
-- **Add custom tables** — Create new tables from blank, duplicate, or import
-- **Export custom tables** — Share custom tables with other players
-- **Import tables** — Load community-created tables
+## Tables in Process Order
 
-**Visual:**
+### 1. **Species/Origin Tables**
+- `races.json` — Species definitions (Terrestrial Human, Low-G Human)
+
+### 2. **Name Generation System**
+- **`names_database.json`** — First names by culture/gender (Behind The Name dataset)
+  - 84+ cultures
+  - 20,505 first names
+  - Gender: male, female, unisex
+- **`surnames_database.json`** — Surnames by culture
+  - 100+ cultures
+  - 30+ surnames per culture
+
+**Name Generation Rules:**
+1. **Parent 1 Culture**: Randomly selected from available cultures
+2. **Parent 2 Culture**: 70% chance to match Parent 1, 30% chance different
+3. **Last Name**: 50/50 chance from either parent's culture
+4. **First Name**: 50/50 chance from either parent's culture, filtered by gender
+
+### 3. **Background Tables**
+- `backgrounds.json` — Character backgrounds and origins
+- `homeworlds.json` — World types (CE and Mneme variants)
+
+### 4. **Career System Tables**
+- `careers.json` — All 24 careers with qualification, survival, advancement rules
+- `draft.json` — Draft/Conscription assignments (if failed qualification)
+
+### 5. **Career Event Tables**
+- `survival_mishaps.json` — Survival failure consequences
+- `injury.json` — Injury severity and effects
+- `medical_bills.json` — Medical treatment costs
+
+### 6. **Aging & Longevity Tables**
+- `aging.json` — Characteristic loss by age
+- `anagathics.json` — Anti-aging drugs (CE and Mneme variants)
+
+### 7. **Mustering Out Tables**
+- `retirement_pay.json` — Pension by terms served
+- `soc_table.json` — Social Standing effects (CE and Mneme variants)
+
+### 8. **Equipment Tables**
+- `equipment.json` — Weapons, armor, gear, assets
+
+### 9. **Reference Tables**
+- `skills.json` — Skill definitions and categories (referenced throughout)
+
+### 10. **Meta/Control Tables**
+- `rules.json` — Rule variants (CE/Mneme, active table assignments)
+
+---
+
+**UI Format for "Tables In Play":**
 ```
-┌────────────────────────────────────────────────────────────┐
-│ TABLES IN PLAY                                             │
-├────────────────────────────────────────────────────────────┤
-│ AGING TABLE                                                │
-│ ● Canonical Aging (default)                              │
-│   [Switch ▼] [Edit JSON]                                   │
-│ ○ House Rule: Gentler Aging (custom)                   │
-│   [Switch ▼] [Edit JSON] [Export] [Delete]               │
-│                                                              │
-│ CAREERS TABLE                                              │
-│ ● Cepheus Engine Core Careers                            │
-│ ○ My Custom Campaign Careers                               │
-│                                                              │
-│ [+ Add New Custom Table]                                   │
-└────────────────────────────────────────────────────────────┘
+TABLES IN PLAY (in generation order)
+─────────────────────────────────────────
+○ Species       races.json [Switch ▼]
+● Names         names_database.json + surnames_database.json [Switch ▼]
+● Backgrounds   backgrounds.json [Switch ▼]
+● Homeworlds    homeworlds.json [Switch ▼]
+● Careers       careers.json [Switch ▼]
+● Draft         draft.json [Switch ▼]
+● Survival      survival_mishaps.json [Switch ▼]
+● Injuries      injury.json [Switch ▼]
+● Medical       medical_bills.json [Switch ▼]
+● Aging         aging.json [Switch ▼]
+● Anagathics    anagathics.json [Switch ▼]
+● Retirement    retirement_pay.json [Switch ▼]
+● SOC Effects   soc_table.json [Switch ▼]
+● Equipment     equipment.json [Switch ▼]
+● Skills        skills.json [Switch ▼]
+○ Rules         rules.json [Switch ▼]
 ```
+
+---
 
 **6. Data Management** (`/settings/data`)
 - Export Settings Snapshot — Save current tables + rules as named configuration

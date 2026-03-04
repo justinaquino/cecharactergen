@@ -4,7 +4,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://xunema.github.io/cecharactergen/)
-[![Status](https://img.shields.io/badge/Status-M1%20In%20Progress-yellow)](https://github.com/xunema/cecharactergen)
+[![Status](https://img.shields.io/badge/Status-M2%20In%20Progress-yellow)](https://github.com/xunema/cecharactergen)
 
 **Live Demo:** https://xunema.github.io/cecharactergen/
 
@@ -14,15 +14,20 @@
 
 A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop RPG characters. Built following the successful patterns from [CE ShipGen](https://github.com/xunema/ce-shipgen).
 
-### Current Status: M2 — Data Tables (In Progress)
+### Current Status: M2 — Data Tables + Name Generator (In Progress)
 
-- ✅ React 18 + TypeScript + Vite
+- ✅ React 19 + TypeScript + Vite
 - ✅ Tailwind CSS with space theme
 - ✅ Three-view architecture (Startup/Generate/Library/Settings)
 - ✅ Tile-based UI with focus mode
 - ✅ Desktop/Phone layout toggle
 - ✅ React Router with URL routing
-- ✅ Basic data files (races, careers, skills)
+- ✅ **NEW: Cultural Name Generator** (Behind The Name dataset)
+  - 20,505 first names from 84+ cultures
+  - Parent heritage system (70% same-culture probability)
+  - Surnames from 100+ cultures
+  - Gender-specific name generation
+- ✅ Basic data files (names, surnames, races, careers, skills)
 - 🎯 **M2: JSON Table Editor** (like CE ShipGen) — dual JSON/Table view
 - 🎯 **M2.7: Tables In Play** — Select active tables, add custom tables
 
@@ -33,7 +38,6 @@ A React-based Progressive Web App (PWA) for generating Cepheus Engine tabletop R
 - 15+ data tables (draft, survival mishaps, injury, medical bills, aging, anagathics, retirement pay, careers, skills, equipment, etc.)
 - **M3: Character Generation**
   - "Random Everything" toggle for instant character generation
-  - UNESCO cultural heritage name generator (by gender)
   - Species: Regular Human and Low-G Human (Mneme Variant with advX/disX rolls)
   - Career rule toggle: CE Rules As Written vs Mneme (auto-rejoin, Drifter auto-qualify)
   - Career dropdown selection with 24 careers
