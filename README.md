@@ -192,9 +192,13 @@ Like CE ShipGen, users can create **custom tables** and select which ones are "i
 
 ## 📚 Documentation
 
-- [PRD.md](./PRD.md) — Product Requirements Document with full specifications
-- [PROJECT_NOTES.md](./PROJECT_NOTES.md) — Development log, lessons learned, troubleshooting
-- [CE ShipGen](https://github.com/xunema/ce-shipgen) — Inspiration and pattern reference
+| Document | Purpose | Status |
+|----------|---------|--------|
+| [PRD.md](./PRD.md) | Product Requirements Document — full FR specs, milestones, data schemas | ✅ Current |
+| [PROJECT_NOTES.md](./PROJECT_NOTES.md) | Development log, lessons learned, troubleshooting | ✅ Current |
+| [CE ShipGen](https://github.com/xunema/ce-shipgen) | Reference implementation — GI7B UI Standard | ✅ Reference |
+
+> **UI Alignment Note:** This project's UI layout currently diverges from the [GI7B Generator UI Standard](https://github.com/xunema/ce-shipgen/blob/main/PROJECT_NOTES.md#gi7b-generator-ui-standard) defined by CE ShipGen. Settings sections (JSON Tables, Mechanics Modules, Generation Options, Other Settings) and the header toggles (Layout, Theme) are planned for alignment in a future milestone. See PRD for details.
 
 ---
 
