@@ -1,23 +1,90 @@
 # CECG Project Notes
 ## Cepheus Engine Character Generator — Development Log
 
-**Project:** CECG (Cepheus Engine Character Generator)  
-**Date Started:** March 3, 2026  
-**Status:** M1 In Progress — UI Foundation  
-**Repository:** https://github.com/xunema/cecharactergen  
+**Project:** CECG (Cepheus Engine Character Generator)
+**Date Started:** March 3, 2026
+**Status:** M2 In Progress
+**Repository:** https://github.com/xunema/cecharactergen
 **Deployed URL:** (pending)
 
 ---
 
 ## Table of Contents
 
-1. [Project Overview](#project-overview)
-2. [Milestone Status](#milestone-status)
-3. [Session Log](#session-log)
-4. [Technical Decisions](#technical-decisions)
-5. [Issues Encountered & Solutions](#issues-encountered--solutions)
-6. [File Structure](#file-structure)
-7. [Next Steps](#next-steps)
+1. [GI7B UI Standard](#gi7b-ui-standard)
+2. [Project Overview](#project-overview)
+3. [Milestone Status](#milestone-status)
+4. [Session Log](#session-log)
+5. [Technical Decisions](#technical-decisions)
+6. [Issues Encountered & Solutions](#issues-encountered--solutions)
+7. [File Structure](#file-structure)
+8. [Next Steps](#next-steps)
+
+---
+
+## GI7B UI Standard
+
+This app is part of the **GI7B Generator Suite**. All three generators share the same navigation structure and UI conventions. The canonical reference is **ce-shipgen** (`xunema/ce-shipgen`).
+
+### App Navigation Tree
+
+```
+Landing Page (/)
+│
+├── 🌙/☀️ Theme Toggle      [header — always visible]
+├── 🖥️/📱 Layout Toggle     [header — always visible]
+│
+├── ✨ Generate Now (/generate)
+│   └── Character Generation (tile-based, 3-column desktop / single-column mobile)
+│
+├── 📚 Library (/library)
+│   └── Saved characters — search, filter, export
+│
+└── ⚙️ Settings (/settings)
+    ├── 📄 JSON Tables        (/settings/tables)
+    │   └── All data tables — dual JSON/Table view, canonical + custom
+    ├── 🧩 Mechanics Modules  (/settings/mechanics)
+    │   └── Rule toggles (CE/Mneme/Custom), career enable/disable
+    ├── 🎲 Generation Options (/settings/options)
+    │   └── Presets, species defaults, name rule set, export format
+    └── 🔧 Other Settings     (/settings/other)
+        └── Theme, layout default, version control, about
+```
+
+### Tile System (Three States)
+
+| State | Trigger | Description |
+|-------|---------|-------------|
+| **Collapsed** | Default | Summary line only — key stat visible |
+| **Expanded** | Click tile header | Full content, edit controls visible |
+| **Focused** | Click "Focus" / 🔍 button | Full-screen overlay — ESC to exit |
+
+### Layout Modes
+
+| Mode | Trigger | Layout |
+|------|---------|--------|
+| **Desktop** | 🖥️ toggle or viewport ≥ 1024px | 3-column: Parameters / Sheet / Log |
+| **Mobile** | 📱 toggle or viewport < 768px | Single column, tiles stacked vertically |
+
+### Settings Sections (GI7B Standard)
+
+| Section | Route | Icon | CECG Contents |
+|---------|-------|------|---------------|
+| JSON Tables | `/settings/tables` | 📄 | careers, skills, equipment, names, rules, etc. |
+| Mechanics Modules | `/settings/mechanics` | 🧩 | CE/Mneme rule toggle, career enable/disable |
+| Generation Options | `/settings/options` | 🎲 | Presets, species default, name rule set |
+| Other Settings | `/settings/other` | 🔧 | Theme, layout, version control, about |
+
+### Delta: Current vs Target
+
+| Feature | Current State | Target (GI7B Standard) |
+|---------|---------------|------------------------|
+| Theme Toggle | ❌ Not implemented | 🌙/☀️ in header — always visible |
+| Layout Toggle | ✅ Implemented | ✅ 🖥️/📱 in header |
+| Settings routes | `/settings/layout`, `/settings/rules`, `/settings/careers`, `/settings/json` | `/settings/tables`, `/settings/mechanics`, `/settings/options`, `/settings/other` |
+| Settings labels | Layout, Rules, Career Mgmt, JSON Editor | 📄 Tables, 🧩 Mechanics, 🎲 Options, 🔧 Other |
+
+> **UI Alignment Milestone:** Full GI7B UI alignment is targeted for M2 (UI Stage). The PRD has been updated with GI7B-standard routes and section names. Implementation should follow these routes.
 
 ---
 
@@ -745,6 +812,6 @@ export default defineConfig({
 
 ---
 
-**Notes Status:** Living document — updated per session  
-**Last Updated:** March 3, 2026 (Session 1)  
-**Next Update:** After M1 deployment
+**Notes Status:** Living document — updated per session
+**Last Updated:** 2026-03-04 — Added GI7B UI Standard section; updated settings routes to standard
+**Next Update:** After M2 UI implementation
