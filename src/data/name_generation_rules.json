@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "active": "default",
+  "rules": [
+    {
+      "id": "default",
+      "name": "Default Heritage Rules",
+      "description": "Standard parent-heritage name generation. Parent 2 is likely same culture as Parent 1 (70%). First name and surname each drawn 50/50 from either parent's culture.",
+      "parent2_same_culture_probability": 0.70,
+      "surname_from_parent1_probability": 0.50,
+      "firstname_from_parent1_probability": 0.50,
+      "fallback_culture": "English"
+    },
+    {
+      "id": "single_culture",
+      "name": "Single Culture",
+      "description": "Both parents always share the same culture. Names are purely monocultural.",
+      "parent2_same_culture_probability": 1.00,
+      "surname_from_parent1_probability": 0.50,
+      "firstname_from_parent1_probability": 0.50,
+      "fallback_culture": "English"
+    },
+    {
+      "id": "melting_pot",
+      "name": "Melting Pot",
+      "description": "Parents are equally likely to be from different cultures. Maximum cultural mixing.",
+      "parent2_same_culture_probability": 0.10,
+      "surname_from_parent1_probability": 0.50,
+      "firstname_from_parent1_probability": 0.50,
+      "fallback_culture": "English"
+    },
+    {
+      "id": "matrilineal",
+      "name": "Matrilineal",
+      "description": "Surname always comes from Parent 1's culture. First name from either parent.",
+      "parent2_same_culture_probability": 0.70,
+      "surname_from_parent1_probability": 1.00,
+      "firstname_from_parent1_probability": 0.50,
+      "fallback_culture": "English"
+    }
+  ]
+}
