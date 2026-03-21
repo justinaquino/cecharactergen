@@ -1,22 +1,33 @@
-# CECG PRD v2.0
+# CECG PRD v3.0
 ## Cepheus Engine Character Generator - Product Requirements Document
 
-**Version:** 2.0  
-**Date:** March 3, 2026  
-**Status:** Ready for M1 Implementation  
-**Based On:** 
+**Version:** 3.0
+**Date:** March 6, 2026
+**Status:** Ready for Implementation
+**Based On:**
 - Cepheus Engine SRD Chapter 1-5
 - Mneme CE Character Creation Rules
 - Lessons from CE ShipGen Project
+- PRD v2.0 reorganization
 
 ---
 
 ## 1. EXECUTIVE SUMMARY
 
 ### 1.1 Vision Statement
-Create a Progressive Web App (PWA) that implements the complete Cepheus Engine character generation system with Mneme CE rules integration. The app separates **data** (careers, races, skills, equipment) from the **Rules Engine** (characteristics, careers, aging, mustering), enabling third-party content creators to add, remove, or override content without modifying application logic.
 
-### 1.2 Success Criteria
+Create a Progressive Web App (PWA) that implements the complete Cepheus Engine character generation system with Mneme CE rules integration. The app separates **data** (careers, species, skills, equipment) from the **Rules Engine** (characteristics, careers, aging, mustering), enabling third-party content creators to add, remove, or override content without modifying application logic.
+
+### 1.2 Goals
+
+- **Instant Generation:** Complete character creation in seconds
+- **Data-Driven:** All content in editable JSON tables
+- **Modular Rules:** CE vs Mneme variant toggles
+- **Offline-First:** Full PWA functionality
+- **Extensible:** Custom tables without code changes
+
+### 1.3 Success Criteria
+
 - [ ] Generate complete character in < 3 seconds
 - [ ] Support all 24 CE careers with accurate rules
 - [ ] Zero code changes required to add new content modules
@@ -27,569 +38,157 @@ Create a Progressive Web App (PWA) that implements the complete Cepheus Engine c
 
 ---
 
-## 2. GI7B UI STANDARD REFERENCE
+## 2. APP ARCHITECTURE
 
-This app is part of the **GI7B Generator Suite** and follows the **GI7B Generator UI Standard** (canonical reference: [ce-shipgen PROJECT_NOTES.md](https://github.com/xunema/ce-shipgen/blob/main/PROJECT_NOTES.md)).
+### 2.1 Tech Stack
 
-### App Navigation Tree (GI7B Standard)
+| Component | Technology | Notes |
+|-----------|------------|-------|
+| Framework | React 18+ | Component-based architecture |
+| Language | TypeScript | Type safety for calculations |
+| Routing | React Router v7 | Persistent URLs, deep-linking |
+| Build | Vite | Fast development, optimized builds |
+| Styling | CSS Modules / Tailwind | Responsive design |
+| PWA | vite-plugin-pwa | Service worker, manifest |
+| Storage | IndexedDB + localStorage | Character library + settings |
+| Deployment | GitHub Pages | Static hosting via gh-pages branch |
+
+### 2.2 PWA Requirements
+
+- Service worker for offline use
+- Web App Manifest with icons
+- Install prompt detection (`beforeinstallprompt`)
+- Works offline after first load
+- Passes Lighthouse PWA audit
+
+### 2.3 GI7B UI Standard Reference
+
+This app follows the **GI7B UI Standard** established by CE ShipGen:
+
+- **Tile-based layouts** with collapsed/expanded/focused states
+- **Desktop/Phone mode toggle** (manual, persisted)
+- **Three-view architecture** (Generate/Library/Settings)
+- **Auto-save on edit** (no explicit Save buttons in table view)
+- **JSON + Table dual-view editors**
+- **Version control** with user-initiated updates
+
+### 2.4 Three-View Structure
+
+The app is organized around three primary functional areas:
+
+| View | URL | Purpose |
+|------|-----|---------|
+| **Generate** | `/generate` | Create characters with constraints |
+| **Library** | `/library` | Browse, search, load saved characters |
+| **Settings** | `/settings/:section` | Configure app, edit data tables, version control |
+
+Additional routes:
+| Route | Purpose |
+|-------|---------|
+| `/` | Startup screen (entry point) |
+| `/character/:id` | View specific character |
+| `/test/:section` | Development testing interface |
+
+### 2.5 URL Routing & Navigation Map
 
 ```
-Landing Page (/)
+/                           → StartupScreen (entry point)
 │
-├── 🌙/☀️ Theme Toggle      [header — always visible]
-├── 🖥️/📱 Layout Toggle     [header — always visible]
+├── /generate               → CharacterGenerationView
+│   └── ?template=marine    → Pre-select career filter
 │
-├── ✨ Generate Now (/generate)
-│   └── Character Generation (tile-based)
+├── /library                → LibraryView
+│   └── ?career=marine      → Filter by career
 │
-├── 📚 Library (/library)
-│   └── Saved characters — search, filter, export
+├── /character/:id          → CharacterView (specific character)
 │
-└── ⚙️ Settings (/settings)
-    ├── 📄 JSON Tables        (/settings/tables)
-    │   └── Edit all data tables (careers, skills, names, equipment, etc.)
-    ├── 🧩 Mechanics Modules  (/settings/mechanics)
-    │   └── Rule toggles (CE/Mneme), career enable/disable
-    ├── 🎲 Generation Options (/settings/options)
-    │   └── Presets, species defaults, export format
-    └── 🔧 Other Settings     (/settings/other)
-        └── Theme, layout, version control, about
+├── /settings               → SettingsScreen (overview)
+│   ├── /settings/layout    → Layout preferences
+│   ├── /settings/rules     → Rule toggles (CE/Mneme)
+│   ├── /settings/careers   → Career enable/disable
+│   ├── /settings/tables    → JSON table editor
+│   ├── /settings/tables-in-play → Active table selection
+│   ├── /settings/data      → Import/export/reset
+│   └── /settings/version   → Version control
+│
+└── /test                   → TestPage (development)
+    ├── /test/calculations  → Calculation tests
+    ├── /test/components    → Component showcase
+    ├── /test/data          → Data validation
+    ├── /test/routes        → Route testing
+    ├── /test/performance   → Performance metrics
+    └── /test/storage       → LocalStorage inspector
 ```
 
-### Tile System
+**Navigation Rules:**
+- Startup screen (`/`) has NO header — clean entry point
+- All other screens have persistent header navigation
+- Browser back button works naturally between views
+- Direct URL access works (bookmarkable)
+- URL updates when switching views
+- Refreshing page preserves current view
 
-| State | Description |
-|-------|-------------|
-| **Collapsed** | Summary line only — default |
-| **Expanded** | Full content visible |
-| **Focused** | Full-screen overlay — ESC to exit |
+### 2.6 Data Layer Overview
 
-### GI7B Suite
-
-| Generator | Repo | UI Role |
-|-----------|------|---------|
-| CE ShipGen | xunema/ce-shipgen | Canonical UI reference |
-| CE CharacterGen | xunema/cecharactergen | This repo — M2 UI alignment pending |
-| Mneme World Gen | xunema/mneme-world-generator-pwa | M7 UI alignment pending |
+| Layer | Storage | Contains | Reset Action |
+|-------|---------|----------|--------------|
+| Factory defaults | `data/*.json` (shipped) | Canonical tables | N/A (read-only) |
+| Live working state | `localStorage` (`ce_char_live_*`) | Current tables + rules | "Reset to Defaults" |
+| Named snapshots | `localStorage` (`ce_char_presets`) | Saved settings states | Delete snapshot |
+| Custom tables | `localStorage` (`ce_char_tables_custom`) | User-created tables | Delete table |
+| Tables in play | `localStorage` (`ce_char_tables_in_play`) | Active table per category | Reset to canonical |
+| Character library | IndexedDB | Saved characters | Never auto-reset |
 
 ---
 
-## 3. FUNCTIONAL REQUIREMENTS
+## 3. UI & NAVIGATION
 
-### 3.1 Core Character Generator (FR-001 to FR-020)
+### 3.1 Header
 
-#### FR-001: Character Generation Engine
-**Priority:** Critical  
-**Description:** Complete character generation following Cepheus Engine rules
-
-**Generation Steps:**
-
-**Step 1: Characteristics & Species Selection**
-
-**Species Selection (at start of character creation):**
-- **Toggle:** "Random Everything" — Instantly randomize all options for quick generation
-
-**1A. Choose Species (Human Options):**
-
-**Terrestrial Human (Standard):** 
-- Born on Terra or High-G habitats (MAGICIANS, terrestrial spin gravity habitats of 0.9G+)
-- Description: Standard humans from Earth-like environments or high-gravity habitats
-- Characteristics: Roll 2D6 for all six characteristics (STR, DEX, END, INT, EDU, SOC)
-- Standard human with no racial modifiers or special traits
-- All backgrounds available (Planetary and Space)
-- **Toggle:** Default human selection
-
-**Low-G Human (Mneme Variant):**
-- Born in low-G habitats (0.3-0.6G space stations, orbital habitats)
-- Description: Specially adapted for low-G conditions with cardiovascular and bone modifications to survive in reduced gravity environments. 1/2 the weight of a normal human at the same height. Considered a separate species variant in Mneme CE.
-- **Characteristic Rolls:**
-  - STR: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Bone density reduced
-  - DEX: `adv1` (advantage 1) — Roll 3d6, keep highest 2 — Adapted to free-fall movement
-  - END: `dis1` (disadvantage 1) — Roll 3d6, keep lowest 2 — Cardiovascular modifications
-  - INT: 2D6 (standard roll)
-  - EDU: 2D6 (standard roll)
-  - SOC: 2D6-1 (roll standard, subtract 1) — Social stigma of spacer heritage
-- **Starting Skills:**
-  - Zero-G: Level 2
-  - Vacc Suit: Level 1
-  - Survival (Habitat): Level 1
-- **Penalties:**
-  - Move -1 in 0.7G or higher gravity
-  - Cannot function normally in High-G environments (1.0G+)
-- **Backgrounds:** Only Space backgrounds available (no planetary origins)
-- **Toggle:** Settings → Rules → "Use Low-G Human (Mneme Variant)"
-
-**Species Selection UI:**
+**Layout (all non-startup screens):**
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ STEP 1: SPECIES SELECTION                                   │
-├────────────────────────────────────────────────────────────┤
-│                                                             │
-│ [✓] Random Everything (Instant generation)                │
-│                                                             │
-│ SELECT SPECIES:                                            │
-│ ○ Terrestrial Human (Standard) — Terra/High-G birth      │
-│   • Standard 2D6 for all characteristics                   │
-│   • All backgrounds available                            │
-│                                                             │
-│ ○ Low-G Human (Mneme Variant) — Space habitat birth      │
-│   • STR dis1, DEX adv1, END dis1, SOC-1                   │
-│   • Zero-G 2, Vacc Suit 1, Survival (Habitat) 1            │
-│   • Move -1 in 0.7G+                                      │
-│   • Space backgrounds only                                 │
-│                                                             │
-│ [Next: Roll Characteristics →]                              │
+│ [Logo]  CharacterGen   [Generate] [Library] [Settings] [📱]│
 └────────────────────────────────────────────────────────────┘
 ```
 
-**1B. Roll Characteristics:**
+**Elements:**
+- **Logo** (`gitb_gi7b_logo.png`) → Returns to Startup (`/`)
+- **"Generate"** → Navigate to `/generate`
+- **"Library"** → Navigate to `/library`
+- **"Settings"** → Navigate to `/settings`
+- **Layout Toggle (📱/🖥️)** → Switch between Phone/Desktop mode
+- **"Installed" badge** (green dot) — Shows when in standalone PWA mode
+
+**Responsive Behavior:**
+- Desktop: All buttons with text labels
+- Tablet: Icons + text
+- Phone: Icon-only in header
+
+### 3.2 Layout Toggle
+
+**Location:** Header bar, right side
+**Icon:** Desktop monitor 🖥️ or Phone 📱
+**Behavior:**
+- Manual toggle (user clicks to switch)
+- Auto-detect on first load based on viewport width
+- Persists to `ce_char_layout_mode` in localStorage
+- Instant switch, no page reload
+
+**Desktop Mode (≥768px):**
+- Three columns: Parameters (20%), Character Sheet (50%), Log (30%)
+- Tiles arranged side-by-side in grid (2-3 per row)
+
+**Phone Mode (<768px):**
+- Single column, all tiles stacked vertically
+- Parameters panel collapsible at top
+- Bottom action bar: Generate, Save, Settings
+
+### 3.3 Startup Screen
+
+**URL:** `/`
+**Purpose:** Entry point with clear navigation to three main views
 
-**Standard Roll:** 2D6
-- Roll two six-sided dice, sum the result (2-12)
-- Base roll for standard characteristics
-
-**Advantage X (advX):**
-- Format: `adv1`, `adv2`, `adv3`, etc.
-- Roll: (2+X)d6, keep highest 2 dice
-- Examples:
-  - `adv1` = Roll 3d6, keep highest 2
-  - `adv2` = Roll 4d6, keep highest 2
-  - `adv3` = Roll 5d6, keep highest 2
-- **Use Case:** Low-G Human DEX `adv1` — More agile in free-fall
-
-**Disadvantage X (disX):**
-- Format: `dis1`, `dis2`, `dis3`, etc.
-- Roll: (2+X)d6, keep lowest 2 dice
-- Examples:
-  - `dis1` = Roll 3d6, keep lowest 2
-  - `dis2` = Roll 4d6, keep lowest 2
-  - `dis3` = Roll 5d6, keep lowest 2
-- **Use Case:** Low-G Human STR `dis1` and END `dis1` — Reduced bone density and cardiovascular capacity
-
-**Characteristic Scores:**
-- **STR** (Strength): Physical strength, fitness, forcefulness
-- **DEX** (Dexterity): Physical coordination, agility, reflexes
-- **END** (Endurance): Ability to sustain damage, stamina, determination
-- **INT** (Intelligence): Intellect and quickness of mind
-- **EDU** (Education): Learning and experience
-- **SOC** (Social Standing): Place in society (SOC 10+ = Nobility)
-
-**Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation — Section 1.5 "Characteristics"
-2. **Species/Race** — Apply racial modifiers and abilities
-3. **Homeworld** — Background skills based on homeworld type
-4. **Pre-Career Education** — Optional university/military academy
-5. **Career Terms** — Enlistment, survival, advancement, skills per term
-   - **Skill Acquisition Rule:** Character always gains at least 1 skill level per term
-   - **Survival Roll Bonus:** Successfully rolling survival guarantees minimum skill gain
-   - **Skill Tables:** Personal Development (6 options), Service Skills (6 options), Advanced Education (6 options)
-   - **Advancement:** Rank increases may provide additional skills
-   - **Detailed Career Mechanics:** See Section 11 (Career System Details) — to be fully specified in M3
-6. **Aging** — Automated from Term 5 onwards
-7. **Mustering Out** — Cash and benefits selection
-8. **Equipment** — Procedurally generated believable gear
-9. **Name Generation** — Cultural name assignment with parent heritage ✅ **Implemented in M2**
-
-   **Name Generator Process** (default rules — configurable via `name_generation_rules.json`):
-
-   **Step 1: Determine Parent Cultures**
-   - **Parent 1 Culture**: Randomly selected from available cultures in `cultures_names.json`
-   - **Parent 2 Culture**:
-     - `parent2_same_culture_probability` (default 70%): Same as Parent 1
-     - Remaining chance: Different culture (randomly selected from remaining cultures)
-
-   **Step 2: Generate Last Name (Surname)**
-   - Roll to determine which parent culture provides the surname:
-     - `surname_from_parent1_probability` (default 50%): Parent 1's culture
-     - Remaining: Parent 2's culture
-   - Randomly select surname from that culture's surname entries in `cultures_names.json`
-
-   **Step 3: Generate First Name**
-   - Roll to determine which parent culture provides the first name:
-     - `firstname_from_parent1_probability` (default 50%): Parent 1's culture
-     - Remaining: Parent 2's culture
-   - Filter by character gender (male/female/unisex)
-   - Randomly select from that culture's first name entries
-   - Fallback to `fallback_culture` (default "English") if gender-specific names unavailable
-
-   **Step 4: Store Name Data**
-   - `full_name`: "{first_name} {last_name}"
-   - `parent1_culture`: Culture of first parent
-   - `parent2_culture`: Culture of second parent
-   - `first_name_culture`: Culture first name came from
-   - `surname_culture`: Culture surname came from
-
-   **Example Output:**
-   ```
-   Character: Alejandro Fernández
-   Parents: Spanish + Spanish (70% same-culture probability)
-   First Name: Alejandro (from Spanish culture)
-   Last Name: Fernández (from Spanish culture)
-   Gender: Male
-   ```
-
-   **Data Format — Spreadsheet-Friendly Flat JSON (`cultures_names.json`):**
-
-   Names and cultures are stored in a **flat array** — one row per name — so the file can be:
-   - Downloaded and opened directly in Excel or Google Sheets
-   - Edited to add, rename, or remove cultures and names
-   - Re-imported via Settings → Tables In Play
-
-   ```json
-   {
-     "version": "1.0",
-     "description": "Culture and name database — one row per name",
-     "columns": ["culture", "heritage", "type", "gender", "name"],
-     "names": [
-       { "culture": "English", "heritage": "European", "type": "first", "gender": "male",   "name": "James" },
-       { "culture": "English", "heritage": "European", "type": "first", "gender": "female", "name": "Mary" },
-       { "culture": "English", "heritage": "European", "type": "first", "gender": "unisex", "name": "Alex" },
-       { "culture": "English", "heritage": "European", "type": "surname", "gender": "any",  "name": "Smith" },
-       { "culture": "Spanish", "heritage": "European", "type": "first", "gender": "male",   "name": "Alejandro" },
-       { "culture": "Spanish", "heritage": "European", "type": "surname", "gender": "any",  "name": "Fernández" }
-     ]
-   }
-   ```
-
-   **Column definitions:**
-   - `culture` — Culture name (unique key within heritage group)
-   - `heritage` — Parent group: European, Asian, African, Middle Eastern, American, Pacific, Alien
-   - `type` — `first` or `surname`
-   - `gender` — `male`, `female`, `unisex`, or `any` (surnames use `any`)
-   - `name` — The actual name string
-
-   **Mechanism File — `name_generation_rules.json`:**
-
-   The generation algorithm's probabilities are stored separately and are swappable via Tables In Play:
-
-   ```json
-   {
-     "id": "default",
-     "name": "Default Heritage Rules",
-     "description": "Standard parent-heritage name generation",
-     "parent2_same_culture_probability": 0.70,
-     "surname_from_parent1_probability": 0.50,
-     "firstname_from_parent1_probability": 0.50,
-     "fallback_culture": "English"
-   }
-   ```
-
-   Users can create alternate rule sets (e.g., "Single Culture" with `parent2_same_culture_probability: 1.0`, or "Melting Pot" with `parent2_same_culture_probability: 0.3`) and switch between them in Tables In Play.
-
-10. **Final Details** — Age, connections, wounds, background summary
-
-**Data Sources:**
-- **First Names + Surnames**: Behind The Name database (20,505 names, 84+ cultures) — stored in flat `cultures_names.json`
-- **Generation Mechanism**: Configurable probabilities in `name_generation_rules.json`
-
-**Acceptance:** User can generate characters, data persists, calculations accurate
-
----
-
-#### FR-002: Real-Time Validation Engine
-**Priority:** Critical  
-**Description:** Instant validation of all character choices
-
-**Hard Constraints (Block if violated):**
-- Characteristic values must be 1-15 (before modifiers)
-- Skills cannot exceed maximums for career/rank
-- Aging effects cannot reduce characteristics below 1
-- Equipment must match Tech Level
-
-**Soft Warnings (Warn but allow):**
-- Low social standing with officer careers
-- Missing prerequisite skills for equipment
-- Character over 70 years old
-
-**Acceptance:** Zero calculation errors, instant feedback <100ms
-
----
-
-#### FR-003: Dynamic Calculations
-**Priority:** Critical  
-**Description:** Auto-calculate all derived values
-
-**Calculations:**
-- Characteristic Modifiers: `⌊(value / 3)⌋ - 2`
-- Aging Rolls: 2D6 + END DM vs Difficulty (Terms + 1)
-- Anagathics: Cost 100KCr per term, max doses = (SOC - 7)
-- Total Skills (sum of all skill levels)
-- Equipment weight and value
-- Cash on hand after mustering
-
-**Acceptance:** All calculations match reference tables
-
----
-
-#### FR-004: Character Data Management
-**Priority:** High  
-**Description:** Save, load, export character designs
-
-**Features:**
-- Local storage (IndexedDB)
-- JSON export/import
-- Character library with search/filter
-- Duplicate character
-- Delete with confirmation
-- Auto-save on generation
-
-**Acceptance:** Data persists across sessions, export/import works
-
----
-
-#### FR-005: Output Generation
-**Priority:** High  
-**Description:** Generate character documentation
-
-**Formats:**
-1. Universal Character Description (text block)
-2. Mneme Character Summary
-3. JSON (full data)
-4. Markdown
-5. Print-friendly view
-6. Campaign-ready stat block
-
-**Acceptance:** All formats contain complete character data
-
----
-
-### 2.2 User Interface (FR-006 to FR-015)
-
-#### FR-006: Responsive Layout with Mode Toggle and Theme Toggle (GI7B Standard)
-**Priority:** Critical
-**Description:** Two distinct layout modes with manual toggle, plus a Night/Day theme toggle — **matching GI7B UI Standard**
-
-**UI Pattern (GI7B Standard Header):**
-```
-┌────────────────────────────────────────────────────────────┐
-│ Header: [Logo] [Generate] [Library] [Settings] [🌙/☀️] [Phone▼] │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  DESKTOP MODE (Multi-Column)                               │
-│  ┌──────────┐ ┌──────────────────────┐ ┌──────────────┐   │
-│  │Parameters│ │  CHARACTER SHEET     │ │     Log      │   │
-│  │ (20%)    │ │  (50%)               │ │   (30%)      │   │
-│  │          │ │                      │ │              │   │
-│  │ Career   │ │ ┌────┐ ┌────┐ ┌────┐│ │ Generation   │   │
-│  │ filters  │ │ │Tile│ │Tile│ │Tile││ │ history      │   │
-│  │ Species  │ │ │ 1  │ │ 2  │ │ 3  ││ │ Step-by-step │   │
-│  │ TL range │ │ └────┘ └────┘ └────┘│ │              │   │
-│  │          │ │                      │ │              │   │
-│  └──────────┘ │ ┌────┐ ┌────┐        │ │              │   │
-│                │ │Tile│ │Tile│        │ │              │   │
-│                │ │ 4  │ │ 5  │        │ │              │   │
-│                │ └────┘ └────┘        │ │              │   │
-│                └──────────────────────┘ └──────────────┘   │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
-
-┌────────────────────────────────────────────────────────────┐
-│ Header: [Logo] [Generate] [Library] [Settings] [Desktop▼] │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  PHONE MODE (Vertical Stack)                               │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │ [≡] Parameters (collapsed)                           │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                                                            │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │ CHARACTER SHEET (scrollable)                         │ │
-│  │                                                      │ │
-│  │ ┌──────────────────────────────────────────────────┐ │ │
-│  │ │ Header Tile (Name, Species, Career)              │ │ │
-│  │ ├──────────────────────────────────────────────────┤ │ │
-│  │ │ Characteristics Tile (STR, DEX, END, INT, EDU,  │ │ │
-│  │ │ SOC with modifiers)                              │ │ │
-│  │ ├──────────────────────────────────────────────────┤ │ │
-│  │ │ Skills Tile (Grouped by category)                │ │ │
-│  │ ├──────────────────────────────────────────────────┤ │ │
-│  │ │ Career History Tile (Timeline of terms)         │ │ │
-│  │ ├──────────────────────────────────────────────────┤ │ │
-│  │ │ Equipment Tile (Categorized gear)               │ │ │
-│  │ ├──────────────────────────────────────────────────┤ │ │
-│  │ │ Connections & Background Tile                   │ │ │
-│  │ └──────────────────────────────────────────────────┘ │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                                                            │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │ Generation Log                                       │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                                                            │
-│  [Generate Button] [Save Button]                          │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
-```
-
-**Desktop/Tablet Mode (Landscape / Multi-Column):**
-- **Three columns:** Parameters (20%), Character Sheet (50%), Summary/Log (30%)
-- **Character sheet tiles:** Arranged side-by-side in a grid (2-3 tiles per row)
-- **Tile behavior:** Click to expand (Focus Mode), click again to collapse
-- **Scroll:** Vertical scroll only if content exceeds viewport
-- **Width:** Minimum 1024px for full 3-column layout, collapses to 2-column at 768px
-
-**Phone/Mobile Mode (Portrait / Vertical Stack):**
-- **Single column:** All tiles stacked vertically top-to-bottom
-- **Character sheet tiles:** Full width, stacked in order:
-  1. Header (Name, Species, Career)
-  2. Characteristics (6 stats with DMs)
-  3. Skills (grouped by category)
-  4. Career History (timeline)
-  5. Equipment (categorized)
-  6. Connections & Background
-- **Parameters panel:** Collapsible at top (starts collapsed)
-- **Bottom action bar:** Generate, Save, Settings buttons fixed at bottom
-- **Scroll:** Natural vertical scroll through all tiles
-- **Width:** 320px to 767px
-
-**Layout Toggle:**
-- **Location:** Header bar, right side
-- **Icon:** Desktop monitor 🖥️ or Phone 📱
-- **Label:** "Desktop" or "Phone" (icon + text)
-- **Manual toggle:** User clicks to switch modes
-- **Auto-detect:** On first load, detect viewport width and set appropriate mode
-- **Persistence:** Store `ce_char_layout_mode` preference in localStorage
-- **Transition:** Instant switch, no page reload
-
-**Theme Toggle (🌙/☀️) — GI7B Standard:**
-- **Location:** Header bar, right side, left of layout toggle
-- **Icon:** 🌙 (Night/Dark mode) or ☀️ (Day/Light mode)
-- **Manual toggle:** User clicks to switch theme
-- **Persistence:** Store `ce_char_theme` preference in localStorage
-- **Transition:** Instant CSS class switch on `<html>` element
-- **Default:** System preference (`prefers-color-scheme`) on first load
-
-**Acceptance:**
-- [ ] Desktop mode shows tiles side-by-side (multi-column)
-- [ ] Phone mode shows tiles stacked vertically
-- [ ] Layout toggle visible in header on all views
-- [ ] Theme toggle (🌙/☀️) visible in header on all views, left of layout toggle
-- [ ] Clicking layout toggle instantly switches layout
-- [ ] Clicking theme toggle instantly switches Night/Day mode
-- [ ] Both preferences persist across sessions
-- [ ] No horizontal scroll on mobile
-- [ ] All features accessible in both modes
-- [ ] Focus mode works correctly in both layouts
-
----
-
-#### FR-007: Character Sheet Tile System with Focus Mode (CE ShipGen Pattern)
-**Priority:** Critical  
-**Description:** Character display as tiles with expandable focus mode — **exactly like CE ShipGen**
-
-**Tile System (Same as CE ShipGen Ship Design Tiles):**
-
-**Tile Sections (6 tiles):**
-1. **Header Tile** — Name, Species, Career Summary, Age, Terms
-2. **Characteristics Tile** — STR, DEX, END, INT, EDU, SOC with modifiers (e.g., STR 7 → DM -1)
-3. **Skills Tile** — Grouped by category (Personal, Service, Specialist, Advanced)
-4. **Career History Tile** — Timeline of career terms with ranks and events
-5. **Equipment Tile** — Categorized gear (Weapons, Armor, Tools, Personal Items)
-6. **Connections & Background Tile** — Homeworld, allies, enemies, wounds
-
-**Tile States (Same as CE ShipGen):**
-
-**1. Inactive (Collapsed)** — Default state
-```
-┌─────────────────────────────────────────────────┐
-│ ▶ Header                              [Focus 🔍]  │
-│ Name: John Smith | Species: Human | Career: —   │
-└─────────────────────────────────────────────────┘
-```
-- Shows summary information only
-- Click header or "Focus" button to expand
-- Desktop: Multiple tiles visible side-by-side
-- Phone: Tiles stacked, only summaries visible
-
-**2. Active (Expanded)** — Click to expand
-```
-┌─────────────────────────────────────────────────┐
-│ ▼ Header                              [🔍]     │
-│ Name: John Smith                                │
-│ Species: Human                                  │
-│ Career: Marine (2 terms)                        │
-│ Rank: Lieutenant                                │
-│ Age: 26                                         │
-│ [Edit] [Randomize]                              │
-└─────────────────────────────────────────────────┘
-```
-- Shows full content for that tile
-- Edit controls visible
-- Other tiles remain visible but inactive
-
-**3. Focused (Full-Screen Overlay)** — Click "Focus" button or tile header
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  [Logo] CharacterGen          [Generate] [Library] [Settings]     │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐│
-│  │ ▼ Header Tile (FOCUSED)                              [X]   ││
-│  ├────────────────────────────────────────────────────────────┤│
-│  │                                                            ││
-│  │ Name:          [John Smith              ]                  ││
-│  │ Species:        [Human ▼]                                  ││
-│  │ Career:         [Marine ▼] (2 terms)                       ││
-│  │ Rank:           [Lieutenant        ]                      ││
-│  │ Age:            [26                  ]                      ││
-│  │                                                            ││
-│  │ [🎲 Randomize All] [💾 Save] [📋 Copy]                     ││
-│  │                                                            ││
-│  └────────────────────────────────────────────────────────────┘│
-│                                                                  │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐             │
-│  │ Character-   │ │ Skills       │ │ Career       │             │
-│  │ istics       │ │ (inactive)   │ │ History      │             │
-│  │ (inactive)   │ │              │ │ (inactive)   │             │
-│  └──────────────┘ └──────────────┘ └──────────────┘             │
-│                                                                  │
-└──────────────────────────────────────────────────────────────────┘
-```
-- Tile expands to fill available space (desktop: 70% width; phone: full screen)
-- Background tiles collapse to minimal headers
-- All controls for that section visible
-- **Press ESC** or click "Exit Focus" (X button) to return
-- **Mobile:** Swipe between tiles in focus mode (optional)
-
-**4. Completed** — After user finishes editing
-```
-┌─────────────────────────────────────────────────┐
-│ ✓ Header                              [Focus]   │
-│ Name: John Smith | Species: Human | Career: Marine│
-└─────────────────────────────────────────────────┘
-```
-- Green checkmark indicator
-- Shows data is valid and complete
-
-**Tile Interactions:**
-- **Click tile header:** Toggle between Inactive ↔ Active
-- **Click "Focus" button:** Enter Focus Mode
-- **Press ESC:** Exit Focus Mode
-- **Click another tile:** That tile becomes Active (previous collapses)
-- **Desktop:** Multiple tiles can be Active simultaneously (side-by-side)
-- **Phone:** Only one tile Active at a time (stacked view)
-
-**Focus Mode Behavior:**
-- Desktop: Focused tile expands to 70% width, others shrink to 15% (headers only)
-- Phone: Focused tile goes full-screen, swipe to navigate between tiles
-- Always show "Exit Focus" button (X) in top-right
-- Always allow ESC key to exit
-
-**Acceptance:** 
-- [ ] All 6 tiles render correctly
-- [ ] Click tile header toggles Active/Inactive
-- [ ] "Focus" button enters full-screen mode
-- [ ] ESC key exits focus mode
-- [ ] Focus mode works on desktop (expanded tile, collapsed others)
-- [ ] Focus mode works on phone (full-screen, swipe optional)
-- [ ] Checkmark shows for completed/valid tiles
-- [ ] All tiles accessible in both Desktop and Phone layouts
-
----
-
-#### FR-008: Startup Screen & App Flow (Entry Point)
-**Priority:** High  
-**Description:** Entry point with navigation to three main views — **exactly like CE ShipGen**
-
-**Startup Screen Layout:**
 ```
 ┌────────────────────────────────────────────────────────────┐
 │                                                            │
@@ -602,8 +201,6 @@ Landing Page (/)
 │  ┌──────────────────────────────────────────────────────┐ │
 │  │                                                      │ │
 │  │   [  +  GENERATE CHARACTER  ]   ← Primary action     │ │
-│  │                                                      │ │
-│  │   Create a new character instantly                   │ │
 │  │                                                      │ │
 │  └──────────────────────────────────────────────────────┘ │
 │                                                            │
@@ -619,357 +216,175 @@ Landing Page (/)
 │  │  📥 Install App  ← Only shows if PWA installable     │ │
 │  └──────────────────────────────────────────────────────┘ │
 │                                                            │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │  ❓ Help & About                                     │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                                                            │
-│         Version 0.2.6-dev | M2.6: Version Control          │
+│         Version 0.3.0-dev | GI7B                           │
 │                                                            │
 └────────────────────────────────────────────────────────────┘
 ```
 
-**Startup Screen Elements:**
+**Elements:**
+1. **Branding** — Logo (`gitb_gi7b_logo.png`), app name, tagline
+2. **Primary Action** — "+ GENERATE CHARACTER" (large, prominent)
+3. **Secondary Actions** — Library card, Settings card
+4. **PWA Install** — Conditional (only if installable)
+5. **Version Info** — Current version at bottom
 
-**1. Branding Area (Top)**
-- GI7B logo (upper right)
-- App name: "Cepheus Engine Character Generator"
-- Tagline: "Create characters instantly"
+### 3.4 Tile System
 
-**2. Primary Action (Center)**
-- **"+ GENERATE CHARACTER"** — Large, prominent button
-- Color: Accent cyan (like CE ShipGen)
-- Action: Navigate to `/generate`
-- Description: "Create a new character instantly"
+Character sheet displayed as tiles with four states:
 
-**3. Secondary Actions (Middle)**
-- **"📚 Character Library"** — Left card
-  - Shows saved character count (e.g., "32 characters saved")
-  - Action: Navigate to `/library`
-  - Description: "Browse and load saved characters"
-  
-- **"⚙️ Settings"** — Right card
-  - Action: Navigate to `/settings`
-  - Description: "Customize rules, edit careers, manage versions"
-
-**4. PWA Install (Conditional)**
-- **"📥 Install App"** — Shows only if PWA is installable
-- Action: Trigger install prompt
-- Hidden after install or on iOS (shows manual instructions instead)
-
-**5. Tertiary Action**
-- **"❓ Help & About"** — Link
-- Action: Show help modal or navigate to about page
-
-**6. Version Info (Bottom)**
-- Current version
-- Current milestone (e.g., "M2.6: Version Control")
-
-**App Flow:**
+**1. Inactive (Collapsed)** — Default state
 ```
-┌────────────────────────────────────────────────────────────┐
-│  STARTUP SCREEN (/)                                        │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │                                                      │ │
-│  │   [ + GENERATE CHARACTER ] ───────┐                  │ │
-│  │                                   │                  │ │
-│  │   [📚 Library] [⚙️ Settings]      │                  │ │
-│  │       │                │          │                  │ │
-│  └───────┼────────────────┼──────────┼──────────────────┘ │
-│          │                │          │                    │
-│          ▼                ▼          ▼                    │
-│  ┌───────────────┐ ┌──────────┐ ┌──────────────┐       │
-│  │ /generate     │ │ /library │ │ /settings    │       │
-│  │ Character     │ │Character │ │ App config   │       │
-│  │ Generation    │ │ Library   │ │ Data tables  │       │
-│  │ (tile-based)  │ │           │ │ Version ctrl │       │
-│  └───────────────┘ └──────────┘ └──────────────┘       │
-│                                                          │
-└────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│ ▶ Header                              [Focus 🔍] │
+│ Name: John Smith | Species: Human | Career: —   │
+└─────────────────────────────────────────────────┘
 ```
 
-**Navigation Pattern:**
-
-**From Startup Screen:**
-1. **Click "Generate Character"** → Navigate to `/generate`
-2. **Click "Character Library"** → Navigate to `/library`
-3. **Click "Settings"** → Navigate to `/settings`
-4. **Click "Install App"** (if shown) → Trigger PWA install
-
-**From Any Other Screen (Header Navigation — GI7B Standard):**
+**2. Active (Expanded)** — Click header to expand
 ```
-┌────────────────────────────────────────────────────────────────┐
-│ [Logo]  CharacterGen   [Generate] [Library] [Settings] [🌙] [📱] │
-└────────────────────────────────────────────────────────────────┘
-         │                  │         │         │        │     │
-         ▼                  ▼         ▼         ▼        ▼     ▼
-    Return to         Character   Character  App     Theme  Layout
-    Startup          Generation   Library    Config  Toggle Toggle
+┌─────────────────────────────────────────────────┐
+│ ▼ Header                              [🔍]      │
+│ Name: John Smith                                │
+│ Species: Human                                  │
+│ Career: Marine (2 terms)                        │
+│ Rank: Lieutenant                                │
+│ Age: 26                                         │
+│ [Edit] [Randomize]                              │
+└─────────────────────────────────────────────────┘
 ```
 
-**Header Navigation (All non-startup screens):**
-- **Logo** → Returns to Startup (`/`)
-- **"Generate"** → Navigate to `/generate`
-- **"Library"** → Navigate to `/library`
-- **"Settings"** → Navigate to `/settings`
-- **Theme Toggle (🌙/☀️)** → Switch between Night/Day mode — always visible
-- **Layout Toggle (📱/🖥️)** → Switch between Phone/Desktop mode
-- **"Installed" badge** (if in standalone mode)
+**3. Focused (Full-Screen Overlay)** — Click Focus button
+- Desktop: Tile expands to 70% width, others shrink to headers
+- Phone: Tile goes full-screen
+- ESC key or X button to exit
 
-**URL Routing (GI7B Standard):**
-| Route | View | Description | Accessible From |
-|-------|------|-------------|-----------------|
-| `/` | `StartupScreen` | Entry point, app branding, navigation | Initial load, Logo click |
-| `/generate` | `CharacterGenerationView` | Main generation interface | "Generate" button |
-| `/library` | `LibraryView` | Character library, search/filter | "Library" button |
-| `/character/:id` | `CharacterView` | View specific character details | Library selection |
-| `/settings` | `SettingsScreen` | Settings landing (redirects to /settings/tables) | "Settings" button |
-| `/settings/tables` | `SettingsScreen` | 📄 JSON Tables — edit all data tables | Settings nav |
-| `/settings/mechanics` | `SettingsScreen` | 🧩 Mechanics Modules — rule toggles, career management | Settings nav |
-| `/settings/options` | `SettingsScreen` | 🎲 Generation Options — presets, species defaults | Settings nav |
-| `/settings/other` | `SettingsScreen` | 🔧 Other Settings — theme, layout, version, about | Settings nav |
+**4. Completed** — After valid data entered
+```
+┌─────────────────────────────────────────────────┐
+│ ✓ Header                              [Focus]   │
+│ Name: John Smith | Species: Human | Career: Marine│
+└─────────────────────────────────────────────────┘
+```
+- Green checkmark indicator
 
-**Navigation Rules:**
-- **Startup screen** (`/`) has **NO header** — clean entry point
-- **All other screens** have persistent **header navigation**
-- **Browser back button** works naturally between views
-- **Direct URL access** works (e.g., bookmark `/library`)
-- **URL updates** when switching views via navigation
-- **Refreshing page** preserves current view (thanks to React Router)
+**Character Sheet Tiles (6 tiles):**
+1. **Header Tile** — Name, Species, Career Summary, Age, Terms
+2. **Characteristics Tile** — STR, DEX, END, INT, EDU, SOC with modifiers
+3. **Skills Tile** — Grouped by category (Personal, Service, Specialist, Advanced)
+4. **Career History Tile** — Timeline of career terms with ranks and events
+5. **Equipment Tile** — Categorized gear (Weapons, Armor, Tools, Personal)
+6. **Connections & Background Tile** — Homeworld, allies, enemies, wounds
 
-**Responsive Behavior:**
-- **Desktop:** All navigation buttons visible with text labels
-- **Tablet:** Buttons with icons + text
-- **Phone:** Icon-only buttons in header, full buttons on Startup
+### 3.5 Generate View
 
-**Acceptance:** 
-- [ ] Startup screen shows three main navigation options (Generate, Library, Settings)
-- [ ] "Generate Character" is primary/ prominent button
-- [ ] Install prompt shows conditionally (FR-021)
-- [ ] Header navigation appears on all non-startup screens
-- [ ] Logo in header returns to Startup
-- [ ] All routes accessible via navigation
-- [ ] URL changes reflect current view
-- [ ] Browser back/forward works correctly
-- [ ] Mobile navigation adapts (icon-only in header)
-- Direct URL access to any route (e.g., bookmark /library)
-- URL updates when switching views
-- Refreshing page preserves current view
+**URL:** `/generate`
+**Purpose:** Primary interface for creating characters
 
-**Acceptance:** All routes accessible, URL changes reflect view state, browser navigation works, mobile-friendly
-
----
-
-#### FR-008b: Three-Core View Architecture
-**Priority:** High  
-**Description:** The app is organized around three primary functional areas: Character Generation, Library, and Settings
-
-**Core Philosophy:** Like CE ShipGen, the app separates concerns into three distinct views, each with persistent URLs:
-
-### 1. Character Generation (`/generate`)
-**Purpose:** The primary interface for creating characters
-
-**Components:**
-- Parameter Panel (left/top) — Generation constraints, career filters
-- Character Sheet (center) — Real-time display of generated character
-- Generation Log (right/bottom) — History of rolls and decisions
+**Desktop Layout:**
+```
+┌──────────────┐ ┌──────────────────────┐ ┌──────────────┐
+│ Parameters   │ │ CHARACTER SHEET      │ │     Log      │
+│ (20%)        │ │ (50%)                │ │   (30%)      │
+│              │ │                      │ │              │
+│ Species      │ │ [Tiles in grid]      │ │ Generation   │
+│ Career       │ │                      │ │ history      │
+│ Constraints  │ │                      │ │ Roll-by-roll │
+└──────────────┘ └──────────────────────┘ └──────────────┘
+```
 
 **Key Features:**
-- One-click "Generate" button produces complete character
-- Constraints panel: species, career types, tech level limits
+- One-click "Generate" produces complete character
+- Constraints panel: species, career filters, tech level limits
 - Real-time updates as generation progresses
-- Focus mode for individual tiles (characteristics, skills, equipment)
+- Focus mode for individual tiles
+- "Random Everything" toggle for instant generation
 
-**URL Integration:**
-- `/generate` — Standard generation view
-- `/generate?template=marine` — Pre-select Marine career filter
-- Query params persist constraint selections
+### 3.6 Library View
 
-### 2. Character Library (`/library`)
+**URL:** `/library`
 **Purpose:** Browse, search, and manage saved characters
 
-**Components:**
-- Search/Filter Bar — Name, career, species, date generated
-- Character Grid/List — Thumbnails with key stats
-- Character Detail Panel — Full character view on selection
-- Batch Actions — Export multiple, delete group
-
-**Key Features:**
+**Features:**
+- Search/Filter Bar — Name, career, species, date
 - Grid view (cards) and List view (table) toggle
 - Sort by: Name, Date, Career, Terms, Age
-- Filter by: Species, Career type, Alive/Dead, Has Equipment
 - Quick actions: Load, Duplicate, Export, Delete
-- Batch generation results appear here automatically
+- Batch operations: Export multiple, delete group
 
-**URL Integration:**
-- `/library` — Full library view
-- `/library?career=marine` — Filtered to Marines
-- `/character/:id` — Direct link to specific character
+### 3.7 Settings View
 
-### 3. Settings (`/settings`)
+**URL:** `/settings` and `/settings/:section`
 **Purpose:** Configure app, edit data tables, manage versions
 
-**Sections (GI7B Standard):**
-- **📄 JSON Tables** (`/settings/tables`) — Edit all data tables (careers, skills, equipment, names, etc.)
-- **🧩 Mechanics Modules** (`/settings/mechanics`) — Rule toggles (CE/Mneme), career enable/disable, rule variants
-- **🎲 Generation Options** (`/settings/options`) — Presets, species defaults, export format preferences
-- **🔧 Other Settings** (`/settings/other`) — Theme, layout defaults, version control, about/credits
+See **Section 4** for complete Settings documentation.
 
-**Key Features:**
-- Auto-save on all edits (no "Save" button in table view)
-- Settings snapshots for named configurations
-- Version history with rollback capability
-- Release channel selection (stable/beta)
+---
 
-**URL Integration:**
-- `/settings` — Redirects to `/settings/tables`
-- `/settings/tables` — JSON data table editor
-- `/settings/mechanics` — Rule toggles and career management
-- `/settings/options` — Generation presets
-- `/settings/other` — Layout, theme, version control
+## 4. SETTINGS — STRUCTURE & MODULARITY
 
-**Navigation Between Views:**
+### 4.1 Settings Screen Layout
+
 ```
-┌─────────────────────────────────────────────────────────┐
-│  [Logo]  CharacterGen              [Generate] [Library] [Settings]  │
-└─────────────────────────────────────────────────────────┘
-│                                                         │
-│  VIEW: Character Generation                             │
-│  ┌────────────┐  ┌──────────────────┐  ┌──────────┐  │
-│  │ Parameters │  │ Character Sheet  │  │   Log    │  │
-│  │            │  │  (Tiles)         │  │          │  │
-│  └────────────┘  └──────────────────┘  └──────────┘  │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│  [Logo]  CharacterGen              [Generate] [Library] [Settings]  │
-└─────────────────────────────────────────────────────────┘
-│                                                         │
-│  VIEW: Library                                          │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │ [Search] [Filter ▼] [Sort ▼]  [Grid/List ▼]     │   │
-│  ├─────────────────────────────────────────────────┤   │
-│  │ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐        │   │
-│  │ │Char1│ │Char2│ │Char3│ │Char4│ │Char5│ ...    │   │
-│  │ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘        │   │
-│  └─────────────────────────────────────────────────┘   │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│  [Logo]  CharacterGen              [Generate] [Library] [Settings]  │
-└─────────────────────────────────────────────────────────┘
-│                                                         │
-│  VIEW: Settings                                         │
-│  ┌────────────┐  ┌──────────────────────────────────┐   │
-│  │  Sidebar   │  │          Content Area            │   │
-│  │            │  │                                  │   │
-│  │ ● Tables   │  │  [Active Section Content]       │   │
-│  │ ○ Mechanics│  │                                  │   │
-│  │ ○ Options  │  │  [Tables, Editors, Controls]    │   │
-│  │ ○ Other    │  │                                  │   │
-│  │            │  │                                  │   │
-│  └────────────┘  └──────────────────────────────────┘   │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  [Logo]  CharacterGen     [Generate] [Library] [Settings]  │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌────────────┐  ┌──────────────────────────────────────┐ │
+│  │  Sidebar   │  │          Content Area                │ │
+│  │            │  │                                      │ │
+│  │ ○ Layout   │  │  [Active Section Content]            │ │
+│  │ ○ Rules    │  │                                      │ │
+│  │ ○ Careers  │  │  [Tables, Editors, Controls]         │ │
+│  │ ● Tables   │  │                                      │ │
+│  │ ○ In Play  │  │                                      │ │
+│  │ ○ Data     │  │                                      │ │
+│  │ ○ Version  │  │                                      │ │
+│  └────────────┘  └──────────────────────────────────────┘ │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
 ```
 
-**Acceptance:** Three views clearly defined, each with distinct purpose, persistent URLs, smooth navigation between them
+**Sidebar Icons:**
+- 📐 Layout
+- 📋 Rules
+- 🎖️ Careers
+- 📝 Tables (JSON Editor)
+- 🎲 Tables In Play
+- 💾 Data
+- 🔄 Version
 
----
+### 4.2 Settings Sections
 
-#### FR-009: Settings Screen — GI7B Standard Sections
-**Priority:** High
-**Description:** Pre-generation configuration with editable data tables, rule toggles, and app settings. Follows the **GI7B UI Standard** with four fixed sections.
+#### 4.2.1 Layout Settings (`/settings/layout`)
 
-**URL:** `/settings` (redirects to `/settings/tables`) or `/settings/:section`
+- Desktop/Phone mode toggle
+- Theme: Dark/Light/Auto
+- Animation preferences
+- Font size adjustments
 
-**Section Overview:**
+#### 4.2.2 Rules Settings (`/settings/rules`)
 
-| Section | Route | Icon | Purpose |
-|---------|-------|------|---------|
-| JSON Tables | `/settings/tables` | 📄 | Edit all data tables (canonical + custom) |
-| Mechanics Modules | `/settings/mechanics` | 🧩 | Rule toggles, career enable/disable |
-| Generation Options | `/settings/options` | 🎲 | Presets, species defaults, output format |
-| Other Settings | `/settings/other` | 🔧 | Theme, layout, version control, about |
+**Master Toggle:** Standard CE / Mneme Variant
 
----
+**Individual Rule Toggles:**
+| Toggle | CE Default | Mneme Variant |
+|--------|------------|---------------|
+| Unified Roll System | Off | On |
+| Automatic Re-Enlistment | Off | On |
+| Aging Start | Term 4 | Term 5 |
+| Anagathics | RAW (complex) | Simplified |
+| Drifter Qualification | Roll required | Auto |
+| PSI Characteristic | Disabled | Enable toggle |
 
-**1. 📄 JSON Tables** (`/settings/tables`)
+**Selectable Table Variants:**
+- SOC Table: CE (titles) vs Mneme (economic tiers)
+- Homeworlds Table: CE vs Mneme
+- Anagathics Table: CE vs Mneme
 
-The data table editor. All data tables are editable here.
+#### 4.2.3 Career Management (`/settings/careers`)
 
-- Select table from dropdown (organized by category)
-- Shows ALL tables: Canonical (factory) + Custom (user-created)
-- Custom tables marked with "[Custom]" badge
-- Dual JSON/Table view editor (same as CE ShipGen)
-- **"Duplicate to Custom Table"** — editable copy of canonical table
-- Export/import individual tables as JSON files
+**Purpose:** Toggle which careers are active for generation
 
-**Tables available:**
-
-| Category | Files |
-|----------|-------|
-| Species | `races.json` |
-| Names & Cultures | `cultures_names.json`, `name_generation_rules.json` |
-| Backgrounds | `backgrounds.json`, `homeworlds.json` |
-| Careers | `careers.json`, `draft.json` |
-| Career Events | `survival_mishaps.json`, `injury.json`, `medical_bills.json` |
-| Aging | `aging.json`, `anagathics.json` |
-| Mustering Out | `retirement_pay.json`, `soc_table.json` |
-| Equipment | `equipment.json`, `skills.json` |
-| Meta | `rules.json`, `_summary.json` |
-
----
-
-**2. 🧩 Mechanics Modules** (`/settings/mechanics`)
-
-Rule toggles and career management.
-
-**Rule Set Selection:**
-- Master toggle: Cepheus Engine / Mneme CE / Custom
-- Individual rule options:
-  - Unified Roll System (on/off)
-  - Automatic Re-Enlistment (on/off)
-  - Aging mechanics (Term 5 start / RAW)
-  - Anagathics complexity (Simplified / RAW)
-  - Low-G Human variant (on/off)
-- Custom rule import (for house rules)
-
-**Career Management** — NEW in M2
-**Purpose:** Select which careers from `careers.json` are "active" (available for generation)
-
-**How It Works:**
-- All 24 careers are stored in ONE file: `careers.json`
-- Career Management UI lets GM toggle `enabled` field per career
-- Only "active" (enabled) careers appear in `/generate` dropdown
-- Disabled careers are excluded from random generation
-
-**Career Selection UI:**
-- **Master List:** Shows all careers from `careers.json` with checkboxes
-- **Active Indicator:** Green dot for enabled, gray for disabled
-- **Filter by Category:** Military, Civilian, Criminal, Elite, etc.
-- **Quick Actions:**
-  - "Enable All" — Activate all careers
-  - "Disable All" — Deactivate all careers  
-  - "Reset to Default" — Restore canonical active list
-- **Visual Indicators:**
-  - Enabled: Full color, selectable in generation
-  - Disabled: Grayed out, tooltip shows "Disabled in settings"
-
-**GM Workflow:**
-1. Open Career Management (`/settings/careers`)
-2. See complete list of all 24 careers from `careers.json`
-3. Uncheck careers not in their setting (e.g., disable "Noble" for frontier campaign)
-4. Changes saved to `careers.json` `enabled` fields
-5. Only checked careers appear in generation dropdown
-
-**Per-Career Overrides (Advanced):**
-- Override qualification target
-- Override survival target  
-- Custom skill tables
-
-**Active Careers Display:**
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ CAREER MANAGEMENT — 22 of 24 Active                     │
@@ -978,829 +393,1516 @@ Rule toggles and career management.
 ├─────────────────────────────────────────────────────────┤
 │ ☑ Drifter              [Civilian]   [🎲 Qual: Auto]     │
 │ ☑ Marine               [Military]   [🎲 Qual: 6+]       │
-│ ☑ Scout                [Exploration] [🎲 Qual: 5+]        │
+│ ☑ Scout                [Exploration] [🎲 Qual: 5+]      │
 │ ☐ Noble                [Elite]      [🎲 Qual: 10+]      │ ← Inactive
 │ ☑ Pirate               [Criminal]   [🎲 Qual: 6+]       │
-│ ☐ Physician            [Professional] [🎲 Qual: 8+]       │ ← Inactive
-│ ☑ Colonist             [Civilian]   [🎲 Qual: 5+]       │
-│ ... (18 more from careers.json)                         │
+│ ☐ Physician            [Professional] [🎲 Qual: 8+]     │ ← Inactive
+│ ...                                                      │
 ├─────────────────────────────────────────────────────────┤
-│ Legend: ☑ Active (appears in generation)                │
-│         ☐ Inactive (hidden from generation)               │
-├─────────────────────────────────────────────────────────┤
-│ [Reset to All Active] [Save to careers.json]            │
+│ [Reset to All Active] [Save]                            │
 └─────────────────────────────────────────────────────────┘
-```
-  
-**Career JSON Schema (careers.json):**
-```json
-{
-  "_metadata": {
-    "version": "1.0",
-    "description": "Cepheus Engine Core Rulebook - All 24 careers",
-    "source": "Cepheus Engine SRD",
-    "totalCareers": 24,
-    "activeCareers": 22,
-    "lastUpdated": "2026-03-03",
-    "careersList": [
-      {"id": "drifter", "name": "Drifter", "category": "Civilian", "enabled": true},
-      {"id": "marine", "name": "Marine", "category": "Military", "enabled": true},
-      {"id": "scout", "name": "Scout", "category": "Exploration", "enabled": true},
-      {"id": "noble", "name": "Noble", "category": "Elite", "enabled": false}
-    ]
-  },
-  "drifter": {
-    "id": "drifter",
-    "name": "Drifter",
-    "enabled": true,
-    "category": "civilian",
-    "description": "Wanderers, travellers, and those who live on the fringes of society without a fixed home or career.",
-    
-    "qualification": {
-      "roll": "2D6",
-      "target": 0,
-      "dm": {},
-      "auto": true,
-      "description": "Automatic entry - anyone can be a drifter"
-    },
-    "survival": {
-      "roll": "2D6",
-      "target": 6,
-      "dm": {"end": 1},
-      "description": "Roll 2D6 + END DM vs 6"
-    },
-    "commission": {
-      "has": false
-    },
-    "advancement": {
-      "roll": "2D6",
-      "target": 7,
-      "dm": {"int": 1},
-      "description": "Roll 2D6 + INT DM vs 7"
-    },
-    "reenlistment": {
-      "roll": "2D6",
-      "target": 0,
-      "automatic": true,
-      "description": "Automatic re-enlistment allowed"
-    },
-    
-    "rank1": {"title": "Wanderer", "skill": null},
-    "rank2": {"title": "Vagabond", "skill": "Streetwise 1"},
-    "rank3": {"title": "Traveller", "skill": "Deception 1"},
-    "rank4": {"title": "Itinerant", "skill": null},
-    "rank5": {"title": "Wayfarer", "skill": "Jack of all Trades 1"},
-    "rank6": {"title": "Nomad", "skill": "Survival 1"},
-    
-    "material_benefit1": {"roll": 1, "benefit": "Contact", "description": "Gain a contact in the underworld"},
-    "material_benefit2": {"roll": 2, "benefit": "Weapon", "description": "Any personal weapon"},
-    "material_benefit3": {"roll": 3, "benefit": "Alliance", "description": "Gain an ally in a criminal organization"},
-    "material_benefit4": {"roll": 4, "benefit": "Ship Share", "description": "One share in a ship"},
-    "material_benefit5": {"roll": 5, "benefit": "Ship Share", "description": "One share in a ship"},
-    "material_benefit6": {"roll": 6, "benefit": "Life Insurance", "description": "Insurance pays to next of kin"},
-    
-    "cash_benefit1": {"roll": 1, "amount": 1000},
-    "cash_benefit2": {"roll": 2, "amount": 5000},
-    "cash_benefit3": {"roll": 3, "amount": 10000},
-    "cash_benefit4": {"roll": 4, "amount": 10000},
-    "cash_benefit5": {"roll": 5, "amount": 20000},
-    "cash_benefit6": {"roll": 6, "amount": 50000},
-    
-    "personal_skill1": "+1 STR",
-    "personal_skill2": "+1 DEX",
-    "personal_skill3": "+1 END",
-    "personal_skill4": "+1 INT",
-    "personal_skill5": "+1 EDU",
-    "personal_skill6": "+1 SOC",
-    
-    "service_skill1": "Athletics",
-    "service_skill2": "Melee",
-    "service_skill3": "Recon",
-    "service_skill4": "Streetwise",
-    "service_skill5": "Survival",
-    "service_skill6": "Vacc Suit",
-    
-    "advanced_skill1": "Leadership",
-    "advanced_skill2": "Tactics",
-    "advanced_skill3": "Deception",
-    "advanced_skill4": "Persuade",
-    "advanced_skill5": "Streetwise",
-    "advanced_skill6": "Jack of all Trades"
-  },
-  "marine": { /* Same structure for all 24 careers */ },
-  "scout": { /* Same structure */ }
-}
 ```
 
 **Key Points:**
-- ONE file contains ALL 24 careers
-- `_metadata` header describes file contents
-- Each career has `enabled` boolean for active/inactive state
-- **Career Fields:** name (PK), description, qualification, survival, commission, advancement, reenlistment
-- **Ranks & Skills:** 6 fields (rank1-rank6 with title and skill)
-- **Benefits:** 6 material benefit fields + 6 cash benefit fields
-- **Skills & Training:** 6 personal + 6 service + 6 advanced education fields
-- **Skill Mechanics:** Character always gains at least 1 skill level per term (minimum guarantee on survival)
-- GM can toggle `enabled` field via Career Management UI
+- All 24 careers stored in ONE file: `careers.json`
+- Toggle `enabled` field per career
+- Disabled careers hidden from generation dropdown
+- Quick actions: Enable All, Disable All, Reset
 
-**Note on Career Mechanics:** The detailed algorithms for career generation (enlistment rolls, survival outcomes, skill selection, advancement probabilities, re-enlistment, and aging) will be fully specified in Section 11 during M3 development. Current PRD documents data structure; procedural logic to follow.
+### 4.3 JSON Table Editor (`/settings/tables`)
 
-> **Note:** The JSON table editor (previously described separately as `/settings/json`) is now unified as `/settings/tables` per GI7B standard. Editor features: inline JSON with syntax highlighting, real-time schema validation, dual JSON/Table view, auto-save, export, and "Duplicate to Custom Table".
+**Dual-View Editor (like CE ShipGen):**
 
----
-
-**3. 🎲 Generation Options** (`/settings/options`)
-
-Quick presets and generation defaults.
-
-- **"Random Everything"** — Ignore all filters, fully random character
-- **Presets:** "CE Standard", "Mneme Setting", "Frontier Campaign", etc.
-  - Each preset sets default species, active careers, rule set
-- **Species default:** Pre-select Terrestrial Human or Low-G Human
-- **Export format:** Default output format (JSON / Markdown / Plain Text)
-- **Name generation rule:** Select active rule set from `name_generation_rules.json`
-
----
-
-**4. 🔧 Other Settings** (`/settings/other`)
-
-App configuration, version management, and about.
-
-- **Theme:** Dark / Light / Auto (system) — mirrors header 🌙/☀️ toggle
-- **Layout default:** Desktop / Phone (default on first load)
-- **Animation preferences:** Reduced motion, tile animation speed
-- **Font size:** Compact / Normal / Large
-- **Version Control:**
-  - Current version and milestone
-  - Update prompt (PWA update available)
-  - Version history and rollback
-  - Release channel: Stable / Beta
-- **Data Management:**
-  - Import settings snapshot
-  - Export all settings as JSON
-  - Reset to factory defaults
-- **About:** Credits, license, links to source material
-
-## Tables in Process Order
-
-### 1. **Species/Origin Tables**
-- `races.json` — Species definitions (Terrestrial Human, Low-G Human)
-
-### 2. **Name Generation System** ✅ Implemented (M2) — Format refactor in M2.8
-
-- **`cultures_names.json`** — Flat array, one row per name (M2.8 target format)
-  - 84+ cultures, 20,505 first names, 100+ cultures of surnames
-  - Columns: `culture`, `heritage`, `type` (first/surname), `gender`, `name`
-  - Downloadable and editable in Excel / Google Sheets
-  - Re-importable via Settings → Tables In Play
-
-- **`name_generation_rules.json`** — Generation mechanism (M2.8 target)
-  - Configurable probabilities: `parent2_same_culture_probability`, `surname_from_parent1_probability`, `firstname_from_parent1_probability`
-  - Swappable via Tables In Play — users can define alternate rule sets (e.g., "Single Culture", "Melting Pot")
-  - Default: 70% same-culture, 50/50 surname/firstname from either parent
-
-### 3. **Background Tables**
-- `backgrounds.json` — Character backgrounds and origins
-- `homeworlds.json` — World types (CE and Mneme variants)
-
-### 4. **Career System Tables**
-- `careers.json` — All 24 careers with qualification, survival, advancement rules
-- `draft.json` — Draft/Conscription assignments (if failed qualification)
-
-### 5. **Career Event Tables**
-- `survival_mishaps.json` — Survival failure consequences
-- `injury.json` — Injury severity and effects
-- `medical_bills.json` — Medical treatment costs
-
-### 6. **Aging & Longevity Tables**
-- `aging.json` — Characteristic loss by age
-- `anagathics.json` — Anti-aging drugs (CE and Mneme variants)
-
-### 7. **Mustering Out Tables**
-- `retirement_pay.json` — Pension by terms served
-- `soc_table.json` — Social Standing effects (CE and Mneme variants)
-
-### 8. **Equipment Tables**
-- `equipment.json` — Weapons, armor, gear, assets
-
-### 9. **Reference Tables**
-- `skills.json` — Skill definitions and categories (referenced throughout)
-
-### 10. **Meta/Control Tables**
-- `rules.json` — Rule variants (CE/Mneme, active table assignments)
-
----
-
-**UI Format for "Tables In Play":**
 ```
-TABLES IN PLAY (in generation order)
-─────────────────────────────────────────
-○ Species       races.json [Switch ▼]
-● Names         names_database.json + surnames_database.json [Switch ▼]
-● Backgrounds   backgrounds.json [Switch ▼]
-● Homeworlds    homeworlds.json [Switch ▼]
-● Careers       careers.json [Switch ▼]
-● Draft         draft.json [Switch ▼]
-● Survival      survival_mishaps.json [Switch ▼]
-● Injuries      injury.json [Switch ▼]
-● Medical       medical_bills.json [Switch ▼]
-● Aging         aging.json [Switch ▼]
-● Anagathics    anagathics.json [Switch ▼]
-● Retirement    retirement_pay.json [Switch ▼]
-● SOC Effects   soc_table.json [Switch ▼]
-● Equipment     equipment.json [Switch ▼]
-● Skills        skills.json [Switch ▼]
-○ Rules         rules.json [Switch ▼]
+┌─────────────────────────────────────────────────────────────┐
+│ Table: [careers.json ▼]                    [JSON] [Table]   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ TABLE VIEW:                                                 │
+│ ┌────────┬────────────┬──────────┬───────────┬───────────┐ │
+│ │ ID     │ Name       │ Category │ Qual. TN  │ Enabled   │ │
+│ ├────────┼────────────┼──────────┼───────────┼───────────┤ │
+│ │ drifter│ Drifter    │ Civilian │ Auto      │ ☑         │ │
+│ │ marine │ Marine     │ Military │ 6+        │ ☑         │ │
+│ │ scout  │ Scout      │ Explore  │ 5+        │ ☑         │ │
+│ └────────┴────────────┴──────────┴───────────┴───────────┘ │
+│                                                             │
+│ — OR —                                                      │
+│                                                             │
+│ JSON VIEW:                                                  │
+│ {                                                           │
+│   "drifter": {                                              │
+│     "id": "drifter",                                        │
+│     "name": "Drifter",                                      │
+│     ...                                                     │
+│   }                                                         │
+│ }                                                           │
+│                                                             │
+│ [Validate] [Apply] [Export] [Save As Custom Table]          │
+└─────────────────────────────────────────────────────────────┘
 ```
 
+**Features:**
+- Select table from dropdown (organized by category)
+- Shows ALL tables: Canonical + Custom (marked with "[Custom]" badge)
+- Real-time schema validation (red squiggles on errors)
+- Table view: Auto-save on cell commit
+- JSON view: Explicit "Apply" button (mid-edit JSON may be invalid)
+- "Save As New Custom Table" when editing canonical
+
+### 4.4 Tables In Play (`/settings/tables-in-play`)
+
+**Purpose:** Select which table is active per category
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ TABLES IN PLAY                                             │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│ SPECIES TABLE                                              │
+│ ● Canonical Species (default)                              │
+│   [Switch ▼] [Edit JSON] [Export]                          │
+│                                                            │
+│ CAREERS TABLE                                              │
+│ ● Cepheus Engine Core Careers (canonical)                  │
+│   [Switch ▼] [Edit JSON] [Export]                          │
+│ ○ My Custom Campaign Careers (custom)                      │
+│   [Switch ▼] [Edit JSON] [Export] [Delete]                 │
+│                                                            │
+│ AGING TABLE                                                │
+│ ○ Canonical Aging (default)                                │
+│ ● House Rule: Gentler Aging (custom)  ← Active             │
+│   [Switch ▼] [Edit JSON] [Export] [Delete]                 │
+│                                                            │
+│ [+ Add New Custom Table]                                   │
+├────────────────────────────────────────────────────────────┤
+│ Legend: ● Active (used in generation)                      │
+│         ○ Inactive (available but not selected)            │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Table Categories:**
+| Category | Canonical Table | Custom Allowed |
+|----------|-----------------|----------------|
+| Species | `species.json` | ✅ |
+| Cultures/Names | `cultures_names.json` | ✅ |
+| Backgrounds | `backgrounds.json` | ✅ |
+| Homeworlds | `homeworlds.json` | ✅ |
+| Careers | `careers.json` | ✅ |
+| Draft | `draft.json` | ✅ |
+| Survival Mishaps | `survival_mishaps.json` | ✅ |
+| Injury | `injury.json` | ✅ |
+| Medical Bills | `medical_bills.json` | ✅ |
+| Aging | `aging.json` | ✅ |
+| Anagathics | `anagathics.json` | ✅ |
+| Retirement Pay | `retirement_pay.json` | ✅ |
+| SOC Table | `soc_table.json` | ✅ |
+| Equipment | `equipment.json` | ✅ |
+| Skills | `skills.json` | ✅ |
+| Rules | `rules.json` | ✅ |
+
+**Key Rule:** Each category has exactly ONE table "in play" at a time.
+
+#### 4.4.1 Add Custom Table
+
+**Flow:**
+1. Click "+ Add New Custom Table"
+2. Select category, enter name
+3. Choose: Start from Blank / Duplicate Canonical / Import JSON
+4. New table created with unique ID
+5. Auto-switches to new table as active
+
+#### 4.4.2 Export/Import Custom Tables
+
+**Export:**
+- Downloads as `cecg-[category]-[name]-[date].json`
+- Includes metadata: category, name, created date, source version
+
+**Import:**
+- Validates JSON syntax, required fields, schema
+- On success: Adds to table list
+
+### 4.5 Data Management (`/settings/data`)
+
+- **Export Settings Snapshot** — Save current tables + rules as named config
+- **Import Settings Snapshot** — Load saved or shared configuration
+- **Export All Data** — Complete backup (settings + characters + custom tables)
+- **Import All Data** — Restore from backup
+- **Reset to Factory Defaults** — Clear customizations, restore canonical
+  - ⚠️ Confirmation required
+  - Never touches character library
+
+### 4.6 Settings Snapshots
+
+**Concept:** Like save slots in a game. Live state is active game. Snapshots are save files.
+
+**Storage:** `ce_char_presets` in localStorage
+
+**Snapshot Schema:**
+```json
+{
+  "id": "260306:143045",
+  "name": "Hard Science Campaign",
+  "createdAt": "2026-03-06T14:30:45Z",
+  "updatedAt": "2026-03-06T14:30:45Z",
+  "tables": { ... },
+  "rules": { ... }
+}
+```
+
+**Default name format:** `YYMMDD:HHMMSS` (editable)
+
+**Actions:**
+- Save Snapshot (captures full current state)
+- Load Snapshot (replaces live state)
+- Rename Snapshot
+- Export Snapshot (download as JSON)
+- Import Snapshot
+- Delete Snapshot
+
+**Maximum:** 50 snapshots
+
+### 4.7 Auto-Save & Data Architecture
+
+**Core Principle:** The app always auto-saves. No explicit Save buttons in table view.
+
+**Auto-Save Behavior:**
+- Table view: Save to localStorage on every cell commit
+- JSON view: Explicit "Apply" button (handles invalid mid-edit JSON)
+- Show brief "Saved" toast (1.5s) after auto-save
+
+**Reset Live State:**
+- Clears all `ce_char_live_*` keys from localStorage
+- Never touches character library
+- Requires confirmation
+
+### 4.8 Version Control (`/settings/version`)
+
+**Display:**
+```
+Current Version: 0.3.0 (stable)
+Build: March 6, 2026 14:30 UTC
+```
+
+**Features:**
+- Current version display with build date
+- Update detection (check remote `version.json`)
+- "Update Available" indicator (amber pill)
+- Changelog preview before updating
+- User-controlled update (never forced)
+- Version history (last 3 versions)
+- Rollback capability
+- Release channel toggle (Stable/Beta)
+
+**Version Manifest (`version.json`):**
+```json
+{
+  "version": "0.3.0",
+  "buildTimestamp": "2026-03-06T14:30:00Z",
+  "channel": "stable",
+  "changelog": ["Reorganized PRD v3.0", "..."],
+  "minimumCompatibleVersion": "0.2.5"
+}
+```
+
+**Data Preservation:**
+Updates/rollbacks NEVER affect user data:
+- ✅ Character library (IndexedDB)
+- ✅ Settings snapshots
+- ✅ Live working state
+- ✅ Custom tables
+- ✅ Rule preferences
+
+### 4.9 PWA Install & Offline Behavior
+
+**Install Prompt:**
+- Detect via `beforeinstallprompt` event
+- Show "Install App" button on Startup when installable
+- iOS: Show manual instructions
+- Suppress after install
+
+**Running-Mode Indicator:**
+- Detect standalone via `window.matchMedia('(display-mode: standalone)')`
+- Show "Installed" badge (green dot) in header when standalone
+
+**Offline Status:**
+- "Offline — using local data" indicator (amber)
+- Disable update check when offline
+- All generation works offline
+
 ---
 
-**6. Data Management** (`/settings/data`)
-- Export Settings Snapshot — Save current tables + rules as named configuration
-- Import Settings Snapshot — Load previously saved or shared configuration
-- Export All Data — Complete backup (settings + characters + custom tables)
-- Import All Data — Restore from backup
-- Reset to Factory Defaults — Clear all customizations, restore canonical data
-  - ⚠️ Confirmation: "Reset all tables and rules to factory defaults? Your custom tables and saved characters will not be affected."
+## 5. MILESTONE PLAN
 
-**7. Version Control** (`/settings/version`)
-- Current Version Display — Version number, build date, channel (stable/beta)
-- Update Status — "Up to date" or "Update Available: X.Y.Z"
-- Changelog Preview — What's new in available update
-- Update Now — User-controlled update (never forced)
-- Version History — Last 3 versions with Rollback buttons
-- Release Channel Toggle — Stable / Beta
-- Last Checked — Timestamp of last update check
+### 5.1 Milestone Overview
 
-**Section Navigation:**
-- Sidebar with icons: 📐 Layout, 📋 Rules, 🎖️ Careers, 📝 Tables, **🎲 Tables In Play**, 💾 Data, 🔄 Version
-- Active section highlighted
-- URL updates when switching sections (deep-linkable)
+| Milestone | Name | Description | Gate |
+|-----------|------|-------------|------|
+| **M0** | **Data Authoring** | Author all JSON data tables | **Must complete before M1 coding begins** |
+| M1 | UI Foundation | Basic layout, tiles, PWA setup, deploy | Working skeleton deployed to GitHub Pages |
+| M2 | Settings & Tables | JSON editors, career enable/disable, rule toggles | User can customize all data |
+| M2.5 | Install UX & Snapshots | PWA install prompt, auto-save, settings snapshots | Quality of life before complex features |
+| M2.6 | Version Control | Update detection, changelog, user-controlled updates | PWA lifecycle complete |
+| M3 | Full Career System | All 24 careers, aging, mustering out, full generation | Complete character generation working |
+| M4 | Persistence & Export | Character library, batch generation, advanced export | Full app feature set |
 
-**Acceptance:** 
-- [ ] All 7 sections accessible via sidebar
-- [ ] URL reflects current section (`/settings/careers`, `/settings/json`, `/settings/tables-in-play`, `/settings/version`)
-- [ ] Career enable/disable works in generation (disabled careers hidden)
-- [ ] JSON editor validates schema, shows errors
-- [ ] Table edits auto-save with "Saved" toast
-- [ ] "Tables In Play" shows active table per category
-- [ ] Can switch active tables via dropdown
-- [ ] Can add custom tables (blank/duplicate/import)
-- [ ] Custom tables persist in localStorage
-- [ ] "Reset to Factory Defaults" works with confirmation
-- [ ] Version section shows current version and update status
-- [ ] Settings persist across sessions (localStorage)
-- [ ] Import/export works for snapshots, tables, and full data
+### 5.2 M0: Data Authoring — Prerequisite Gate
+
+**M0 is not a code milestone. It is a content authoring milestone.** No M1 coding should begin until M0 is complete. The generation engine is entirely data-driven — without accurate data tables, the engine cannot be verified.
+
+**Why M0 must come first:**
+- Career rules (qualification targets, skill tables, rank titles, benefits) are too complex to stub and retrofit
+- Incorrect data baked early causes cascading errors through the generation logic
+- The JSON schemas are defined in `DATA_ARCHITECTURE.md` — authoring validates the schema design before implementation
+- M3 (full 24 careers) is blocked until career data exists; doing M0 now prevents a mid-project data authoring crisis
+
+**M0 Deliverables:** All files authored, validated against their schemas (DA-3.1 through DA-3.18), and placed in `public/data/`:
+
+| File | Schema | Priority | Status |
+|------|--------|----------|--------|
+| `rules.json` | DA-3.18 | Critical | ⬜ |
+| `species.json` | DA-3.1 | Critical | ⬜ |
+| `homeworlds.json` | DA-3.6 | Critical | ⬜ |
+| `backgrounds.json` | DA-3.4 | Critical | ⬜ |
+| `careers.json` | DA-3.7 | Critical | ⬜ (all 24 careers) |
+| `draft.json` | DA-3.8 | Critical | ⬜ |
+| `survival_mishaps.json` | DA-3.9 | Critical | ⬜ |
+| `injury.json` | DA-3.10 | Critical | ⬜ |
+| `medical_bills.json` | DA-3.11 | High | ⬜ |
+| `aging.json` | DA-3.12 | Critical | ⬜ |
+| `anagathics.json` | DA-3.13 | High | ⬜ |
+| `retirement_pay.json` | DA-3.14 | High | ⬜ |
+| `soc_table.json` | DA-3.15 | Medium | ⬜ |
+| `skills.json` | DA-3.17 | High | ⬜ |
+| `equipment.json` | DA-3.16 | Medium | ⬜ |
+| `cultures_names.json` | DA-3.2 | High | ⬜ |
+| `name_generation_rules.json` | DA-3.3 | High | ⬜ |
+
+**M0 Completion Criteria:**
+- [ ] All 17 data files exist in `public/data/`
+- [ ] All 24 careers fully authored in `careers.json` (not stubs)
+- [ ] Each file validates against its schema (no missing required fields)
+- [ ] `rules.json` correctly encodes both CE and Mneme rulesets
+- [ ] `species.json` has at minimum: Terrestrial Human, Low-G Human, Esper, Merfolk
+- [ ] Name pools in `cultures_names.json` are real (no placeholder arrays)
+- [ ] A human review pass confirms career data matches wiki source (MECH-B)
+
+**M0 tooling note:** Use the Test Page (`/test/data`) from FR-027 to validate all tables once M1 is deployed. Until then, validate with a JSON schema linter.
+
+### 5.3 M1: UI Foundation
+
+**Scope:** Basic app shell, PWA setup, character sheet display, single-button generation (characteristics only).
+
+**Depends on:** M0 complete (data files must exist to load into the app).
+
+**Deliverables:**
+- React + Vite + TypeScript + Tailwind project initialized
+- All routes from Section 2.5 rendering (stubs acceptable)
+- Header and Startup Screen per Section 3.1–3.3
+- Tile system (Section 3.4) — 6 tiles, collapsed/expanded/focused states
+- Desktop/Phone layout toggle
+- Basic characteristic roll (2D6 × 6) displayed on sheet
+- PWA manifest + service worker
+- Deployed to GitHub Pages at `https://xunema.github.io/cecharactergen/`
+- Test page at `/test` (FR-027)
+
+### 5.4 M2: Settings & Data Tables
+
+**Scope:** All settings screens, JSON/Table dual-view editors, career enable/disable, rule toggles.
+
+**Depends on:** M1 complete.
+
+**Deliverables:**
+- Settings sidebar with all 7 sections (Section 4)
+- JSON Table Editor with dual-view (FR-011)
+- Career Management toggle UI (FR-014)
+- Rules toggle (CE/Mneme) (FR-013)
+- Tables In Play selector (FR-015)
+- Auto-save to localStorage
+- All data tables loadable and editable in the editor
+
+### 5.5 M2.5: Install UX & Snapshots
+
+**Scope:** FR-016 through FR-019 — PWA install, auto-save workflow, settings snapshots.
+
+**Depends on:** M2 complete.
+
+### 5.6 M2.6: Version Control
+
+**Scope:** FR-026 — version.json, update detection, user-controlled updates.
+
+**Depends on:** M2.5 complete.
+
+### 5.7 M3: Full Career System
+
+**Scope:** Complete character generation — all 24 careers, career term loop, aging, mustering out, name generation.
+
+**Depends on:** M2.6 complete AND M0 complete (all 24 careers authored).
+
+### 5.8 M4: Persistence & Export
+
+**Scope:** IndexedDB character library, batch generation, JSON/Markdown/Text export, import, search/filter.
+
+**Depends on:** M3 complete.
 
 ---
 
-#### FR-010: Rules Toggle (CE vs Mneme Variant)
-**Priority:** Medium  
-**Description:** Switch between Standard Cepheus Engine and Mneme Variant rules
+## 6. USER INTERFACE FLOW
 
-**Master Toggle:** Standard CE / Mneme Variant
+### 6.1 First-Time User Flow
 
-**When Mneme Variant is Active:**
+```
+[User arrives at app URL]
+        │
+        ▼
+┌─────────────────┐
+│  Startup (/)    │  ← No header
+│  Logo + tagline │
+│  [GENERATE] btn │
+│  [Install App]  │  ← PWA install prompt if available
+└────────┬────────┘
+         │  Click "GENERATE CHARACTER"
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Generate View (/generate)                               │
+│                                                          │
+│  ┌──────────────┐  ┌──────────────────┐  ┌───────────┐  │
+│  │ Parameters   │  │  Character Sheet  │  │    Log    │  │
+│  │              │  │  (tiles: blank)   │  │  (empty)  │  │
+│  │ Species: All │  │                  │  │           │  │
+│  │ Career: Any  │  │  [click Generate] │  │           │  │
+│  └──────────────┘  └──────────────────┘  └───────────┘  │
+└──────────────────────────┬──────────────────────────────┘
+                           │  Click "Generate"
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│  Generation in progress (step-by-step log fills right)  │
+│  Tiles populate as each step completes                   │
+│  (Characteristics → Background → Career → Muster Out)   │
+└──────────────────────────┬──────────────────────────────┘
+                           │  Generation complete
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│  Complete Character Sheet displayed in tiles             │
+│  [Save to Library]  [Export]  [Re-generate]              │
+└─────────────────────────────────────────────────────────┘
+         │  Click "Save"
+         ▼
+    Character auto-saved to library
+    Toast: "Saved to Library"
+```
 
-**1. Unified Roll System**
-- All core rolls (Qualification, Survival, Advancement) use 2D6 vs Difficulty
-- Simplified DM structure
+### 6.2 Return User Flow
 
-**2. Automatic Re-Enlistment**
-- No separate re-enlistment roll required
-- Players choose freely whether to continue or muster out
+```
+[User opens installed PWA]
+        │
+        ▼
+┌─────────────────┐
+│  Startup (/)    │
+│  Library: N     │  ← Live character count
+│  [GENERATE]     │
+│  [Library →]    │
+└────────┬────────┘
+         │  Click "Library"
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Library (/library)                                      │
+│  Search: ____________  [Grid] [List]  Sort: [Date ▼]    │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐               │
+│  │ Smith    │  │ Tanaka   │  │ Williams │               │
+│  │ Marine-3 │  │ Scout-2  │  │ Drifter  │               │
+│  │ [Load]   │  │ [Load]   │  │ [Load]   │               │
+│  └──────────┘  └──────────┘  └──────────┘               │
+└──────────────────────────┬──────────────────────────────┘
+                           │  Click "Load"
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│  Generate View — character loaded into sheet             │
+│  All tiles populated; can export or re-generate          │
+└─────────────────────────────────────────────────────────┘
+```
 
-**3. Streamlined Aging**
-- Aging begins Term 5 (not Term 4)
-- Threshold every 4 years (T5, T9, T13...)
-- Roll: 2D6 + End DM vs Difficulty (Terms + 1)
+### 6.3 Settings Customization Flow
 
-**4. Simplified Anagathics (Anti-Aging Drugs)**
-- **Cost:** Fixed 100KCr per term (regardless of TL)
-- **Maximum Doses:** (SOC - 7), minimum 1
-- **Availability:** Starport A or B only
-- **Aging Prevention:** Completely prevents all aging effects for that term
-- **Side Effects:** None in simplified variant (RAW has side effect table)
-- **Detection:** Automatically detected at Class A starports
-- **Reference:** `MNEME_SPACE_COMBAT_SUMMARY.md` (Section 2.3 - Anagathics)
+```
+[User wants to restrict careers for their campaign]
+        │
+        ▼
+  Header → [Settings]
+        │
+        ▼
+┌─────────────────────────────────────────────────────────┐
+│  Settings (/settings)  ← Overview landing               │
+│  Sidebar: Layout / Rules / Careers / Tables / ...        │
+└────────┬────────────────────────────────────────────────┘
+         │  Click "Careers" in sidebar
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Career Management (/settings/careers)                   │
+│  Toggle careers on/off; changes auto-save                │
+└────────┬────────────────────────────────────────────────┘
+         │  OR Click "Rules" in sidebar
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Rules (/settings/rules)                                 │
+│  Master toggle: CE Standard / Mneme Variant              │
+│  Individual toggles: anagathics, aging start, etc.       │
+│  Changes take effect immediately on next generation      │
+└─────────────────────────────────────────────────────────┘
+         │  OR Click "Tables" in sidebar
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  JSON Table Editor (/settings/tables)                    │
+│  Select table → Edit in Table or JSON view → Auto-save  │
+│  "Save As Custom Table" to preserve canonical            │
+└─────────────────────────────────────────────────────────┘
+         │  User clicks Generate from header
+         ▼
+    New character generated using updated settings
+```
 
-**5. Drifter Auto-Qualification**
-- Drifter career has no qualification requirement
-- Automatic entry for all characters
+### 6.4 Character Generation — UI Step by Step
 
-**6. Mneme SOC Table (Social Standing)**
-- **Economic Tiers:** Each SOC level = x2 economic income multiplier
-- **Mneme Formula:** Income = Base × (2 ^ (SOC - 10))
-- **Reference:** https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
-- **Implementation:** Use `soc_table.json` with Mneme variant data
+This describes what the user **sees** as the engine runs MECH-11. The generation log (right panel) fills in real time; tiles update as each step completes.
 
-**7. Mneme Homeworlds Table**
-- Extended homeworld options with economic modifiers
-- Mneme-specific world classifications
-- **Implementation:** Use `homeworlds.json` with Mneme variant data
+| Step | User Sees | Tile Updated |
+|------|-----------|-------------|
+| 1 | "Species: Terrestrial Human" in log | Header Tile |
+| 2 | STR/DEX/END/INT/EDU/SOC rolled with DM | Characteristics Tile |
+| 3 | Homeworld: High Tech World; Background: Computer-0 | Connections Tile |
+| 4 | Pre-career education: skipped (or University) | Header Tile |
+| 5 | "Term 1: Marine — Qualified (roll 8 vs 6+)" | Career History Tile |
+| 5 | "Survival: Passed (roll 9 vs 6+)" | Career History Tile |
+| 5 | "Advanced to Rank 1: Lieutenant" | Header Tile |
+| 5 | "Skills: Gun Combat 1" | Skills Tile |
+| 5 | "Term 2: Marine — Re-enlisted..." | Career History Tile |
+| 5a | (if mishap) "Mishap: Honorably discharged" | Career History Tile |
+| 6 | "Aging: Term 4 — No effect (roll 8 vs 6)" | Characteristics Tile |
+| 7 | "Mustering Out: 2 rolls — Cr15,000, Weapon" | Equipment Tile |
+| 8 | "Equipment: Laser Pistol" | Equipment Tile |
+| 9 | "Name: John Smith" | Header Tile |
+| 10 | Character complete — all tiles populated | All Tiles |
 
-**Individual Rule Toggles (Settings → Rules):**
+**Log format:** Each entry shows: step name, relevant roll (2D6 result + DM + TN), and outcome in plain language.
 
-**Psionics Toggle:**
-- **Enable PSI:** Add PSI (Psionic Strength) as 7th characteristic
-- **Psionic Careers:** Enable psionic-specific careers (Psi-Warrior, Mindwalker, etc.)
-- **Psionic Skills:** Add Telepathy, Clairvoyance, Telekinesis, Awareness, etc.
-- **Toggle Location:** Settings → Rules → "Enable Psionics for Campaign"
+### 6.5 Offline Behavior
 
-**Mneme Rule Selectors:**
-- Use Mneme SOC Table (vs CE SOC)
-- Use Mneme Homeworlds Table (vs CE Homeworlds)
-- Use Mneme Anagathics Rules (vs CE Anagathics)
-- Use Mneme Aging Rules (vs CE Aging)
+```
+[User is offline]
+        │
+        ▼
+┌─────────────────┐
+│  Amber banner:  │
+│  "Offline —     │
+│   local data"   │
+└────────┬────────┘
+         │
+         ▼
+  All generation works (data is local)
+  Library read/write works (IndexedDB)
+  Update check disabled (no network)
+  Version badge: "Offline" instead of channel
+```
 
-**Document References:**
-- Primary: `MNEME_SPACE_COMBAT_SUMMARY.md` — Complete Mneme rules summary
-- Mneme Character Creation: https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
-- Source: `ce-shipgen/PROJECT_NOTES.md` — Implementation lessons from CE ShipGen Mneme integration
-- Wiki: https://wiki.gi7b.org/Mneme_Space_Combat — Original Mneme rules
+---
+
+## 7. DATA DIRECTORY STRUCTURE
+
+The `public/data/` directory contains all factory-default JSON files shipped with the app. These are read-only at runtime — user edits are stored in `localStorage` as live state.
+
+```
+public/
+  data/
+    rules.json               ← Active ruleset + variant toggles (DA-3.18)
+    species.json             ← 4+ species definitions (DA-3.1)
+    homeworlds.json          ← World types by trade code (DA-3.6)
+    backgrounds.json         ← Pre-career backgrounds (DA-3.4)
+    careers.json             ← All 24 careers (DA-3.7)
+    draft.json               ← CE and Mneme draft tables (DA-3.8)
+    survival_mishaps.json    ← 1D6 mishap table (DA-3.9)
+    injury.json              ← 1D6 injury table (DA-3.10)
+    medical_bills.json       ← Employer coverage by career (DA-3.11)
+    aging.json               ← CE and Mneme aging rules (DA-3.12)
+    anagathics.json          ← CE and Mneme anagathic drug rules (DA-3.13)
+    retirement_pay.json      ← Pension table (DA-3.14)
+    soc_table.json           ← SOC titles and economic tiers (DA-3.15)
+    equipment.json           ← Weapons, armor, gear (DA-3.16)
+    skills.json              ← All skills with cascade info (DA-3.17)
+    cultures_names.json      ← Name pools by culture (DA-3.2)
+    name_generation_rules.json ← Name format patterns (DA-3.3)
+  version.json               ← Generated at build time (prebuild script)
+```
+
+**Loading strategy:** The app fetches each JSON file on first use, stores in localStorage as `ce_char_live_<filename>`. Subsequent loads use localStorage. "Reset to Defaults" re-fetches from `public/data/`.
+
+---
+
+## 8. FUNCTIONAL REQUIREMENTS REGISTRY
+
+Each FR follows this format: ID, milestone, priority, dependencies, description, acceptance criteria, and (where needed) clarification blocks for the author to fill in.
+
+---
+
+## M0: DATA AUTHORING REQUIREMENTS
+
+> **GATE:** All FR-M0 items must be checked off before M1 coding begins. These are content authoring tasks, not code tasks.
+
+---
+
+### FR-M0-01: Author `careers.json` — All 24 Careers
+**Milestone:** M0 | **Priority:** Critical | **Depends On:** DATA_ARCHITECTURE.md §DA-3.7, MECH-6
+
+**Description:** Populate `careers.json` with complete data for all 24 CE careers. Each entry must include: id, name, enabled, category, description, qualification (target + DM + auto flag), survival (target + DM), commission (has flag + target + DM), advancement (target + DM), reenlistment, ranks (0–6 with title and bonus skill), skillTables (personal/service/specialist/advanced), benefits (material 1–7 and cash 1–7), events, mishaps.
+
+**Source:** MECH-6.1 career list; wiki source MECH-B (Chapter 1); Mneme Career Cards PDF.
 
 **Acceptance Criteria:**
-- [ ] Toggle switches all relevant calculations
-- [ ] Anagathics costs, availability, and effects use Mneme variant rules when active
-- [ ] Aging mechanics use Mneme variant (Term 5 start)
-- [ ] SOC table switches between CE (titles) and Mneme (economic tiers) variants
-- [ ] Homeworlds table switches between CE and Mneme variants
-- [ ] Psionics toggle shows/hides PSI characteristic and psionic careers
-- [ ] UI indicates "Mneme Rules Active" when variant is selected
-- [ ] All document references are accurate and accessible
+- [ ] All 24 careers present by id (see MECH-6.1 for full list)
+- [ ] Drifter, Marine, Scout fully complete (these are M1 generation targets)
+- [ ] Remaining 21 careers fully complete (not stubs) before M3
+- [ ] Mneme Quick Fix values applied where applicable (MECH-2.2, MECH-2.3)
+- [ ] `_metadata.careersList` array lists all 24 careers
+- [ ] Validates against DA-3.7 schema
 
 ---
 
-#### FR-011: URL Routing & Navigation
-**Priority:** Critical  
-**Description:** React Router integration with persistent URLs for all views
+### FR-M0-02: Author `species.json`
+**Milestone:** M0 | **Priority:** Critical | **Depends On:** DATA_ARCHITECTURE.md §DA-3.1, MECH-4.5
 
-**Core Views:**
-The app has three primary functional areas:
-1. **Character Generation** (`/generate`) — The main generation interface
-2. **Character Library** (`/library`) — Browse, search, load saved characters
-3. **Settings** (`/settings`) — Configure app, edit data tables, manage versions
-
-**Route Structure:**
-| Route | Component | Purpose | Params |
-|-------|-----------|---------|--------|
-| `/` | `StartupScreen` | Entry point, app launch | — |
-| `/generate` | `CharacterGenerationView` | Main generation interface | — |
-| `/library` | `LibraryView` | Character library, list view | — |
-| `/character/:id` | `CharacterView` | View specific character | `id` — character ID |
-| `/settings` | `SettingsScreen` | Settings overview | — |
-| `/settings/:section` | `SettingsScreen` | Deep link to section | `section` — rules/json/data/version |
-| `/test` | `TestPage` | Development testing interface | — |
-| `/test/:section` | `TestPage` | Test section (deep link) | `section` — calculations/components/data/routes/performance/storage |
-
-**Navigation UX:**
-- **Header Bar:** Persistent navigation on all non-startup screens
-  - Logo → Returns to Startup (`/`)
-  - "Generate" button → `/generate`
-  - "Library" button → `/library`
-  - "Settings" button → `/settings`
-  - "Installed" badge (when in standalone mode)
-  - Layout toggle (Desktop/Phone)
-- **Browser Integration:**
-  - URL updates when user navigates between views
-  - Browser back/forward buttons work correctly
-  - Refreshing page preserves current view
-  - Direct URL access works (bookmark any page)
-- **Mobile:**
-  - Bottom navigation bar in phone mode
-  - Swipe gestures for view switching (optional)
-
-**URL Examples:**
-- `https://xunema.github.io/cecharactergen/` — Startup
-- `https://xunema.github.io/cecharactergen/generate` — Generate character
-- `https://xunema.github.io/cecharactergen/library` — Character library
-- `https://xunema.github.io/cecharactergen/settings/json` — Settings, JSON editor open
-- `https://xunema.github.io/cecharactergen/settings/version` — Settings, version control open
-
-**Technical Implementation:**
-- React Router v7 (same as CE ShipGen)
-- `BrowserRouter` with basename `/cecharactergen/`
-- `useNavigate()` for programmatic navigation
-- `useParams()` for route parameters
-- `useLocation()` for current path detection
+**Description:** Populate `species.json` with at minimum 4 species: Terrestrial Human (enabled), Low-G Human (enabled, toggle-gated), Esper (disabled by default), Merfolk (disabled by default).
 
 **Acceptance Criteria:**
-- [ ] All 6+ routes render correct components
-- [ ] URL updates when switching views
-- [ ] Browser back button returns to previous view
-- [ ] Direct URL access works (no 404 on refresh)
-- [ ] Header navigation visible on all non-startup screens
-- [ ] Mobile navigation adapts to small screens
-- [ ] Settings sections have deep-linkable URLs
+- [ ] Terrestrial Human: all characteristics `2d6`, no modifiers, enabled
+- [ ] Low-G Human: STR `dis1`, DEX `adv1`, END `dis1`, SOC `2d6-1`, enabled, `backgroundsAllowed: "space_only"`
+- [ ] Esper: psionic trait, enabled false
+- [ ] Merfolk: amphibious/aquatic/water_dependent traits, enabled false
+- [ ] All roll specs use notation defined in MECH-4.5
 
 ---
 
-### 2.3 Technical Requirements (FR-016 to FR-025)
+### FR-M0-03: Author `rules.json`
+**Milestone:** M0 | **Priority:** Critical | **Depends On:** DATA_ARCHITECTURE.md §DA-3.18, MECH-2
 
-#### FR-016: Progressive Web App
-**Priority:** Critical  
-**Requirements:**
-- Service worker for offline use
-- Web App Manifest
-- Install prompt
-- Works offline after first load
-- Background sync (optional)
+**Description:** Author `rules.json` with both `ce_standard` and `mneme` rulesets fully defined, plus all toggles.
 
-**Acceptance:** Passes Lighthouse PWA audit
+**Acceptance Criteria:**
+- [ ] `activeRuleset` defaults to `"mneme"`
+- [ ] Both rulesets have all fields from DA-3.18 schema
+- [ ] All toggles present: psionics, lowGHuman, preCareerEducation, allowDeath, maxTerms
+- [ ] Mneme Quick Fix values correctly encoded (MECH-2.2)
 
 ---
 
-#### FR-017: Performance
-**Priority:** Critical  
-**Targets:**
-- First paint: <2s on 4G
-- Time to interactive: <5s
-- Character generation: <3s
-- Calculation updates: <100ms
-- Bundle size: <500KB (gzipped, excluding data)
+### FR-M0-04: Author `homeworlds.json`, `backgrounds.json`
+**Milestone:** M0 | **Priority:** Critical | **Depends On:** DA-3.6, DA-3.4, MECH-5
 
-**Acceptance:** Lighthouse Performance score >90
+**Description:** Populate world types and background entries with homeworld skill mappings per MECH-5.2.
 
----
-
-#### FR-018: Data Storage
-**Priority:** High  
-**Requirements:**
-- IndexedDB for character library
-- LocalStorage for preferences and settings
-- Data never sent to server (privacy)
-- Export all data function
-- Import with validation
-
-**Acceptance:** 100+ characters can be stored locally
+**Acceptance Criteria:**
+- [ ] `homeworlds.json`: at minimum 5 world types with trade codes and skill options for both CE and Mneme variants
+- [ ] `backgrounds.json`: at minimum 5 background entries covering planetary and space categories
+- [ ] All homeworld trade codes from MECH-5.2 represented
 
 ---
 
-#### FR-019: Accessibility
-**Priority:** High  
-**Requirements:**
-- WCAG 2.1 AA compliance
+### FR-M0-05: Author Mechanics Tables (`injury.json`, `survival_mishaps.json`, `aging.json`, `anagathics.json`, `retirement_pay.json`, `medical_bills.json`)
+**Milestone:** M0 | **Priority:** Critical | **Depends On:** DA-3.9–DA-3.14, MECH-6.5, MECH-7, MECH-8, MECH-9
+
+**Description:** Author all mechanic lookup tables. These are small, well-defined tables from the rules.
+
+**Acceptance Criteria:**
+- [ ] `survival_mishaps.json`: 6 entries (roll 1–6) matching MECH-6.5 mishap table exactly
+- [ ] `injury.json`: 6 entries (roll 1–6) matching MECH-7.1 exactly; crisis rules included
+- [ ] `aging.json`: CE aging table (8 result rows) and Mneme formula both present per MECH-8.1/8.2
+- [ ] `anagathics.json`: CE and Mneme rules per MECH-8.4/8.5
+- [ ] `retirement_pay.json`: 4 table entries (terms 5–8) plus `beyondEightTerms` field per MECH-9.4
+- [ ] `medical_bills.json`: 3 career groups with roll thresholds per MECH-7.3
+- [ ] `draft.json`: both CE and Mneme draft tables per MECH-6.2
+
+---
+
+### FR-M0-06: Author `skills.json`
+**Milestone:** M0 | **Priority:** High | **Depends On:** DA-3.17
+
+**Description:** Populate `skills.json` with all CE skills, their categories, and cascade specialties.
+
+**Acceptance Criteria:**
+- [ ] All skills referenced in careers.json skillTables are present
+- [ ] Cascade skills include specialties list
+- [ ] At minimum all skills from MECH-6.7 and MECH-5.3 are present
+
+---
+
+### FR-M0-07: Author `soc_table.json`, `equipment.json`
+**Milestone:** M0 | **Priority:** Medium | **Depends On:** DA-3.15, DA-3.16
+
+**Description:** Populate SOC title table and core equipment catalog.
+
+**Acceptance Criteria:**
+- [ ] `soc_table.json`: CE titles for SOC 1–15, Mneme economic tier formula
+- [ ] `equipment.json`: at minimum all weapons that appear as career benefits (Laser Pistol, Dagger, Blade, Shotgun, Rifle), one armor (Vacc Suit), basic gear
+
+---
+
+### FR-M0-08: Author `cultures_names.json`, `name_generation_rules.json`
+**Milestone:** M0 | **Priority:** High | **Depends On:** DA-3.2, DA-3.3
+
+**Description:** Populate name pools for at minimum 4 cultures plus alien name patterns.
+
+**Acceptance Criteria:**
+- [ ] At minimum 4 cultures with real name lists (not placeholder arrays): English, Japanese, and 2 others
+- [ ] Each culture has: male, female, surnames; unisex optional
+- [ ] `name_generation_rules.json` has format patterns for human and at least 1 alien species
+- [ ] No `"..."` placeholder entries in any name array
+
+---
+
+### FR-001: React Router Setup
+**Milestone:** M1 | **Priority:** Critical | **Depends On:** None
+
+**Description:** Set up React Router v7 with all routes from Section 2.5.
+
+**Acceptance Criteria:**
+- [ ] All routes from Section 2.5 render a component (stub is fine for M1)
+- [ ] Browser back/forward works between views
+- [ ] Direct URL access works (bookmarkable)
+- [ ] Refreshing page preserves current view
+- [ ] Unknown routes show 404 or redirect to `/`
+
+> **CLARIFY:** Does `/test` render an index page listing sub-routes, or redirect to a default sub-route (e.g., `/test/calculations`)?
+
+---
+
+### FR-002: Header Navigation
+**Milestone:** M1 | **Priority:** Critical | **Depends On:** FR-001
+
+**Description:** Persistent header bar on all non-startup screens per Section 3.1.
+
+**Acceptance Criteria:**
+- [ ] Logo (`gitb_gi7b_logo.png`) links to `/` (Startup)
+- [ ] Generate, Library, Settings nav links with active state indicator
+- [ ] Layout toggle icon (phone/desktop) on right side
+- [ ] "Installed" badge when running as standalone PWA
+- [ ] Responsive: text labels on desktop, icons on phone
+
+> **CLARIFY:** What does the "active" nav state look like? (underline, color, bold?)
+> **CLARIFY:** Where exactly does the "Installed" green dot appear? (next to logo? in nav area? standalone indicator?)
+> **CLARIFY:** Which icons represent Generate, Library, Settings in phone mode?
+
+---
+
+### FR-003: Startup Screen
+**Milestone:** M1 | **Priority:** Critical | **Depends On:** FR-001
+
+**Description:** Entry point at `/` per Section 3.3 mockup (lines 192-222). No header. Branding, primary Generate action, Library/Settings cards, PWA install, version string.
+
+**Acceptance Criteria:**
+- [ ] No header bar on this screen
+- [ ] "+ GENERATE CHARACTER" primary action navigates to `/generate`
+- [ ] Library card shows live character count from IndexedDB
+- [ ] Settings card navigates to `/settings`
+- [ ] PWA install button shown only when `beforeinstallprompt` fires
+- [ ] Version string at bottom from `version.json`
+
+> **CLARIFY:** Library card — what text when zero characters? "No characters yet" or "0 characters saved"?
+> **CLARIFY:** iOS install — what manual instructions are shown? Modal? Inline text? Provide the copy text.
+
+---
+
+### FR-004: Tile System
+**Milestone:** M1 | **Priority:** Critical | **Depends On:** None
+
+**Description:** Character sheet tile component with 4 states (Inactive/Active/Focused/Completed) per Section 3.4.
+
+**Acceptance Criteria:**
+- [ ] Collapsed state shows header + one-line summary
+- [ ] Click header toggles expanded/collapsed
+- [ ] Focus button enters full-screen overlay (desktop: 70% width, phone: full-screen)
+- [ ] ESC or X button exits focus mode
+- [ ] Completed state shows green checkmark
+- [ ] 6 tile types: Header, Characteristics, Skills, Career History, Equipment, Connections
+
+> **CLARIFY:** Can multiple tiles be expanded simultaneously, or does expanding one collapse others?
+> **CLARIFY:** In focus mode, "others shrink to headers" — collapsed with summary line, or header-only (no summary)?
+> **CLARIFY:** Are transitions animated? If so, what duration?
+> **CLARIFY:** On initial generation, which tiles start expanded? All collapsed? First one expanded?
+> **CLARIFY:** What fields appear in the collapsed summary line for each of the 6 tile types? (Only the Header tile summary is shown in the mockup.)
+
+---
+
+### FR-005: Character Sheet Data Model
+**Milestone:** M1 | **Priority:** Critical | **Depends On:** None
+
+**Description:** Implement the central Character Sheet data structure that holds all generated character information for use in the Library and active generation. Designed per DATA_ARCHITECTURE.md §DA-3.5 (Character Sheet Schema).
+
+**Acceptance Criteria:**
+- [ ] Data model holds: basic info (Name, Age), Abilities (Characteristics, Psionics, Species features), Traits, Conditions (Injuries).
+- [ ] Data model holds: Assets/Liabilities, Benefits, and History (logged events from character creation).
+- [ ] Can be serialized to/from JSON for Library storage and import/export.
+- [ ] Serves as the single source of truth for the active character being generated.
+
+---
+
+### FR-006: Desktop/Phone Layout Toggle
+**Milestone:** M1 | **Priority:** High | **Depends On:** FR-002
+
+**Description:** Manual layout toggle per Section 3.2. Auto-detect on first load, persist to `ce_char_layout_mode`.
+
+**Acceptance Criteria:**
+- [ ] Toggle in header switches between desktop and phone layouts instantly
+- [ ] Auto-detect on first load based on viewport width
+- [ ] Persists to localStorage key `ce_char_layout_mode`
+- [ ] Desktop: multi-column layouts; Phone: single-column stacked
+
+> **CLARIFY:** Auto-detect breakpoint — is it 768px (same as the mode behavior threshold)?
+> **CLARIFY:** Does resizing the browser trigger auto-switch, or is it first-load only then manual?
+> **CLARIFY:** Section 3.2 mentions "Phone mode: Bottom action bar: Generate, Save, Settings" — is this in addition to the header? Does the header disappear in phone mode? This contradicts Section 3.1 which says header is on all non-startup screens.
+
+---
+
+### FR-010: Settings Sidebar Navigation
+**Milestone:** M2 | **Priority:** High | **Depends On:** FR-001, FR-002
+
+**Description:** Settings screen with sidebar navigation per Section 4.1. 7 sections with icons.
+
+**Acceptance Criteria:**
+- [ ] Sidebar with 7 items: Layout, Rules, Careers, Tables, In Play, Data, Version
+- [ ] Clicking item loads content in main area and updates URL to `/settings/:section`
+- [ ] Active item highlighted in sidebar
+
+> **CLARIFY:** Phone mode — does the sidebar become a horizontal tab bar, hamburger menu, or dropdown?
+
+---
+
+### FR-011: Layout Settings Section
+**Milestone:** M2 | **Priority:** Medium | **Depends On:** FR-010
+
+**Description:** Layout settings at `/settings/layout` per Section 4.2.1: Desktop/Phone toggle, Theme, Animation preferences, Font size.
+
+**Acceptance Criteria:**
+- [ ] Desktop/Phone toggle (same as header toggle, synced)
+- [ ] Theme selector: Dark / Light / Auto
+- [ ] Animation preference control
+- [ ] Font size adjustment
+
+> **CLARIFY:** Theme — provide color tokens or a design system reference. What does Dark look like? Light? Is there a GI7B UI Standard doc with colors?
+> **CLARIFY:** Animation preferences — on/off toggle? Or per-animation granularity? What animations exist in the app?
+> **CLARIFY:** Font size — a slider? Preset sizes (S/M/L/XL)? What's the range? Which elements scale?
+
+---
+
+### FR-012: Rules Settings with CE/Mneme Toggles
+**Milestone:** M2 | **Priority:** High | **Depends On:** FR-010
+
+**Description:** Rules settings at `/settings/rules` per Section 4.2.2. Master CE/Mneme toggle plus individual rule toggles.
+
+**Acceptance Criteria:**
+- [ ] Master toggle: CE Standard / Mneme Variant
+- [ ] Individual toggles per Section 4.2.2 table (Unified Rolls, Auto Re-Enlistment, Aging Start, Anagathics, Drifter Qual, PSI)
+- [ ] Selectable table variants: SOC Table, Homeworlds, Anagathics
+- [ ] Changes persist to localStorage
+
+> **CLARIFY:** Does flipping the master toggle auto-set all individual toggles to that variant's defaults? Or is it a preset that can be customized? If customized, does master show "Custom"?
+> **CLARIFY:** "Selectable Table Variants" (SOC, Homeworlds, Anagathics) — are these the same mechanism as Tables In Play (FR-015)? Or separate dropdowns within the Rules section? Clarify the overlap.
+
+---
+
+### FR-013: Career Enable/Disable Management
+**Milestone:** M2 | **Priority:** High | **Depends On:** FR-010, FR-021
+
+**Description:** Career management at `/settings/careers` per Section 4.2.3 mockup. Toggle individual careers on/off.
+
+**Acceptance Criteria:**
+- [ ] List all 24 careers with checkbox, category badge, qualification info
+- [ ] Filter dropdown by category
+- [ ] Search by name
+- [ ] Enable All / Disable All / Reset buttons
+- [ ] Active count shown in header ("22 of 24 Active")
+- [ ] Disabled careers hidden from generation dropdown
+
+> **CLARIFY:** Does toggling `enabled` modify the career entry in the live working state table (`ce_char_live_careers`)? Or is there a separate `ce_char_careers_enabled` registry? Section 2.6 data layer doesn't have a dedicated key for this.
+
+---
+
+### FR-014: JSON Table Editor (Dual View)
+**Milestone:** M2 | **Priority:** High | **Depends On:** FR-010
+
+**Description:** JSON + Table dual-view editor at `/settings/tables` per Section 4.3. Auto-save in table view, explicit Apply in JSON view.
+
+**Acceptance Criteria:**
+- [ ] Dropdown to select table (organized by category)
+- [ ] Shows canonical + custom tables (custom marked with badge)
+- [ ] Table view: editable cells, auto-save on cell commit, "Saved" toast (1.5s)
+- [ ] JSON view: raw editor, "Apply" button (validates before saving)
+- [ ] Schema validation with error indicators
+- [ ] "Save As New Custom Table" when editing a canonical table
+
+> **CLARIFY:** Schema validation — what defines the schema? JSON Schema files per table? Zod types? Hardcoded rules? An agent needs to know what to validate against.
+> **CLARIFY:** "Save As New Custom Table" — what's the flow? Modal for name input? Auto-name from canonical + "Copy"? Stored under which localStorage key structure?
+> **CLARIFY:** "Organized by category" — what are the dropdown group headers? The 16 categories from Section 4.4?
+> **CLARIFY:** Which tables are editable? All 16 from Section 4.4? Also `rules.json`? Also `_summary.json`?
+
+---
+
+### FR-015: Tables In Play
+**Milestone:** M2.7 | **Priority:** High | **Depends On:** FR-014
+
+**Description:** Active table selection per category at `/settings/tables-in-play` per Section 4.4. Each category has exactly one active table.
+
+**Acceptance Criteria:**
+- [ ] One row per table category showing active table
+- [ ] Switch active table via selection control
+- [ ] Custom tables shown with delete option
+- [ ] "+ Add New Custom Table" with flow: select category, name, source (blank/duplicate/import)
+- [ ] Export/Import per custom table
+- [ ] Reset All returns every category to canonical
+
+> **CLARIFY:** The mockup shows radio buttons (lines 473-474) AND "[Switch dropdown]" (line 465). Which is the actual selection mechanism?
+> **CLARIFY:** "Auto-switches to new table as active" (line 513) — is this always desired? What if user wants to create a table without activating it?
+> **CLARIFY:** Confirm the exact number of table categories. Section 4.4 lists 16. Is that the final count?
+
+---
+
+### FR-016: Settings Snapshots
+**Milestone:** M2.5 | **Priority:** High | **Depends On:** FR-010
+
+**Description:** Save/load named settings snapshots per Section 4.6. Max 50.
+
+**Acceptance Criteria:**
+- [ ] Save snapshot captures full current state (tables + rules)
+- [ ] Load snapshot replaces live state
+- [ ] Rename, export (download JSON), import, delete
+- [ ] Default name: `YYMMDD:HHMMSS` (editable)
+- [ ] Max 50 snapshots
+- [ ] Stored in `ce_char_presets`
+
+> **CLARIFY:** Does a snapshot also capture the Tables In Play active table mapping? Section 4.6 schema shows `tables` and `rules` but doesn't explicitly mention the active table registry.
+
+---
+
+### FR-017: Data Management
+**Milestone:** M2.5 | **Priority:** High | **Depends On:** FR-010
+
+**Description:** Data import/export/reset at `/settings/data` per Section 4.5.
+
+**Acceptance Criteria:**
+- [ ] Export Settings Snapshot (same as FR-016 save)
+- [ ] Import Settings Snapshot
+- [ ] Export All Data (settings + characters + custom tables)
+- [ ] Import All Data (restore from backup)
+- [ ] Reset to Factory Defaults with confirmation dialog
+- [ ] Reset never touches character library
+
+> **CLARIFY:** "Export All Data" — what format? Single JSON file or zip? What's the structure? How are IndexedDB characters bundled with localStorage settings?
+> **CLARIFY:** "Import All Data" — merge or replace? If a character with same ID exists, overwrite or skip? Conflict handling for rules vs custom tables?
+> **CLARIFY:** "Reset to Factory Defaults" — does it preserve snapshots? Or wipe them too?
+
+---
+
+### FR-018: Version Control
+**Milestone:** M2.6 | **Priority:** High | **Depends On:** FR-010
+
+**Description:** Version display and update mechanism at `/settings/version` per Section 4.8.
+
+**Acceptance Criteria:**
+- [ ] Current version + build date display
+- [ ] Check remote `version.json` for updates
+- [ ] "Update Available" amber pill indicator
+- [ ] Changelog preview before update
+- [ ] User-controlled update (never forced)
+- [ ] Updates never affect user data
+
+> **CLARIFY:** "Rollback capability" — rollback to what? PWA service workers don't natively support rollback. Is this storing previous app versions? Feasible or aspirational? If feasible, describe the mechanism.
+> **CLARIFY:** "Release channel toggle (Stable/Beta)" — where do beta builds come from? Different `version.json` URL? Different branch deployment? Provide the infrastructure details.
+> **CLARIFY:** "Version history (last 3 versions)" — stored where? `version.json` only has the current version. Is there a `version-history.json` endpoint? Or is this locally tracked?
+
+---
+
+### FR-019: PWA Install & Offline Indicators
+**Milestone:** M2.5 | **Priority:** High | **Depends On:** FR-002, FR-003
+
+**Description:** PWA install prompt and offline status indicators per Section 4.9.
+
+**Acceptance Criteria:**
+- [ ] Detect `beforeinstallprompt`, show install button on Startup
+- [ ] iOS: show manual install instructions
+- [ ] Suppress install prompt after install
+- [ ] Standalone detection via `display-mode: standalone` media query
+- [ ] "Offline" amber indicator when navigator.onLine is false
+- [ ] Disable update check when offline
+
+> **CLARIFY:** iOS manual instructions — provide the exact UI design and copy text. Modal? Inline expandable? What does it say?
+> **CLARIFY:** "Suppress after install" — mechanism? localStorage flag? Or rely on `display-mode: standalone` detection? What if user uninstalls and revisits in browser — show prompt again?
+> **CLARIFY:** Offline indicator location — header bar? Floating toast? Persistent banner below header?
+
+---
+
+### FR-020: species.json Data Table
+**Milestone:** M2 | **Priority:** High | **Depends On:** None
+
+**Description:** Create `species.json` with all species per DATA_ARCHITECTURE.md §DA-3.1.
+
+**Acceptance Criteria:**
+- [ ] Contains all enabled and disabled species with full schemas
+- [ ] Each species has: id, name, description, enabled, characteristicRolls, modifiers, startingSkills, traits, backgroundsAllowed
+- [ ] Matches example in DATA_ARCHITECTURE.md §DA-3.1 (4 species: Terrestrial Human, Low-G Human, Esper, Merfolk)
+
+*(This FR is clear — no clarification needed.)*
+
+---
+
+### FR-021: careers.json Data Table (All 24 Careers)
+**Milestone:** M2 | **Priority:** Critical | **Depends On:** None
+
+**Description:** Create `careers.json` with all 24 Cepheus Engine careers per DATA_ARCHITECTURE.md §DA-3.7 schema.
+
+**Acceptance Criteria:**
+- [ ] All 24 careers with full data per the Drifter example schema
+- [ ] Each career has: id, name, enabled, category, qualification, survival, commission, advancement, reenlistment, ranks (0-6), benefits (cash + material), skillTables (personal, service, advanced)
+
+> **CLARIFY — BLOCKING:** Only 1 career (Drifter) is fully defined. Provide the complete dataset for all 24 careers, or provide access to the source material (Cepheus Engine SRD career tables, GI7B Career Cards). An agent cannot invent game-accurate career stats. Needed per career:
+> - Career ID, name, category
+> - Qualification target number + DM characteristic
+> - Survival target number + DM characteristic
+> - Commission: has/target/DM (if applicable)
+> - Advancement target number + DM characteristic
+> - Re-enlistment target number
+> - Rank titles (0-6) with rank skills
+> - Skill tables: personal (6), service (6), advanced (6)
+> - Benefits: cash table (6 entries), material table (6 entries)
+>
+> **CLARIFY:** List all 24 career IDs and names with categories.
+
+---
+
+### FR-022: cultures_names.json + name_generation_rules.json
+**Milestone:** M2 | **Priority:** High | **Depends On:** None
+
+**Description:** Create name pool tables per Sections 5.3.2 and 5.3.3.
+
+**Acceptance Criteria:**
+- [ ] Multiple cultures with male, female, unisex, and surname arrays
+- [ ] Alien species name pools (if applicable)
+- [ ] Name generation rules with format patterns
+
+> **CLARIFY — BLOCKING:** DATA_ARCHITECTURE.md §DA-3.2 shows placeholder arrays (`["James", "William", "Henry", "..."]`). Provide:
+> - How many cultures to include? Which ones? (English, Japanese, ... what else?)
+> - How many names per culture per gender? (50? 100? 200?)
+> - Alien species: are Vargr and Aslan in scope? If so, provide their name pools or generation rules.
+> - `name_generation_rules.json` (DATA_ARCHITECTURE.md §DA-3.3) is a fragment — provide the complete format patterns and rules.
+
+---
+
+### FR-023: homeworlds.json + backgrounds.json
+**Milestone:** M2 | **Priority:** High | **Depends On:** None
+
+**Description:** Create homeworld and background tables per Sections 5.3.4 and 5.3.5.
+
+**Acceptance Criteria:**
+- [ ] `homeworlds.json` with CE standard + Mneme variants
+- [ ] `backgrounds.json` with all backgrounds and skill options
+- [ ] Species restrictions work (Low-G → space only, Merfolk → water only)
+
+> **CLARIFY:** `homeworlds.json` shows 2 CE entries and 1 Mneme entry. How many total homeworld types? Provide the complete list.
+> **CLARIFY:** `backgrounds.json` shows 2 entries. How many total? Provide the complete list with categories and skill options.
+> **CLARIFY:** Species restriction mechanism — is `category` field sufficient for filtering (e.g., `"space"` matches `backgroundsAllowed: "space_only"`)? Or does a background need an explicit `speciesRestrictions` array?
+
+---
+
+### FR-024: Combat Tables (survival_mishaps, injury, medical_bills)
+**Milestone:** M2 | **Priority:** High | **Depends On:** None
+
+**Description:** Create mishap, injury, and medical bill tables per Sections 5.3.8-5.3.10.
+
+**Acceptance Criteria:**
+- [ ] `survival_mishaps.json` with full 2d6 table (rolls 2-12, 11 entries)
+- [ ] `injury.json` with full severity table
+- [ ] `medical_bills.json` with cost-by-severity and TL modifiers
+
+> **CLARIFY:** `survival_mishaps.json` shows rolls 2 and 3 only. Provide the full 2d6 table (rolls 2-12) with descriptions, effects, and careerEnding flags.
+> **CLARIFY:** `injury.json` shows rolls 1 and 2 only. Provide the full table. How many entries? What roll range (1d6? 2d6?)?
+
+---
+
+### FR-025: Progression Tables (aging, anagathics, retirement_pay)
+**Milestone:** M2 | **Priority:** High | **Depends On:** None
+
+**Description:** Create aging, anagathics, and retirement tables per Sections 5.3.11-5.3.13.
+
+**Acceptance Criteria:**
+- [ ] `aging.json` with CE standard + Mneme variant thresholds
+- [ ] `anagathics.json` with CE standard + Mneme rules
+- [ ] `retirement_pay.json` with pension table
+
+> **CLARIFY:** `aging.json` CE variant shows difficulty at terms 4, 8, 12. What difficulty applies at terms 5-7? Same as term 4 (difficulty 8)? Provide the full term-by-term breakdown or the interpolation rule.
+> **CLARIFY:** `anagathics.json` CE variant has `"sideEffectTable": [...]` — provide the actual side effect entries.
+> **CLARIFY:** `retirement_pay.json` shows terms 5-8. What about 9+ terms? Linear extrapolation (+2000/term)? Capped at term 8 value? Provide the rule.
+
+---
+
+### FR-026: Reference Tables (soc_table, equipment, skills, rules)
+**Milestone:** M2 | **Priority:** High | **Depends On:** None
+
+**Description:** Create SOC, equipment, skills, and rules tables per Sections 5.3.14-5.3.17.
+
+**Acceptance Criteria:**
+- [ ] `soc_table.json` with CE titles + Mneme economic tiers
+- [ ] `equipment.json` with weapons, armor, gear, assets
+- [ ] `skills.json` with all skills, categories, cascade/specialties
+- [ ] `rules.json` with CE + Mneme rulesets and toggles
+
+> **CLARIFY:** `equipment.json` shows 1 weapon (Dagger). Provide the complete equipment list or source reference. How many items per category (weapons, armor, gear, assets)?
+> **CLARIFY:** `skills.json` shows 2 skills. `_summary.json` mentions "50 entries." Provide the complete skill list with categories and cascade/specialty info, or point to the CE SRD skill list.
+
+---
+
+### FR-030: Dice Engine
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** None
+
+**Description:** Implement all dice roll functions per Sections 6.1 and 6.2: d6, 2d6, 2d6vsTN, AdvX, DisX.
+
+**Acceptance Criteria:**
+- [ ] `rollD6()` returns 1-6
+- [ ] `roll2D6()` returns 2-12
+- [ ] `roll2D6vsTN(tn, dm)` returns { roll, total, success }
+- [ ] `rollAdvX(x)` rolls (2+x)d6, keeps highest 2
+- [ ] `rollDisX(x)` rolls (2+x)d6, keeps lowest 2
+
+*(This FR is clear — algorithm in MECH-A.1.)*
+
+---
+
+### FR-031: Characteristic Roll + DM Calculation
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-030
+
+**Description:** Implement characteristic generation and DM lookup per Sections 6.3.1 and 6.3.2.
+
+**Acceptance Criteria:**
+- [ ] `rollCharacteristic(spec)` handles "2d6", "advX", "disX", "2d6+N", "2d6-N"
+- [ ] Minimum value is 1
+- [ ] `getCharacteristicDM(value)` returns correct DM per reference table
+
+*(This FR is clear — algorithm in MECH-A.4 and table in MECH-4.2)*
+
+---
+
+### FR-032: Career Qualification + Survival + Advancement Rolls
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-030, FR-031
+
+**Description:** Implement career roll functions per Sections 6.4.2, 6.4.3, 6.4.7.
+
+**Acceptance Criteria:**
+- [ ] `rollQualification()` handles auto-qualify careers and DM bonuses
+- [ ] `rollSurvival()` returns survived boolean with DM
+- [ ] `rollAdvancement()` returns advanced boolean with DM
+
+*(This FR is clear — algorithms in MECH-A.5)*
+
+---
+
+### FR-033: Commission + Event + Mishap Rolls
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-030, FR-024
+
+**Description:** Implement commission, event, and mishap roll functions per Sections 6.4.4-6.4.6.
+
+**Acceptance Criteria:**
+- [ ] `rollCommission()` handles careers with/without commissions
+- [ ] `rollEvent(eventTable)` returns event for 2d6 result
+- [ ] `rollMishap(mishapTable)` returns mishap consequence
+
+> **CLARIFY — BLOCKING:** Event roll (6.4.4) references an `eventTable` parameter, but **no event table or `events.json` schema exists anywhere in Section 5**. Are events per-career? Generic? Provide:
+> - Is there an `events.json` data table? If so, provide the schema and content.
+> - Or are events embedded in `careers.json` per career? If so, add an `events` field to the career schema in DATA_ARCHITECTURE.md §DA-3.7.
+> - Or are events out of scope for v1 and the roll is a stub?
+
+---
+
+### FR-034: Benefits + Mustering Out + Pension
+**Milestone:** M3 | **Priority:** High | **Depends On:** FR-030, FR-021, FR-025
+
+**Description:** Implement benefits and mustering out per Sections 6.5 and 6.6.
+
+**Acceptance Criteria:**
+- [ ] `calculateBenefitRolls(terms, rank)` returns correct count
+- [ ] `rollCashBenefit()` returns credits, max 3 cash rolls enforced
+- [ ] `rollMaterialBenefit()` applies rank bonus
+- [ ] `calculatePension(terms)` returns annual pension or 0
+
+> **CLARIFY:** Pension table (DATA_ARCHITECTURE.md §DA-3.14) only goes to 8 terms — **RESOLVED:** 9+ terms add +Cr2,000 per term beyond 8 per MECH-9.4
+> **CLARIFY:** In auto-generation ("Random Everything"), what's the decision logic for cash vs material rolls? Random 50/50? Maximize cash first (up to 3)? Weighted by remaining funds?
+
+---
+
+### FR-035: Aging Engine (CE + Mneme)
+**Milestone:** M3 | **Priority:** High | **Depends On:** FR-030, FR-031, FR-025
+
+**Description:** Implement aging rolls for both CE and Mneme variants per MECH-8.
+
+**Acceptance Criteria:**
+- [ ] CE: Aging check starts at term 4, difficulty increases with age
+- [ ] Mneme: Aging check starts at term 5, difficulty = terms + 1
+- [ ] Physical characteristic reductions applied on failure
+- [ ] Death if any physical characteristic reaches 0
+
+> **CLARIFY — BLOCKING:** CE aging code (6.7.1) calls `getDifficulty_CE(term)` and `getAgingEffects_CE(term)` — **neither function is defined**. Provide:
+> - `getDifficulty_CE(term)`: What difficulty for terms 4-7? Is it 8 for all of them? Then 9 for 8-11? Then 10 for 12+? Spell out the rule.
+> - `getAgingEffects_CE(term)`: What characteristic reductions? Which characteristics affected at each tier? By how much (-1 each? -1 to one random?)?
+>
+> **CLARIFY:** Mneme aging failure returns `effects: ["reduce_physical"]` — which physical characteristic is reduced? All three (STR, DEX, END) by -1 each? One random by -1? Specify.
+
+---
+
+### FR-036: Anagathics Engine (CE + Mneme)
+**Milestone:** M3 | **Priority:** Medium | **Depends On:** FR-035
+
+**Description:** Implement anagathics (anti-aging drugs) for both variants per Sections 5.3.12 and 6.7.3.
+
+**Acceptance Criteria:**
+- [ ] Mneme: Cost 100KCr, max (SOC-7) doses, prevents aging for term
+- [ ] CE: Cost by TL, side effects possible
+- [ ] Integrated into aging step — offered before aging roll
+
+> **CLARIFY — BLOCKING:** Section 6 provides code only for Mneme anagathics (`applyAnagathics_Mneme`). **No CE anagathics code exists.** Provide:
+> - CE anagathics logic: MECH-8.4 documents CE anagathics: cost = 1D6×2,500 Cr per term; requires second Survival check; stopping causes immediate aging roll. DATA_ARCHITECTURE.md §DA-3.13.
+> - CE anagathics availability: not explicitly restricted by starport — available wherever character can obtain supply (Referee discretion).
+
+---
+
+### FR-040: Generate View Layout
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-004, FR-005
+
+**Description:** Generate view at `/generate` per Section 3.5. Desktop: three-column layout (Parameters 20%, Character Sheet 50%, Log 30%). Phone: single column.
+
+**Acceptance Criteria:**
+- [ ] Desktop: Three-column layout with parameters, character sheet (tiles), and log
+- [ ] Phone: Single-column responsive layout
+- [ ] "Generate" button produces a complete character
+- [ ] Log panel shows roll-by-roll generation history
+- [ ] Constraints panel filters species and career options
+
+> **CLARIFY:** Phone layout — what order? Parameters on top (collapsible), then sheet, then log? Or is the log hidden by default on phone?
+> **CLARIFY:** Constraints panel — what specific constraint fields exist? Enumerate them. (Species filter, career filter, tech level limit, max terms, min/max age, number of careers, ... ?)
+> **CLARIFY:** "Real-time updates as generation progresses" vs "< 3 seconds" performance target — is generation animated step-by-step in the UI? Or does it complete instantly and the log shows the history afterward? Or is it an animated replay of completed generation?
+
+---
+
+### FR-041: Species Selection Step
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-020, FR-031
+
+**Description:** Generation Step 1 per MECH-11.2. Species selection with toggle gating.
+
+**Acceptance Criteria:**
+- [ ] Dropdown shows only enabled species
+- [ ] Species gated by rule toggles (Esper requires Psionics toggle, etc.)
+- [ ] "Random" option selects from enabled species
+- [ ] Selected species determines characteristic roll specs
+
+*(This FR is clear.)*
+
+---
+
+### FR-042: Characteristic Generation Step
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-031, FR-041
+
+**Description:** Generation Step 2 per MECH-11.3. Roll characteristics using species specs.
+
+**Acceptance Criteria:**
+- [ ] Roll all 6 (or 7 with PSI) characteristics per species spec
+- [ ] Display values with DMs in Characteristics tile
+- [ ] Log each roll detail
+
+*(This FR is clear — code and UI mockup provided.)*
+
+---
+
+### FR-043: Homeworld & Background Step
+**Milestone:** M3 | **Priority:** High | **Depends On:** FR-023, FR-041
+
+**Description:** Generation Step 3 per MECH-11.4. Select homeworld and background, gain starting skill.
+
+**Acceptance Criteria:**
+- [ ] Homeworld selection (random or user choice)
+- [ ] Background filtered by homeworld + species restrictions
+- [ ] 1 starting skill gained from background
+- [ ] Species restrictions enforced (Low-G → space only, Merfolk → water only)
+
+> **CLARIFY:** What's the homeworld selection UI? Dropdown? Cards? Random button?
+> **CLARIFY:** Filtering logic — how does `backgroundsAllowed: "space_only"` match against background entries? By `category` field? By explicit mapping?
+> **CLARIFY:** Starting skill — is it always Level 0, always Level 1, or variable? What determines the level?
+
+---
+
+### FR-044: Career Term Loop
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-021, FR-032, FR-033, FR-024
+
+**Description:** Generation Step 5 per MECH-11.6. Full career term loop: qualification, survival, events, commission, advancement, skills, re-enlistment, aging.
+
+**Acceptance Criteria:**
+- [ ] First term: qualification roll (failure → draft or drifter)
+- [ ] Each term: survival → event → commission → advancement → skill → re-enlist → age
+- [ ] Mishap on survival failure ends career
+- [ ] Draft table used on qualification failure
+- [ ] Career change between terms supported
+- [ ] Minimum 1 skill per term guaranteed
+- [ ] Aging applied per FR-035
+
+> **CLARIFY — BLOCKING:** Auto-generation stopping condition — what determines when the character stops serving terms? Without a rule, the loop could run indefinitely. Options:
+> - Fixed max terms (e.g., 7)?
+> - Random chance to leave each term?
+> - Leave after failed re-enlistment roll?
+> - Weighted by age/terms served?
+> Specify the algorithm.
+>
+> **CLARIFY:** Skill acquisition (step 7) — in auto-mode, which skill table is chosen? Random from personal/service/advanced? Weighted? Always personal first term?
+> **CLARIFY:** Career change — in auto-mode, when does the generator decide to switch careers vs re-enlist? Random chance? After advancement failure? Never (stay in first career)?
+> **CLARIFY:** Events — depends on FR-033 event table which is currently undefined. See FR-033 CLARIFY block.
+
+---
+
+### FR-045: Mustering Out + Equipment Assignment
+**Milestone:** M3 | **Priority:** High | **Depends On:** FR-034, FR-026
+
+**Description:** Generation Steps 7-8 per Sections 7.10 and 7.11.
+
+**Acceptance Criteria:**
+- [ ] Calculate benefit rolls from terms + rank
+- [ ] Roll cash and material benefits (max 3 cash)
+- [ ] Calculate pension if 5+ terms
+- [ ] Assign equipment based on benefits + career
+
+> **CLARIFY:** Equipment assignment (MECH-11.10) says "Procedurally assign 'believable' gear based on career." This is subjective. Provide:
+> - The algorithm or heuristic for auto-assigning gear
+> - Budget for additional equipment purchases (from cash benefits? Fixed amount?)
+> - Career-to-gear mapping for all 24 careers (only Marine, Scout, Merchant shown in MECH-11.10)
+
+---
+
+### FR-046: Name Generation Step
+**Milestone:** M3 | **Priority:** Medium | **Depends On:** FR-022
+
+**Description:** Generation Step 9 per MECH-11.11.
+
+**Acceptance Criteria:**
+- [ ] Select culture (random or user choice)
+- [ ] Select gender
+- [ ] Generate name from culture pool
+- [ ] Apply format pattern from `name_generation_rules.json`
+
+> **CLARIFY:** Gender options — male, female, unisex only? Or also non-binary/other? When "random" is selected, does it pick from male+female equally and sometimes use unisex pool, or is unisex a third equal option?
+> **CLARIFY:** Depends on FR-022 data which needs complete name pools (see FR-022 CLARIFY block).
+
+---
+
+### FR-047: "Random Everything" One-Click Generation
+**Milestone:** M3 | **Priority:** High | **Depends On:** FR-041 through FR-046
+
+**Description:** One-click full random character generation per MECH-11 and PRD §3.5.
+
+**Acceptance Criteria:**
+- [ ] Single button press generates a complete character with all random choices
+- [ ] Uses all generation steps (FR-041 through FR-046) with random selections
+- [ ] Result saved to library automatically
+- [ ] Log shows full generation history
+
+> **CLARIFY:** Decision weights for "random" — specify for each choice point:
+> - Species: Equal probability across enabled species? Or weighted (e.g., 70% Terrestrial Human)?
+> - Career: Equal probability? Weighted by category?
+> - Number of terms: What distribution? Uniform 1-7? Weighted toward 3-5?
+> - Cash vs material benefits: Random per roll? Prefer cash until 3 used?
+> - Equipment purchases: Auto-buy sensible gear? Skip entirely?
+> - Culture/gender for names: Equal distribution?
+>
+> Or state: "all choices are uniformly random from valid options" if that's the intent.
+
+---
+
+### FR-050: Library View
+**Milestone:** M4 | **Priority:** High | **Depends On:** FR-001, FR-051
+
+**Description:** Library view at `/library` per Section 3.6. Browse, search, manage saved characters.
+
+**Acceptance Criteria:**
+- [ ] Grid view (cards) and List view (table) toggle
+- [ ] Search/filter by name, career, species, date
+- [ ] Sort by: Name, Date, Career, Terms, Age
+- [ ] Quick actions per character: Load, Duplicate, Export, Delete
+- [ ] Batch operations: export multiple, delete group
+
+> **CLARIFY:** Grid card layout — provide a mockup or list the fields shown on a card (Name, career, age, species? Portrait placeholder?).
+> **CLARIFY:** List/table view — which columns?
+> **CLARIFY:** Batch selection UI — checkboxes per item? Long-press? Select mode toggle?
+> **CLARIFY:** "Load" action — load where? Into the Generate view for editing? Into the Character view (FR-054)?
+
+---
+
+### FR-051: Character Save to IndexedDB
+**Milestone:** M4 | **Priority:** Critical | **Depends On:** None (interface definition only; storage used by FR-044+)
+
+**Description:** IndexedDB storage for character library.
+
+**Acceptance Criteria:**
+- [ ] Save complete character object to IndexedDB
+- [ ] Retrieve by ID
+- [ ] List all characters with metadata
+- [ ] Delete by ID
+- [ ] Data persists across sessions and app updates
+
+> **CLARIFY — BLOCKING:** Provide the complete character object schema/interface. Section 7 describes what a character contains across 10 steps, but there is no unified `Character` TypeScript interface. Specify all fields: characteristics, skills, career history, benefits, equipment, name, age, species, homeworld, background, connections, wounds, pension, cash, etc.
+> **CLARIFY:** IndexedDB database name, object store name, and version number.
+> **CLARIFY:** Auto-save timing — save immediately on generation completion? Or after user reviews and confirms?
+
+---
+
+### FR-052: Character Export Formats
+**Milestone:** M4 | **Priority:** High | **Depends On:** FR-051
+
+**Description:** Export characters in multiple formats per Section 8.3 (original).
+
+**Acceptance Criteria:**
+- [ ] JSON export (full data)
+- [ ] Markdown export (formatted document)
+- [ ] Universal Character Description (text block)
+- [ ] Mneme Character Summary (Mneme-specific format)
+- [ ] Print-friendly view
+- [ ] Campaign-ready stat block
+
+> **CLARIFY:** Provide example output for each format:
+> - **Universal Character Description** — what does this text block look like? Provide a sample.
+> - **Mneme Character Summary** — what's the Mneme-specific format? Provide a sample.
+> - **Campaign-ready stat block** — what fields, what layout? Provide a sample.
+> - **Print-friendly view** — is this a separate route? A CSS print stylesheet? A generated PDF?
+>
+> JSON and Markdown can be inferred, but the other 4 need concrete examples.
+
+---
+
+### FR-053: Batch Generation
+**Milestone:** M4 | **Priority:** Medium | **Depends On:** FR-047
+
+**Description:** Generate multiple characters at once (referenced in US-002, line 2117: "Generates 20 NPCs via batch").
+
+**Acceptance Criteria:**
+- [ ] User specifies count of characters to generate
+- [ ] Constraints applied to entire batch
+- [ ] Progress indicator during generation
+- [ ] All characters saved to library
+- [ ] Batch export option
+
+> **CLARIFY — BLOCKING:** This feature is mentioned only in a user story. No section describes it. Provide:
+> - Where is the batch UI? In the Generate view? A separate mode/tab? A modal?
+> - Can each NPC have different constraints, or same constraints for all?
+> - Output: individual saves to library + combined export? Or combined export only?
+> - Max batch size?
+> - Is this in scope for v1, or should it be moved to Section 12 (Out of Scope)?
+
+---
+
+### FR-054: Character View Page
+**Milestone:** M4 | **Priority:** Medium | **Depends On:** FR-004, FR-051
+
+**Description:** Individual character view at `/character/:id` (listed in route map, Section 2.5 line 103).
+
+**Acceptance Criteria:**
+- [ ] Display full character using tile system (FR-004)
+- [ ] Actions: Export, Duplicate, Delete
+- [ ] Accessible from Library view
+
+> **CLARIFY:** Is this view read-only, or does it support editing?
+> **CLARIFY:** How does the user navigate here? Only from Library? Or also after generation completes?
+> **CLARIFY:** Is the layout the same as the Generate view's character sheet (tiles), or a different presentation?
+
+---
+
+### FR-060: Real-Time Validation Engine
+**Milestone:** M3 | **Priority:** Critical | **Depends On:** FR-031
+
+**Description:** Validate character data in real-time during generation and editing.
+
+**Acceptance Criteria:**
+- [ ] Hard constraints block invalid state (characteristics 1-15, skill maximums, aging floors, TL match)
+- [ ] Soft warnings displayed but allowed (low SOC + officer, missing prereq skills, age > 70)
+- [ ] Validation feedback < 100ms
+
+*(This FR is clear from the original Section 8.1.)*
+
+---
+
+### FR-070: Test Page & Dev Tools
+**Milestone:** M2 | **Priority:** High | **Depends On:** FR-001
+
+**Description:** Development test page at `/test` with sub-routes per the original Section 8.4.
+
+**Acceptance Criteria:**
+- [ ] `/test/calculations` — Characteristic, aging, career, skill, benefits calculation tests
+- [ ] `/test/components` — UI component showcase in all states
+- [ ] `/test/data` — Schema validation for all JSON tables
+- [ ] `/test/routes` — All routes render correctly
+- [ ] `/test/performance` — First paint, TTI, generation time, bundle size
+- [ ] `/test/storage` — LocalStorage inspector with view/edit/delete/export
+
+*(This FR is clear from the original Section 8.4.)*
+
+---
+
+## 9. NON-FUNCTIONAL REQUIREMENTS
+
+### 9.1 Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| First paint | <2s on 4G |
+| Time to interactive | <5s |
+| Character generation | <3s |
+| Calculation updates | <100ms |
+| Bundle size (gzipped) | <500KB |
+| Lighthouse Performance | >90 |
+
+### 9.2 Accessibility (WCAG AA)
+
 - Keyboard navigation
 - Screen reader compatible
-- Color-blind friendly (not just color)
+- Color-blind friendly (not color-only indicators)
 - Focus indicators
 - Alt text for icons
+- Minimum contrast ratios
 
 **Acceptance:** Passes axe-core audit
 
----
+### 9.3 Security & Privacy
 
-#### FR-020: Browser Support
-**Priority:** High  
-**Requirements:**
+**Security:**
+- No server-side processing (pure client-side)
+- Never use `innerHTML` with table data
+- Schema validation on import
+- Type coercion on load
+
+**Privacy:**
+- Characters stored locally only
+- No personal data collection
+- No cookies for tracking
+- No cloud sync required
+- Export/import under user control
+- Clear data deletion option
+
+### 9.4 Browser Support
+
+**Required:**
 - Chrome (latest 2 versions)
 - Firefox (latest 2 versions)
 - Safari (latest 2 versions)
 - Edge (latest 2 versions)
-- Mobile browsers (iOS Safari, Chrome Android)
+- Mobile: iOS Safari, Chrome Android
 
 **Graceful Degradation:** Core functions work on older browsers
 
 ---
 
-#### FR-027: Test Page for Development and Debugging
-**Priority:** High  
-**Milestone:** M1  
-**Description:** Dedicated testing interface for calculations, components, data validation, and debugging
+## 10. USER STORIES
 
-**Rationale:** Accelerates development by providing isolated testing environment. Catches calculation errors and UI bugs early. Serves as regression test suite.
+### US-001: New Player Generates First Character
 
-**URL:** `/test` (accessible in both development and production; production version shows confirmation dialog)
-
-**Sections:**
-
-**1. Calculation Tests** (`/test/calculations`)
-- Characteristic modifier calculations
-- Aging roll simulations
-- Career qualification/survival/advancement rolls
-- Skill accumulation verification
-- Mustering out benefit calculations
-- Equipment assignment logic
-
-**Display format:**
-```
-✓ Characteristic Modifiers (12/12 tests passed)
-  STR 7 → DM -1 ✓
-  STR 8 → DM 0 ✓
-  ...
-  
-✓ Aging Rolls (50/50 simulations passed)
-  Average: 8.2 vs TN 6 (87% pass rate) ✓
-  
-⚠ Career Qualification (23/24 tests passed)
-  Marine, STR 7, END 8 → Qualified ✓
-  Scout, INT 5 → Not qualified ✓
-  Physician, EDU 9 → FAILED (expected qualified) ✗
-```
-
-**2. Component Showcase** (`/test/components`)
-- CharacteristicTile (all states: empty, filled, focused)
-- SkillRow (levels 0-6, with/without specialty)
-- CareerHistoryEntry (single term, multi-term)
-- EquipmentCard (weapon, armor, gear)
-- LoadingSpinner, ErrorBoundary
-- Empty states
-
-**3. Data Validation** (`/test/data`)
-Schema validation for all data tables:
-- `careers.json` — 24 careers, all required fields present
-- `skills.json` — All skills categorized
-- `equipment.json` — All items have weight/cost/TL
-- `races.json` — All races have modifiers
-- `homeworlds.json` — All worlds have background skills
-
-**4. Route Testing** (`/test/routes`)
-Verify all routes render correctly:
-```
-/                    → StartupScreen ✓
-/generate            → CharacterGenerationView ✓
-/library             → LibraryView ✓
-/character/demo-id   → CharacterView ✓
-/settings            → SettingsScreen ✓
-/settings/rules      → SettingsScreen (Rules section) ✓
-/settings/json       → SettingsScreen (JSON section) ✓
-/settings/version    → SettingsScreen (Version section) ✓
-/test                → TestPage ✓ (self-referential!)
-```
-
-**5. Performance Metrics** (`/test/performance`)
-Real-time timing data:
-- First paint
-- Time to interactive
-- Character generation average time
-- JSON table load times
-- Bundle size breakdown
-
-**6. LocalStorage Inspector** (`/test/storage`)
-View and manage localStorage:
-- List all keys and their sizes
-- View values (collapsible JSON)
-- Edit values inline
-- Delete individual keys
-- Clear all storage
-- Export storage as JSON
-- Import storage from JSON
-
-**Security Note:** LocalStorage inspector in production requires confirmation: "This will show all your saved data. Continue?"
-
-**Navigation:**
-- Sidebar with section icons
-- "Run All Tests" button at top
-- Export test results as JSON
-
-**Acceptance Criteria:**
-- [ ] Test page accessible at `/test`
-- [ ] All core calculation functions have passing tests
-- [ ] Component showcase displays all major UI components
-- [ ] Data validation checks schema for all JSON tables
-- [ ] Route testing verifies all defined routes
-- [ ] Performance metrics display actual timing data
-- [ ] LocalStorage inspector shows current storage state
-- [ ] "Run All Tests" button executes all suites
-- [ ] Test results can be exported as JSON
-
-**Benefits:**
-- Early bug detection in calculations
-- Visual regression testing
-- Data validation before releases
-- Performance baseline tracking
-- Debugging aid for user issues
-
----
-
-## 3. DATA REQUIREMENTS
-
-### 3.1 Embedded Data
-
-**Core JSON Data Tables (M2 Deliverables):**
-
-These files are created and populated with canonical data during **M2: Settings & Data Tables** milestone:
-
-**Global Character Tables (Shared Across All Careers):**
-
-1. **`draft.json`** — Draft/Conscription Table
-   - Characters drafted if they fail career qualification
-   - Draft assignment by roll (which career they get drafted into)
-   - Draft-specific survival DMs
-
-2. **`survival_mishaps.json`** — Survival Mishaps Table
-   - What happens when a character fails survival roll
-   - Mishap descriptions and consequences
-   - Career-ending events
-
-3. **`injury.json`** — Injury Table
-   - Injury severity levels (1-6 scale)
-   - Characteristic damage by injury type
-   - Recovery times and medical care needed
-   - Permanent effects
-
-4. **`medical_bills.json`** — Medical Bills Table
-   - Cost per injury severity level
-   - Cost by tech level available
-   - Starport class impact on pricing
-
-5. **`aging.json`** — Aging Table
-   - Characteristic loss by age bracket
-   - Aging roll thresholds
-   - Anagathics interaction
-   - Death from aging rules
-
-6. **`anagathics.json`** — Anagathics (Anti-Aging Drugs) Table
-   - **Standard CE Rules:**
-     - Cost by tech level (100KCr at TL 12+)
-     - Side effects table
-     - Availability by starport
-   - **Mneme Variant Rules (Simplified):**
-     - Fixed cost: 100KCr per term
-     - Max doses: (SOC - 7)
-     - Available at Class A/B starports
-     - No side effects
-   - **Reference:** `MNEME_SPACE_COMBAT_SUMMARY.md` Section 2.3
-
-7. **`retirement_pay.json`** — Retirement Pay by Terms Served Table
-   - Annual pension amount by total terms served
-   - Multi-career retirement calculation
-   - Pension modifiers by rank achieved
-
-8. **`soc_table.json`** — Social Standing (SOC) Table
-   - **CE Standard:** SOC 1-15 with titles and effects
-   - **Mneme Variant:** SOC-based economic tiers (each level = x2 income)
-     - Reference: https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
-     - Economic calculations based on SOC
-   - **Toggle:** Settings → Rules → "Use Mneme SOC Table"
-
-**Character Components:**
-
-9. **`races.json`** — Species definitions with modifiers
-   - **Regular Human (Terra/High-G):** 
-     - STR, DEX, END, INT, EDU, SOC base values (roll 2D6 each)
-     - Description: Humans born on Terra or High-G habitats (MAGICIANS, terrestrial spin gravity habitats)
-   - **Low-G Human (Mneme Variant):**
-     - **Modifiers:** 
-       - STR: `dis1` (roll 3d6, keep lowest 2) — Bone density reduced
-       - DEX: `adv1` (roll 3d6, keep highest 2) — Adapted to free-fall movement  
-       - END: `dis1` (roll 3d6, keep lowest 2) — Cardiovascular modifications
-       - SOC: -1
-     - **Starting Skills:**
-       - Zero-G: 2
-       - Vacc Suit: 1
-       - Survival (Habitat): 1
-     - **Penalty:** Move -1 in 0.7G or higher gravity
-     - **Physical:** 1/2 weight of regular human at same height
-     - **Description:** Specially adapted for low-G conditions with cardiovascular and bone modifications
-     - **Backgrounds:** Only Space backgrounds available
-   - **Optional PSI:** Psionic strength (toggle in settings for psionic campaigns)
-   - **Non-Human Species:**
-     - Abilities (unique racial capabilities)
-     - Traits (distinguishing characteristics)
-     - Modifiers (characteristic adjustments)
-   - **Toggle:** Settings → Rules → "Use Low-G Human (Mneme Variant)"
-   - Structure: `id`, `name`, `baseCharacteristics`, `characteristicRolls`, `startingSkills`, `abilities`, `traits`, `modifiers`, `enabled`
-
-10. **`backgrounds.json`** — Character Backgrounds Table
-    - Pre-career backgrounds and origins
-- Background skills and starting equipment
-    - Connection to homeworld
-    - M2: Basic backgrounds, M3: Expanded backgrounds
-
-11. **`skills.json`** — Skill definitions and categories
-    - All skills with descriptions
-    - Skill categories (Personal, Service, Specialist, Advanced)
-    - Cascade skills (Gun Combat → specific weapons)
-
-12. **`equipment.json`** — Weapons, armor, gear, assets
-    - Weapons: damage, range, cost, TL, mass
-    - Armor: protection, cost, TL
-    - Gear: tools, survival equipment, medical
-    - Assets: ship shares, property
-
-13. **`homeworlds.json`** — World types with background skills
-    - **CE Standard:** World classifications (High Tech, Low Tech, etc.)
-    - **Mneme Variant:** Extended homeworld options with economic modifiers
-    - Background skill options per world type
-    - Toggle: Settings → Rules → "Use Mneme Homeworld Table"
-
-14. **`names.json`** — Name generators by UNESCO cultural heritage
-    - **Cultural Heritage Groups:** Based on UNESCO documented cultures
-      - European (English, French, German, Spanish, Russian, etc.)
-      - Asian (Chinese, Japanese, Korean, Indian, Vietnamese, etc.)
-      - African (Nigerian, Ethiopian, Egyptian, etc.)
-      - Middle Eastern (Arabic, Persian, Hebrew, etc.)
-      - American (Native American, Latin American, etc.)
-      - Pacific (Polynesian, Maori, Aboriginal, etc.)
-    - **Gender Grouping:** Names organized by gender within each culture
-      - Male names array
-      - Female names array
-      - Unisex names array (where applicable)
-    - **Alien Species:** Non-human naming conventions for Vargr, Aslan, Droyne, etc.
-    - **Usage:** Character creation randomly selects from chosen culture/gender
-    - **Structure:**
-      ```json
-      {
-        "cultures": {
-          "english": {
-            "heritage": "European",
-            "male": ["James", "William", ...],
-            "female": ["Mary", "Elizabeth", ...],
-            "unisex": ["Alex", "Jordan", ...]
-          },
-          "japanese": {
-            "heritage": "Asian", 
-            "male": ["Kenji", "Takeshi", ...],
-            "female": ["Yuki", "Sakura", ...]
-          }
-        },
-        "alien_species": {
-          "vargr": { ... },
-          "aslan": { ... }
-        }
-      }
-      ```
-
-**Settings & Configuration:**
-
-15. **`rules.json`** — Rule variants and house rules
-    - CE vs Mneme rule differences
-    - Optional rules toggles
-    - Custom rule definitions
-    - **Psionics Toggle:** Enable/disable PSI characteristic and psionic careers
-
-16. **`_summary.json`** — Data catalog and schema index
-    - Master list of all tables
-    - Cross-references between tables
-
-**Total:** 16 core JSON tables with 400+ data entries
-
-### 3.2 Data Schema
-
-See `MASTER_RULES_CONSOLIDATION.md` for complete schemas
-
-Key entities:
-- Character (main object)
-- Characteristics, Skills, Career History
-- Equipment[], Connections
-
-### 3.3 Calculation Engine
-
-**Dice Rolling Mechanics:**
-
-**Standard 2D6:**
-- Roll two six-sided dice, sum the result (2-12)
-- Base roll for most Cepheus Engine mechanics
-
-**Advantage X (advX):**
-- Roll (2+X)d6, keep highest 2 dice
-- Format: `adv1`, `adv2`, `adv3`, etc.
-- Examples:
-  - `adv1` = Roll 3d6, keep highest 2 (advantage 1)
-  - `adv2` = Roll 4d6, keep highest 2 (advantage 2)
-  - `adv3` = Roll 5d6, keep highest 2 (advantage 3)
-
-**Disadvantage X (disX):**
-- Roll (2+X)d6, keep lowest 2 dice
-- Format: `dis1`, `dis2`, `dis3`, etc.
-- Examples:
-  - `dis1` = Roll 3d6, keep lowest 2 (disadvantage 1)
-  - `dis2` = Roll 4d6, keep lowest 2 (disadvantage 2)
-  - `dis3` = Roll 5d6, keep lowest 2 (disadvantage 3)
-
-**Formula:**
-```javascript
-// Advantage X
-function rollAdvX(X) {
-  const dice = rollDice(2 + X, 6); // Roll (2+X) d6
-  dice.sort((a, b) => b - a); // Sort descending
-  return dice[0] + dice[1]; // Sum highest 2
-}
-
-// Disadvantage X
-function rollDisX(X) {
-  const dice = rollDice(2 + X, 6); // Roll (2+X) d6
-  dice.sort((a, b) => a - b); // Sort ascending
-  return dice[0] + dice[1]; // Sum lowest 2
-}
-```
-
-**Must implement:**
-- Characteristic modifiers
-- Career qualification/survival/advancement
-- Aging mechanics
-- Skill accumulation
-- Equipment assignment
-- Mustering out rolls
-
----
-
-## 4. USER STORIES
-
-### 4.1 Primary Use Cases
-
-**US-001: New Player Generates First Character**
 1. Opens app on phone
 2. Clicks "Generate Character"
 3. Sees complete character instantly
@@ -1808,54 +1910,170 @@ function rollDisX(X) {
 5. Saves to library
 6. Exports to JSON for game
 
-**US-002: GM Creates NPCs**
+### US-002: GM Creates NPCs
+
 1. Opens app on laptop
-2. Switches to "Batch Mode"
-3. Sets constraints ("military careers only")
-4. Generates 20 NPCs
-5. Reviews and exports as group
-6. Uses in game session
+2. Sets constraints ("military careers only")
+3. Generates 20 NPCs via batch
+4. Reviews and exports as group
+5. Uses in game session
 
-**US-003: Player Customizes Content**
-1. Opens Settings
-2. Edits careers.json to add house rule careers
-3. Imports custom equipment module
+### US-003: Player Customizes Content
+
+1. Opens Settings → Tables In Play
+2. Creates custom careers table
+3. Edits careers for house rules
 4. Generates character with new content
-5. Exports custom module to share
+5. Exports custom table to share
 
-**US-004: Campaign Group Shares Content**
+### US-004: Campaign Group Shares Content
+
 1. GM exports settings snapshot with custom careers
 2. Shares file via messaging
 3. Players import to their local copy
 4. Everyone uses same custom rules
 
----
+### US-005: GM Switches Rule Variants
 
-## 5. NON-FUNCTIONAL REQUIREMENTS
-
-### 5.1 Security
-- No server-side processing (pure client-side)
-- No personal data collection
-- No cookies for tracking
-- All calculations local
-
-### 5.2 Privacy
-- Characters stored locally only
-- No cloud sync required
-- Export/import under user control
-- Clear data deletion option
-
-### 5.3 Maintainability
-- Component-based architecture
-- TypeScript for type safety (recommended)
-- Unit tests for calculations
-- E2E tests for critical paths
+1. Opens Settings → Rules
+2. Toggles from CE to Mneme variant
+3. Aging now starts at Term 5
+4. Anagathics use simplified rules
+5. Generates character with Mneme rules
 
 ---
 
-## 6. OUT OF SCOPE (Future Releases)
+## 11. TTRPG GAME RULES (Reference Appendix)
+
+This section provides reference material for the Cepheus Engine rules implemented in the app.
+
+### 11.1 Dice Mechanics
+
+**2D6 System:**
+- Most rolls use 2d6 (sum of two six-sided dice)
+- Result range: 2-12
+- Average: 7
+
+**Target Number (TN):**
+- Roll 2d6 + modifiers ≥ TN to succeed
+- Common TNs: 6+ (easy), 8+ (average), 10+ (difficult)
+
+**Dice Modifiers (DM):**
+- Added to or subtracted from the roll
+- Derived from characteristics, skills, circumstances
+
+### 11.2 Characteristics
+
+**Six Core Characteristics:**
+| Abbr | Name | Description |
+|------|------|-------------|
+| STR | Strength | Physical strength, fitness |
+| DEX | Dexterity | Coordination, agility, reflexes |
+| END | Endurance | Stamina, ability to sustain damage |
+| INT | Intelligence | Intellect, quickness of mind |
+| EDU | Education | Learning and experience |
+| SOC | Social Standing | Place in society |
+
+**Optional (with Psionics toggle):**
+| Abbr | Name | Description |
+|------|------|-------------|
+| PSI | Psionic Strength | Mental power for psionics |
+
+**Value Range:** 1-15 (typically 2-12 from generation)
+
+**Characteristic DM Table:**
+| Value | DM |
+|-------|-----|
+| 0 | -3 |
+| 1-2 | -2 |
+| 3-5 | -1 |
+| 6-8 | +0 |
+| 9-11 | +1 |
+| 12-14 | +2 |
+| 15+ | +3 |
+
+### 11.3 Career System Rules
+
+**Career Terms:**
+- Each term = 4 years
+- Characters start at age 18
+- Multiple terms possible (4+ typical)
+
+**Career Progression:**
+1. **Qualification** — Roll to enter career
+2. **Basic Training** — First term skills
+3. **Survival** — Roll to survive term
+4. **Events** — Career events occur
+5. **Advancement** — Roll for promotion
+6. **Skills** — Gain skills from tables
+7. **Re-enlistment** — Continue or leave
+
+**Ranks:**
+- Rank 0-6 scale for most careers
+- Higher ranks provide benefits
+- Commission required for officer ranks (some careers)
+
+### 11.4 Aging Rules
+
+**CE Standard:**
+- Aging starts: Term 4 (age 34)
+- Physical characteristics may reduce
+- Anagathics can prevent/reduce effects
+
+**Mneme Variant:**
+- Aging starts: Term 5 (age 38)
+- Roll: 2d6 + END DM vs (terms + 1)
+- Simplified anagathics rules
+
+### 11.5 Anagathics Rules
+
+**CE Standard:**
+- Cost varies by Tech Level
+- Side effects possible
+- Complex availability
+
+**Mneme Simplified:**
+- Cost: 100,000 Cr per term (fixed)
+- Max doses: (SOC - 7), minimum 1
+- Available: Starport A or B only
+- Effect: Completely prevents aging for term
+- No side effects
+
+### 11.6 Mustering Out Rules
+
+**Benefits:**
+- 1 roll per term served
+- +1-3 rolls based on final rank
+- Choose cash or material per roll
+- Maximum 3 cash rolls total
+
+**Retirement Pay:**
+- Requires 5+ terms
+- Annual pension based on terms served
+- Paid regardless of other income
+
+### 11.7 Mneme CE Variant Summary
+
+**Key Differences from Standard CE:**
+
+| Rule | CE Standard | Mneme Variant |
+|------|-------------|---------------|
+| Aging Start | Term 4 | Term 5 |
+| Re-enlistment | Roll required | Automatic |
+| Drifter Entry | Roll required | Automatic |
+| Anagathics | Complex | Simplified |
+| SOC Table | Titles | Economic tiers |
+
+**References:**
+- Mneme CE Character Creation: https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
+- Mneme Space Combat: https://wiki.gi7b.org/Mneme_Space_Combat
+
+---
+
+## 12. OUT OF SCOPE / FUTURE RELEASES
 
 ### Version 2.x (Future)
+
 - **Character Portraits** — AI-generated or uploaded images
 - **Campaign Integration** — Link characters to ship crew (CE ShipGen)
 - **Equipment Builder** — Custom gear creation
@@ -1863,6 +2081,7 @@ function rollDisX(X) {
 - **PDF Export** — Form-fillable character sheets
 
 ### Version 3.x (Future)
+
 - Cloud sync (optional)
 - Character sharing marketplace
 - Advanced career events with choices
@@ -1870,30 +2089,7 @@ function rollDisX(X) {
 
 ---
 
-## 7. ACCEPTANCE CRITERIA
-
-### 7.1 MVP Complete When:
-- [ ] Character generation functional (all 9 steps)
-- [ ] 200+ data entries correctly loaded
-- [ ] Real-time calculations accurate
-- [ ] Validation works (hard/soft constraints)
-- [ ] Character library functional
-- [ ] Export to JSON and text
-- [ ] PWA installable
-- [ ] Works offline
-- [ ] Mobile responsive
-- [ ] Zero calculation errors
-
-### 7.2 Quality Gates:
-- [ ] Unit tests: >80% coverage
-- [ ] E2E tests: All critical paths
-- [ ] Performance: Lighthouse >90
-- [ ] Accessibility: WCAG AA
-- [ ] Browser testing: All supported
-
----
-
-## 8. RISKS AND MITIGATION
+## 13. RISKS & MITIGATION
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -1905,675 +2101,85 @@ function rollDisX(X) {
 
 ---
 
-## 9. GLOSSARY
+## 14. GLOSSARY & REFERENCES
 
-- **CE:** Cepheus Engine
-- **Mneme:** Mneme CE Character Creation Rules
-- **PWA:** Progressive Web App
-- **DM:** Dice Modifier
-- **2D6:** Two six-sided dice
-- **TL:** Tech Level
-- **Cr:** Credits
-- **KCr:** Thousand Credits
-- **MCr:** Million Credits
-- **Term:** 4-year career period
+### 14.1 Glossary
 
----
+| Term | Definition |
+|------|------------|
+| **CE** | Cepheus Engine |
+| **Mneme** | Mneme CE Character Creation Rules variant |
+| **PWA** | Progressive Web App |
+| **DM** | Dice Modifier |
+| **2D6** | Two six-sided dice |
+| **AdvX** | Advantage roll (roll 2+X d6, keep highest 2) |
+| **DisX** | Disadvantage roll (roll 2+X d6, keep lowest 2) |
+| **TL** | Tech Level |
+| **TN** | Target Number |
+| **Cr** | Credits (currency) |
+| **KCr** | Thousand Credits |
+| **MCr** | Million Credits |
+| **Term** | 4-year career period |
+| **SOC** | Social Standing characteristic |
+| **PSI** | Psionic Strength characteristic |
 
-## 10. REFERENCES
+### 14.2 References
 
 1. Cepheus Engine SRD Chapter 1-5
-2. Mneme CE Character Creation Wiki
+2. Mneme CE Character Creation Wiki: https://wiki.gi7b.org/index.php/Mneme_CE_Chapter_1_Character_Creation
 3. CE ShipGen PRD (structural reference)
 4. GI7B Career Cards (24 careers reference)
+5. CE ShipGen PROJECT_NOTES.md (implementation lessons)
 
 ---
 
----
+## APPENDIX A: MILESTONE PLAN
 
-## 11. ADDENDUM — Session Requirements (Post-Initial PRD)
-
-### 11.1 PWA Install Prompt & Install-State Indicator (FR-021)
-
-**Priority:** High  
-**Milestone:** M2.5  
-**Based on:** CE ShipGen FR-021
-
-**Problem Statement:**
-Users visiting the web version have no clear signal that the app can be saved to their desktop/home screen, nor any indication of which mode they are currently running in (web vs. installed PWA).
-
-**Requirements:**
-
-**FR-021a: Install Prompt**
-- Detect PWA installability via `beforeinstallprompt` event
-- Show prominent "Install App" button on Startup screen when installable
-- iOS: Show manual instructions "Tap Share → Add to Home Screen"
-- After install, suppress prompt (store `install_prompted` flag)
-
-**FR-021b: Running-Mode Indicator**
-- Detect standalone mode via `window.matchMedia('(display-mode: standalone)')`
-- Show persistent "Installed" badge (green dot) in header when in standalone mode
-- Show "Install for offline use" link in web/browser mode
-
-**FR-021c: Offline Status**
-- Display status indicator when offline
-- Offline: "Offline — using local data" (amber)
-- Online: no indicator (default)
-
----
-
-### 11.2 Auto-Save & Settings Workflow (FR-022)
-
-**Priority:** High  
-**Milestone:** M2.5  
-**Based on:** CE ShipGen FR-022
-
-**Core Principle:** The app always auto-saves. The canonical `data/*.json` files are read-only factory defaults. User's personal layer lives in localStorage on top of those defaults.
-
-**Data Architecture:**
-
-| Layer | Storage | Contains | User action to reset |
-|-------|---------|----------|---------------------|
-| Factory defaults | `data/*.json` (shipped) | Canonical tables | N/A — read-only |
-| Live working state | `localStorage` (`ce_char_live_*`) | Current tables + rules | "Reset to Defaults" |
-| Named snapshots | `localStorage` (`ce_char_presets`) | Saved settings states | Delete snapshot |
-| Character library | IndexedDB | Saved characters | Never auto-reset |
-
-**FR-022a: Auto-Save on Edit**
-- Table view: save to localStorage on every cell commit — no Save button
-- JSON view: keep explicit "Apply" button (mid-edit JSON may be invalid)
-- Show brief "Saved" toast (1.5s) after auto-save
-
-**FR-022b: Reset Live State to Factory Defaults**
-- In Settings → Data Management: "Reset All to Defaults" button
-- Clears all `ce_char_live_*` keys and `ce_char_rules` from localStorage
-- **Never touches character library**
-- Confirmation: "Reset all tables and rules to factory defaults? Your saved characters will not be affected."
-
----
-
-### 11.3 Input Security — Editable Tables (FR-023)
-
-**Priority:** High  
-**Milestone:** M2.5  
-**Based on:** CE ShipGen FR-023
-
-**Threat Model:**
-
-| Threat | Vector | Risk Level | Mitigation |
-|--------|--------|------------|------------|
-| Stored XSS | Inject `<script>` into table fields | Low | React/vanilla JS text rendering (never use innerHTML) |
-| Schema confusion | Wrong type in numeric field | Medium | Schema validation on import + type coercion on load |
-| Malicious JSON import | Shared corrupted module | Medium | Schema validation, reject if >10% rows fail |
-
-**Requirements:**
-
-**FR-023a: Schema Validation on Import**
-- Validate imported JSON against expected schema for that table
-- Check: required fields present, types correct
-- Reject import if >10% of rows fail validation
-
-**FR-023b: Type Coercion on Load**
-- When reading from localStorage, coerce to expected types
-- Numeric: `Number(value)` with NaN fallback to 0
-- String: `String(value).slice(0, 500)` (max 500 chars)
-- Boolean: explicit true/false check
-
-**FR-023c: No innerHTML with Table Data**
-- Hard constraint: never use `innerHTML` or `dangerouslySetInnerHTML` with table data
-- Always use textContent or React's JSX text rendering
-
----
-
-### 11.4 Settings Snapshots (FR-024)
-
-**Priority:** High  
-**Milestone:** M2.5  
-**Based on:** CE ShipGen FR-024
-
-**Problem Statement:** Users need ability to name and preserve distinct settings configurations — e.g., "Hard Science" variant, "Pirate Campaign" variant, "Standard CE" baseline.
-
-**Concept:** Think save slots in a game. Live working state is active game. Snapshots are save files.
-
-**FR-024a: Snapshot Storage Structure**
-
-All snapshots stored under single localStorage key:
-```
-ce_char_presets → Array of Preset objects
-```
-
-Preset object schema:
-```json
-{
-  "id": "260303:143045",
-  "name": "260303:143045",
-  "createdAt": "2026-03-03T14:30:45Z",
-  "updatedAt": "2026-03-03T14:30:45Z",
-  "tables": {
-    "careers": [ ... ],
-    "skills": [ ... ],
-    "equipment": [ ... ],
-    "races": [ ... ],
-    "homeworlds": [ ... ]
-  },
-  "rules": {
-    "ruleSet": "cepheus",
-    "unifiedRolls": true,
-    "autoReenlist": false,
-    "...": "full RuleSet object"
-  }
-}
-```
-
-**Default name format:** `YYMMDD:HHMMSS`
-
-**FR-024b: Save Snapshot**
-- Button: "Save Snapshot" in Settings → Data Management
-- Default name pre-filled as `YYMMDD:HHMMSS` (editable inline)
-- Captures full current state: all live tables + rule preferences
-- Maximum 50 snapshots (warning when approaching limit)
-
-**FR-024c: Snapshots List**
-- Display as card list in Settings → Data Management
-- Each entry shows: Name (editable), Created timestamp, Active indicator
-- Actions: **Load**, **Rename**, **Export**, **Delete**
-
-**FR-024d: Load Snapshot**
-- Replaces all `ce_char_live_*` keys and `ce_char_rules` in localStorage
-- Toast: "Loaded '[name]'"
-
-**FR-024e: Export/Import Snapshot**
-- Export: Downloads snapshot as `.json` file
-- Filename: `ce-char-[name]-[YYMMDD].json`
-- Import: Accepts Preset format JSON, adds to list without auto-loading
-
----
-
-### 11.5 CI/CD Pipeline (FR-025)
-
-**Priority:** High  
-**Milestone:** M2.5  
-**Based on:** CE ShipGen FR-025
-
-**Problem:** Manual deployment is fragile and error-prone.
-
-**Solution:** GitHub Actions Workflow
-
-**File:** `.github/workflows/deploy.yml`
-
-**Pipeline stages:**
-1. Checkout `main`
-2. Setup Node 20
-3. `npm ci` (reproducible install)
-4. `npm run build` (type-check gate)
-5. Deploy to `gh-pages` (only on push to main, not PRs)
-
-**CRITICAL: GitHub Pages Configuration**
-
-Repository must be configured to use `gh-pages` branch:
-1. Go to Settings → Pages
-2. Set "Build and deployment" source to:
-   - Option A: "GitHub Actions" (recommended)
-   - Option B: "Deploy from a branch" → Select `gh-pages` branch
-3. Do NOT use `main` branch (will serve old source files, not built files)
-
-**Common Issue:** If Pages shows old content or 404 errors, check that:
-- `vite.config.ts` has `base: '/cecharactergen/'`
-- Repository Settings → Pages uses `gh-pages` branch or GitHub Actions
-- Wait 5-10 minutes after deployment for propagation
-
-**PR behavior:** PRs trigger steps 1-4 only (build check, no deploy)
-
-**Benefits:**
-- Zero manual deploy steps after `git push`
-- Build failures block deploy
-- PRs validated in CI before merge
-
----
-
-## 12. ADDENDUM — M2.6 Installed Version Control (FR-026)
-
-**Added:** March 3, 2026  
-**Priority:** Critical — After M2.5  
-**Milestone:** M2.6 — Must complete before M3  
-**Based on:** CE ShipGen M2.6
-
-### 12.1 Problem Statement
-
-Users with the PWA installed locally have no control over when updates are applied. While the "Installed" badge (FR-021b) detects when the app runs as a standalone PWA, users currently cannot:
-- See which version they have installed
-- Choose when to apply updates
-- Roll back to previous versions if a new version has issues
-- Opt into beta/release channels for early access
-
-**Impact:** A broken release could disrupt active campaigns. Users need agency over their local instance.
-
-### 12.2 Solution Overview
-
-A version control system that treats the installed PWA like a package manager:
-- Version is visible and tracked
-- Updates are detected but not forced
-- User controls when to update
-- Previous versions remain available for rollback
-- Multiple release channels (stable/beta)
-
-### 12.3 Requirements
-
-#### FR-026a: Version Manifest
-
-**Storage:** `version.json` generated at build time:
-```json
-{
-  "version": "0.2.6",
-  "buildTimestamp": "2026-03-03T14:30:00Z",
-  "channel": "stable",
-  "changelog": ["Added version control", "Fixed table view race condition"],
-  "minimumCompatibleVersion": "0.2.5"
-}
-```
-
-**Location:** `/cecharactergen/version.json`
-
-#### FR-026b: Current Version Display
-
-**Location:** Settings → About section
-
-**Display:**
-```
-Current Version: 0.2.6 (stable)
-Build: March 3, 2026 14:30 UTC
-```
-
-#### FR-026c: Update Detection
-
-**Mechanism:** Fetch remote `version.json` with cache-busting on startup and every 30 minutes.
-
-**Indicators:**
-- Startup screen: "Update Available" pill button (amber)
-- Settings icon: Subtle dot indicator when update available
-- Settings → About: Prominent banner with changelog preview
-
-#### FR-026d: Changelog Display
-
-**Modal dialog:** Shows current → new version, full changelog, breaking changes highlighted.
-
-**Buttons:** "Update Now" / "Later"
-
-#### FR-026e: User-Controlled Update
-
-**Core Principle:** User initiates update, never forced.
-
-**Update flow:**
-1. User clicks "Update Now"
-2. Confirmation: "Update to version 0.2.7? Your current version will be saved for rollback."
-3. Save current version to `ce_char_version_history` in localStorage
-4. Reload page to load new version
-
-#### FR-026f: Version History & Rollback
-
-**Storage:** `ce_char_version_history` — Array of last 3 versions
-
-**Settings UI:** Settings → Version History table
-| Version | Build Date | Last Used | Status | Actions |
-|---------|-----------|-----------|--------|---------|
-| 0.2.7 | Mar 4 | — | Current | — |
-| 0.2.6 | Mar 3 | 2h ago | Available | [Rollback] |
-
-**Rollback:** Save current to history, set rollback target, reload page.
-
-**Safety:** User data (characters, settings, snapshots) NEVER touched by version changes.
-
-#### FR-026g: Release Channels
-
-**Settings toggle:** Settings → About → Release Channel
-
-**Options:**
-- **Stable** (default) — Production releases
-- **Beta** — Early access
-
-**Channel mechanics:**
-- Stored in `ce_char_release_channel`
-- Affects which version.json is checked (stable vs version-beta.json)
-
-#### FR-026h: Offline Behavior
-
-**Offline:** Cannot fetch remote version.json. Show "Offline — version check unavailable". Disable update button.
-
-**Reconnection:** Auto-check for updates when connection restored.
-
-#### FR-026i: Service Worker Integration
-
-**Current:** autoUpdate mode
-
-**New:** Manual update control — only skip waiting when user clicks "Update Now"
-
-### 12.4 Data Preservation Rules
-
-**CRITICAL:** Version changes must NEVER affect user data
-
-**Preserved across updates/rollbacks:**
-- ✅ Character library (IndexedDB)
-- ✅ Settings snapshots (localStorage)
-- ✅ Live working state (localStorage)
-- ✅ Rule preferences (localStorage)
-- ✅ Release channel preference
-- ✅ Version history
-
-### 12.5 Acceptance Criteria
-
-- [ ] version.json generated on every build
-- [ ] Current version displays in Settings → About
-- [ ] Update detection works (compares local vs remote)
-- [ ] "Update Available" indicator appears appropriately
-- [ ] Changelog viewable before updating
-- [ ] User can manually trigger update
-- [ ] Previous version saved to history before updating
-- [ ] Version History shows last 3 versions with rollback
-- [ ] Rollback restores previous version without data loss
-- [ ] Release channel toggle works
-- [ ] Offline behavior graceful
-- [ ] Service worker uses manual update mode
-- [ ] All user data survives updates/rollbacks
-
----
-
-## 13. ADDENDUM — M2.7 Tables In Play (FR-027)
-
-**Added:** March 3, 2026  
-**Priority:** High  
-**Milestone:** M2.7 — Must complete before M3  
-**Pattern:** Based on CE ShipGen FR-027 implementation
-
-### 13.1 Problem Statement
-
-Users want to create **custom character tables** (house rules, alternate settings, homebrew careers) and switch between them without editing the canonical tables. Currently, the app only supports editing the default tables in-place. Users need:
-1. Ability to add new custom tables alongside canonical ones
-2. "Tables In Play" view to see which tables are currently active
-3. Select which table drives each character generation component
-4. Export/import custom tables to share with other players
-
-**Example Use Cases:**
-- GM creates custom careers for their specific campaign setting
-- Player wants to use alternate skill tables from a different Traveller edition
-- Group agrees on house-ruled aging mechanics and switches to custom aging table
-- Community shares custom career packs via JSON files
-
-### 13.2 Solution: Tables In Play System
-
-**Core Concept:** Like CE ShipGen, users can have multiple versions of each table type and select which one is "active" (in play) for character generation.
-
-**Table Categories (with selectable variants):**
-
-| Category | Canonical Table | Can Add Custom |
-|----------|------------------|----------------|
-| **Draft** | `draft.json` | ✅ Yes |
-| **Survival Mishaps** | `survival_mishaps.json` | ✅ Yes |
-| **Injury** | `injury.json` | ✅ Yes |
-| **Medical Bills** | `medical_bills.json` | ✅ Yes |
-| **Aging** | `aging.json` | ✅ Yes |
-| **Anagathics** | `anagathics.json` | ✅ Yes |
-| **Retirement Pay** | `retirement_pay.json` | ✅ Yes |
-| **SOC Table** | `soc_table.json` | ✅ Yes — CE or Mneme variant |
-| **Careers** | `careers.json` | ✅ Yes — Can have multiple career packs |
-| **Races** | `races.json` | ✅ Yes — Humans + non-humans with abilities/traits |
-| **Backgrounds** | `backgrounds.json` | ✅ Yes |
-| **Skills** | `skills.json` | ✅ Yes |
-| **Equipment** | `equipment.json` | ✅ Yes |
-| **Homeworlds** | `homeworlds.json` | ✅ Yes — CE or Mneme variant |
-| **Names & Cultures** | `cultures_names.json` | ✅ Yes — flat/spreadsheet-editable, downloadable |
-| **Name Generation Rules** | `name_generation_rules.json` | ✅ Yes — swap mechanism (probabilities) per campaign |
-
-**Key Rule:** Each category has exactly ONE table "in play" at a time. Users can switch between canonical and custom tables per category.
-
-### 13.3 Requirements
-
-#### FR-027a: List of Tables In Play
-
-**Location:** Settings → Tables In Play (`/settings/tables-in-play`)
-
-**UI Layout:**
-```
-┌────────────────────────────────────────────────────────────┐
-│ TABLES IN PLAY                                             │
-├────────────────────────────────────────────────────────────┤
-│                                                              │
-│ DRAFT TABLE                                                │
-│ ● Canonical Draft Table (default)                        │
-│   [Switch ▼] [Edit JSON] [Export]                          │
-│                                                              │
-│ SURVIVAL MISHAPS TABLE                                     │
-│ ● Canonical Survival Mishaps (default)                   │
-│   [Switch ▼] [Edit JSON] [Export]                          │
-│                                                              │
-│ AGING TABLE                                                │
-│ ○ House Rule: Gentler Aging (custom)                     │
-│   [Switch ▼] [Edit JSON] [Export] [Delete]               │
-│                                                              │
-│ CAREERS TABLE                                              │
-│ ● Cepheus Engine Core Careers (canonical)                │
-│   [Switch ▼] [Edit JSON] [Export]                          │
-│ ○ My Custom Campaign Careers (custom)                      │
-│   [Switch ▼] [Edit JSON] [Export] [Delete]               │
-│                                                              │
-│ [+ Add New Custom Table]                                   │
-├────────────────────────────────────────────────────────────┤
-│ Legend: ● Active (currently used in generation)            │
-│         ○ Inactive (available but not selected)            │
-└────────────────────────────────────────────────────────────┘
-```
-
-**Columns Displayed:**
-- Radio button or indicator for "active" table
-- Table name (canonical or custom)
-- Source indicator ("Canonical" or "Custom")
-- Actions: Switch, Edit JSON, Export, Delete (custom only)
-
-#### FR-027b: Add Custom Table
-
-**Flow:**
-1. User clicks "+ Add New Custom Table"
-2. Dialog appears:
-   ```
-   ┌─────────────────────────┐
-   │ Add Custom Table        │
-   ├─────────────────────────┤
-   │ Category: [Careers ▼]   │
-   │ Name: [My Custom...]  │
-   │                         │
-   │ [Start from Blank]      │
-   │ [Duplicate Canonical] ← Recommended │
-   │ [Import JSON]           │
-   │                         │
-   │ [Cancel]  [Create]      │
-   └─────────────────────────┘
-   ```
-3. New table created with unique ID (e.g., `careers_custom_mycampaign_20260303`)
-4. Auto-switches to new table as "in play" for that category
-5. Table appears in JSON editor alongside canonical tables
-
-#### FR-027c: Switch Active Table
-
-**Dropdown Behavior:**
-- Click "Switch ▼" to see all tables for that category
-- Shows: Table name, source (Canonical/Custom), last modified
-- Select table → becomes active immediately
-- Confirmation if switching away from custom table with unsaved changes
-
-**Visual Indicators:**
-- Active table: Green dot ●, bold text
-- Inactive canonical: Gray ○, normal text  
-- Inactive custom: Gray ○, "Custom" badge
-
-#### FR-027d: Edit Custom Tables
-
-**From Tables In Play view:**
-- Click "Edit JSON" → Opens JSON editor for that specific table
-- Same JSON/Table dual-view editor as canonical tables
-- Auto-save applies to custom tables too
-- Schema validation ensures custom tables match expected structure
-
-#### FR-027e: Export/Import Custom Tables
-
-**Export:**
-- Click "Export" on any custom table
-- Downloads as `cecg-[category]-[name]-[date].json`
-- Includes metadata: category, name, created date, source version
-
-**Import:**
-- "Import Custom Table" button in Tables In Play view
-- Validates:
-  - Correct JSON syntax
-  - Required fields present
-  - Schema matches category expectations
-- On success: Adds to table list, user can switch to it
-
-#### FR-027f: Table Naming & Storage
-
-**Storage Pattern:**
-```
-localStorage:
-├── ce_char_tables_canonical (read-only reference copies)
-├── ce_char_tables_custom (user-created tables)
-│   ├── careers_custom_mycampaign_20260303
-│   ├── aging_custom_gentle_20260303
-│   └── ...
-└── ce_char_tables_in_play (which table is active per category)
-    ├── draft: "draft_canonical"
-    ├── survival_mishaps: "survival_mishaps_canonical"
-    ├── aging: "aging_custom_gentle_20260303"
-    └── ...
-```
-
-**Naming Convention:**
-- Canonical: `[category]_canonical` (e.g., `careers_canonical`)
-- Custom: `[category]_custom_[name]_[YYYYMMDD]` (e.g., `careers_custom_mercenarypack_20260303`)
-
-**File Storage:**
-- Canonical tables: Served from `data/*.json` (factory defaults)
-- Custom tables: Stored in localStorage only
-- Tables In Play state: Stored in localStorage
-
-### 13.4 Settings Screen Integration
-
-**Settings Sections Updated:**
-
-**4. JSON Table Editor** (`/settings/json`)
-- Now shows ALL tables (canonical + custom) in category dropdown
-- Custom tables marked with "[Custom]" badge
-- Can edit both canonical and custom tables
-- "Save As New Custom Table" button when editing canonical tables
-
-**NEW: 7. Tables In Play** (`/settings/tables-in-play`)
-- Dedicated view for selecting active tables per category
-- Add custom tables
-- Switch between canonical and custom
-- Export custom tables
-
-**Section Navigation:**
-- Sidebar with icons: 📐 Layout, 📋 Rules, 🎖️ Careers, 📝 Tables, 💾 Data, 🔄 Version, **🎲 Tables In Play**
-
-### 13.5 Acceptance Criteria
-
-- [ ] "Tables In Play" section visible in Settings sidebar
-- [ ] Lists all table categories with currently active table shown
-- [ ] Can switch active table per category via dropdown
-- [ ] Can add new custom table (blank, duplicate, or import)
-- [ ] Custom tables persist in localStorage
-- [ ] Can edit custom tables in JSON editor
-- [ ] Can export custom tables as JSON files
-- [ ] Can import custom tables (with validation)
-- [ ] Active table selection persists across sessions
-- [ ] Character generation uses selected "in play" tables
-- [ ] UI clearly distinguishes canonical vs custom tables
-- [ ] Can delete custom tables (with confirmation)
-- [ ] Cannot delete canonical tables (only custom)
-
----
-
----
-
-### 12.6 Updated Milestone Plan
+### Milestone Summary
 
 | Milestone | Scope | Status |
 |-----------|-------|--------|
-| **M1: UI Layout & Foundation** | Layout, tiles, PWA setup, React Router, Header, StartupScreen, CharacterGenerationView | ✅ **Complete** |
-| **M2: Settings & Data Tables** | JSON + table editors (JSON/Table dual view like CE ShipGen), **15+ tables**, rule toggles, add/edit custom tables | 🎯 **Current — In Progress** |
-| **M2.5: Install UX & Settings System** | FR-021 (install prompt), FR-022 (auto-save), FR-023 (security), FR-024 (snapshots), FR-025 (CI/CD) | ⏳ Pending |
-| **M2.6: Installed Version Control** | FR-026 — Version management, update prompts, rollback, release channels | ⏳ Pending |
-| **M2.7: Tables In Play** | FR-027 — "List of Tables In Play" view; select active table per category; add/edit custom tables | ⏳ Pending |
-| **M2.8: Culture & Name Data** | Refactor names into flat/spreadsheet-friendly `cultures_names.json` (downloadable, editable in Excel/Sheets, re-importable); extract generation probabilities into discrete `name_generation_rules.json` (swappable via Tables In Play); add export/import for both files | ✅ **Complete** |
-| **M3: Full Career System** | All 24 careers, aging mechanics, mustering out, equipment assignment, **Low-G Human species (Mneme)**, **advX/disX dice mechanic** | ⏳ Blocked on M2.8 |
-
-**M3 Testing Scope:**
-- **Phase 1 (Pre-Career):** Species, characteristics, name generation, background, homeworld, pre-career education
-  - Species selection (Regular Human vs Low-G Human toggle)
-  - Characteristic rolls (2D6, advX, disX)
-  - **Name Generator:** ✅ Implemented in M2 — gender selector, Generate Name button, cultural heritage display. M2.8 refactors data format and externalises mechanism.
-  - Background selection (Space-only for Low-G humans)
-  - Homeworld selection (CE vs Mneme tables)
-  - Pre-career education (if applicable)
-  - **"Random Everything" Toggle:** Randomize all options for quick generation
-- **Phase 2 (Career):** Career selection with CE/Mneme rule toggle
-  - **Career Rules Toggle:** CE Rules As Written vs Mneme Variant
-    - **CE RAW:** Rejoining career requires qualification roll
-    - **Mneme:** Rejoining career automatic (no qualification roll)
-    - **Drifter:** Auto-qualification in both modes (selectable from dropdown)
-  - **Career Dropdown:** Select from available/enabled careers
-  - Survival, advancement, skills per term
-  - Aging (Term 5+)
-- **Phase 3 (Post-Career):** Mustering out, equipment, final details
-  - Benefits and cash
-  - Equipment assignment
-  - Final connections, wounds, name confirmation
-  - Export character
+| **M1: UI Layout & Foundation** | Layout, tiles, PWA setup, React Router, Header, StartupScreen | ✅ Complete |
+| **M2: Settings & Data Tables** | JSON + table editors, 15+ tables, rule toggles | 🎯 Current |
+| **M2.5: Install UX & Settings** | Install prompt, auto-save, security, snapshots, CI/CD | ⏳ Pending |
+| **M2.6: Version Control** | Version management, update prompts, rollback, channels | ⏳ Pending |
+| **M2.7: Tables In Play** | Active table selection per category, custom tables | ⏳ Pending |
+| **M3: Full Career System** | All 24 careers, aging, mustering, equipment, Low-G Human | ⏳ Blocked on M2.7 |
 | **M4: Persistence & Export** | Character library, batch generation, advanced export | ⏳ Pending |
 
----
+### FR-to-Milestone Mapping
 
-## 13. APP ARCHITECTURE SUMMARY
-
-**Three-Core View Structure (FR-011):**
-
-The CECG app is built around three primary functional views, each with dedicated URLs:
-
-| View | URL | Purpose |
-|------|-----|---------|
-| **Character Generation** | `/generate` | Create characters with constraints |
-| **Character Library** | `/library` | Browse, search, load saved characters |
-| **Settings** | `/settings/:section` | Configure app, edit data tables, version control |
-| **Test Page** | `/test/:section` | Development testing, debugging, data validation |
-
-**Navigation Pattern:**
-- **Startup Screen** (`/`) — Entry point with navigation buttons
-- **Header Navigation** — Persistent on all non-startup screens
-  - Logo (returns to startup)
-  - Generate | Library | Settings buttons
-  - Layout toggle (Desktop/Phone)
-  - "Installed" badge (when in standalone mode)
-
-**URL Routing Benefits:**
-- Users can bookmark any view
-- Browser back/forward works naturally
-- Direct links to specific settings sections (`/settings/version`)
-- Share links to character library filtered by career type
-- Deep-link into generation with pre-selected constraints
-
-**Data Flow:**
-1. **Startup** → User selects view
-2. **Generate** → Character generated, auto-saved to Library
-3. **Library** → User views/exports characters, loads for editing
-4. **Settings** → User customizes data tables, manages versions
-5. **All views** → Auto-save persists state, never lose work
-
-**From CE ShipGen:**
-- Same routing philosophy (`/generate`, `/library`, `/settings`)
-- Same three-view separation (Design/Library/Settings)
-- Same URL persistence pattern
-- Same header navigation structure
-- Version control integrated into Settings view
+| Milestone | FRs |
+|-----------|-----|
+| **M1** | FR-001, FR-002, FR-003, FR-004, FR-005 |
+| **M2** | FR-010, FR-011, FR-012, FR-013, FR-014, FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-070 |
+| **M2.5** | FR-016, FR-017, FR-019 |
+| **M2.6** | FR-018 |
+| **M2.7** | FR-015 |
+| **M3** | FR-030, FR-031, FR-032, FR-033, FR-034, FR-035, FR-036, FR-040, FR-041, FR-042, FR-043, FR-044, FR-045, FR-046, FR-047, FR-060 |
+| **M4** | FR-050, FR-051, FR-052, FR-053, FR-054 |
 
 ---
 
-**PRD Status:** LIVING DOCUMENT — updated per session  
-**Last updated:** March 3, 2026 — M2.5/M2.6 requirements added; FR-011 routing and three-view architecture defined  
-**Next implementation target:** M1 — Complete UI Foundation with React Router setup
+## APPENDIX B: CI/CD PIPELINE
+
+**File:** `.github/workflows/deploy.yml`
+
+**Pipeline:**
+1. Checkout `main`
+2. Setup Node 20
+3. `npm ci`
+4. `npm run build` (type-check gate)
+5. Deploy to `gh-pages` (only on push to main)
+
+**GitHub Pages Configuration:**
+- Use `gh-pages` branch or GitHub Actions
+- `vite.config.ts` must have `base: '/cecharactergen/'`
+
+---
+
+**PRD Status:** LIVING DOCUMENT
+**Version:** 3.0
+**Last Updated:** March 6, 2026
+**Structure:** 14 sections, modular design
+**Next Target:** M2 completion, then M2.5-M2.7 sequence
