@@ -18,6 +18,7 @@
 | [PRD.md](./PRD.md) | Product Requirements — FRs, milestones, data schemas, GI7B UI Standard | ✅ Current |
 | [PROJECT_NOTES.md](./PROJECT_NOTES.md) | Dev log, GI7B UI Standard, architecture decisions, problems & solutions | ✅ Current |
 | [CE ShipGen](https://github.com/xunema/ce-shipgen) | Canonical GI7B UI Standard reference | ✅ Reference |
+| [UI Requirements](https://github.com/xunema/ce-shipgen) | UI  Requirements| ✅ Reference |
 
 ---
 
