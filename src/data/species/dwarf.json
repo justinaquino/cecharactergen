@@ -1,0 +1,17 @@
+{
+  "species_id": "dwarf",
+  "name": "Dwarf",
+  "description": "Sturdy mountain-dwellers with resilience and craftsmanship.",
+  "ability_modifiers": {
+    "end": 2,
+    "dex": -1,
+    "soc": -1
+  },
+  "base_speed": 5,
+  "lifespan_multiplier": 2,
+  "special_abilities": ["darkvision", "stonecunning", "poison_resistance"],
+  "starting_skills": [],
+  "career_restrictions": [],
+  "supernatural_bonus": 0,
+  "background_skill_bonus": 0
+}

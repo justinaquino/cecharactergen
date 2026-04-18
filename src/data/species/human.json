@@ -1,0 +1,13 @@
+{
+  "species_id": "human",
+  "name": "Human",
+  "description": "The most adaptable and widespread species.",
+  "ability_modifiers": {},
+  "base_speed": 6,
+  "lifespan_multiplier": 1,
+  "special_abilities": ["adaptable"],
+  "starting_skills": [],
+  "career_restrictions": [],
+  "supernatural_bonus": 0,
+  "background_skill_bonus": 1
+}

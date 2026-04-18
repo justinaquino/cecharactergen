@@ -1,0 +1,60 @@
+{
+  "career_id": "sorcerer",
+  "name": "Sorcerer",
+  "description": "Student of arcane arts, spellcaster, and seeker of hidden knowledge.",
+  "status_tier": "upper",
+  "qualification": {
+    "target": 6,
+    "stat": "supernatural",
+    "dm": 0
+  },
+  "survival": {
+    "target": 6,
+    "stat": "int",
+    "dm_modifier": ""
+  },
+  "advancement": {
+    "target": 7,
+    "stat": "edu",
+    "effect_threshold": 4
+  },
+  "skills": {
+    "personal": ["str", "dex", "end", "int", "sorcery", "occult"],
+    "service": ["sorcery", "occult", "research", "language", "history", "medicine"],
+    "advanced": ["sorcery", "occult", "research", "engineering", "language", "strategy"]
+  },
+  "ranks": [
+    {"rank": 0, "title": "Apprentice", "skill": null},
+    {"rank": 1, "title": "Journeyman", "skill": "sorcery"},
+    {"rank": 2, "title": "Mage", "skill": "occult"},
+    {"rank": 3, "title": "Scholar", "skill": "research"},
+    {"rank": 4, "title": "Wizard", "skill": "sorcery"},
+    {"rank": 5, "title": "Archmage", "skill": "strategy"},
+    {"rank": 6, "title": "Grand Wizard", "skill": "leadership"}
+  ],
+  "mustering": {
+    "cash": [500, 1000, 2000, 3000, 5000, 10000],
+    "benefits": ["spellbook", "focus_crystal", "ally", "contact", "tower", "retainer"]
+  },
+  "events": {
+    "2": {"description": "Magical backlash", "effect": "mishap"},
+    "3": {"description": "Arcane poisoning", "effect": "aging_roll"},
+    "4": {"description": "Arcane poisoning", "effect": "aging_roll"},
+    "5": {"description": "Quiet study", "effect": "none"},
+    "6": {"description": "Quiet study", "effect": "none"},
+    "7": {"description": "Life event", "effect": "life_event_table"},
+    "8": {"description": "Discovered lost lore", "effect": "skill_roll"},
+    "9": {"description": "Discovered lost lore", "effect": "skill_roll"},
+    "10": {"description": "Favor from a patron", "effect": "advancement_dm_plus_2"},
+    "11": {"description": "Favor from a patron", "effect": "advancement_dm_plus_2"},
+    "12": {"description": "True name discovered", "effect": "automatic_advancement_plus_skill"}
+  },
+  "mishaps": {
+    "1": "Severely injured by spell backlash.",
+    "2": "Expelled from academy for forbidden research.",
+    "3": "Rival mage curses you. Lose 1 SOC.",
+    "4": "Trapped in extraplanar rift. Lose this term's benefit roll.",
+    "5": "Demon escaped binding. Gain an Enemy.",
+    "6": "Apprentice betrayed your secrets. Gain an Enemy."
+  }
+}

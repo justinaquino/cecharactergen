@@ -1,0 +1,7 @@
+# CE Low-Tech Fantasy Character Generator
+# Python 3.12+ required
+
+# No external dependencies for core generator.
+# If adding web UI later:
+# flask>=3.0
+# pytest>=8.0

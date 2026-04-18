@@ -1,0 +1,15 @@
+{
+  "armor": [
+    {"id": "padded", "name": "Padded Armor", "category": "armor", "subcategory": "light", "cost": 200, "weight": 2.0, "tech_level": 1, "armor_bonus": 1, "properties": ["cheap", "flammable"]},
+    {"id": "leather", "name": "Leather Armor", "category": "armor", "subcategory": "light", "cost": 500, "weight": 2.5, "tech_level": 1, "armor_bonus": 2, "properties": ["flexible"]},
+    {"id": "studded_leather", "name": "Studded Leather", "category": "armor", "subcategory": "light", "cost": 1000, "weight": 3.0, "tech_level": 2, "armor_bonus": 3, "properties": ["flexible"]},
+    {"id": "ring_mail", "name": "Ring Mail", "category": "armor", "subcategory": "medium", "cost": 1500, "weight": 4.0, "tech_level": 2, "armor_bonus": 3, "properties": ["noisy"]},
+    {"id": "chain_mail", "name": "Chain Mail", "category": "armor", "subcategory": "medium", "cost": 3000, "weight": 5.0, "tech_level": 2, "armor_bonus": 4, "properties": ["heavy"]},
+    {"id": "scale_mail", "name": "Scale Mail", "category": "armor", "subcategory": "medium", "cost": 2500, "weight": 5.5, "tech_level": 2, "armor_bonus": 4, "properties": ["heavy", "noisy"]},
+    {"id": "breastplate", "name": "Breastplate", "category": "armor", "subcategory": "medium", "cost": 4000, "weight": 4.5, "tech_level": 2, "armor_bonus": 5, "properties": ["torso_only"]},
+    {"id": "half_plate", "name": "Half Plate", "category": "armor", "subcategory": "heavy", "cost": 6000, "weight": 7.0, "tech_level": 2, "armor_bonus": 6, "properties": ["very_heavy"]},
+    {"id": "full_plate", "name": "Full Plate", "category": "armor", "subcategory": "heavy", "cost": 10000, "weight": 10.0, "tech_level": 2, "armor_bonus": 8, "properties": ["very_heavy", "custom_fit"]},
+    {"id": "shield", "name": "Shield", "category": "armor", "subcategory": "shield", "cost": 500, "weight": 2.0, "tech_level": 1, "armor_bonus": 1, "properties": ["off_hand", "bash"]},
+    {"id": "tower_shield", "name": "Tower Shield", "category": "armor", "subcategory": "shield", "cost": 1000, "weight": 4.0, "tech_level": 2, "armor_bonus": 2, "properties": ["heavy", "cover"]}
+  ]
+}

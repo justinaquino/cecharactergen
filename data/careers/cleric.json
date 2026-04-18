@@ -1,0 +1,60 @@
+{
+  "career_id": "cleric",
+  "name": "Cleric",
+  "description": "Servant of the divine, healer, and keeper of sacred rites.",
+  "status_tier": "upper",
+  "qualification": {
+    "target": 7,
+    "stat": "edu",
+    "dm": 0
+  },
+  "survival": {
+    "target": 6,
+    "stat": "edu",
+    "dm_modifier": ""
+  },
+  "advancement": {
+    "target": 7,
+    "stat": "soc",
+    "effect_threshold": 4
+  },
+  "skills": {
+    "personal": ["end", "int", "edu", "soc", "medicine", "religion"],
+    "service": ["religion", "medicine", "leadership", "history", "persuade", "language"],
+    "advanced": ["medicine", "leadership", "history", "diplomacy", "language", "occult"]
+  },
+  "ranks": [
+    {"rank": 0, "title": "Acolyte", "skill": null},
+    {"rank": 1, "title": "Novice", "skill": "religion"},
+    {"rank": 2, "title": "Priest", "skill": "medicine"},
+    {"rank": 3, "title": "Curate", "skill": "leadership"},
+    {"rank": 4, "title": "High Priest", "skill": "religion"},
+    {"rank": 5, "title": "Bishop", "skill": "diplomacy"},
+    {"rank": 6, "title": "Patriarch", "skill": "leadership"}
+  ],
+  "mustering": {
+    "cash": [500, 1000, 2000, 5000, 10000, 20000],
+    "benefits": ["holy_symbol", "healers_kit", "ally", "contact", "temple_fief", "retainer"]
+  },
+  "events": {
+    "2": {"description": "Heresy accusation", "effect": "mishap"},
+    "3": {"description": "Plague exposure", "effect": "aging_roll"},
+    "4": {"description": "Plague exposure", "effect": "aging_roll"},
+    "5": {"description": "Routine ministry", "effect": "none"},
+    "6": {"description": "Routine ministry", "effect": "none"},
+    "7": {"description": "Life event", "effect": "life_event_table"},
+    "8": {"description": "Pilgrimage", "effect": "skill_roll"},
+    "9": {"description": "Pilgrimage", "effect": "skill_roll"},
+    "10": {"description": "Miracle witnessed", "effect": "advancement_dm_plus_2"},
+    "11": {"description": "Miracle witnessed", "effect": "advancement_dm_plus_2"},
+    "12": {"description": "Divine revelation", "effect": "automatic_advancement_plus_skill"}
+  },
+  "mishaps": {
+    "1": "Severely injured defending the faithful.",
+    "2": "Excommunicated for doctrinal deviation.",
+    "3": "Political purge by rival sect. Lose 1 SOC.",
+    "4": "Imprisoned by hostile regime. Lose this term's benefit roll.",
+    "5": "Witnessed dark ritual. Gain an Enemy.",
+    "6": "Corrupted relic. Gain an Enemy in the church."
+  }
+}

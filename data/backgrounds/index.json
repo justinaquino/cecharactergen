@@ -1,0 +1,60 @@
+{
+  "backgrounds": [
+    {
+      "background_id": "serf",
+      "name": "Tied to Land",
+      "soc_range": {"min": 2, "max": 7},
+      "skill_options": ["agriculture", "labor", "survival"],
+      "starting_equipment": ["simple_clothes", "small_knife"],
+      "starting_funds_modifier": 0.5
+    },
+    {
+      "background_id": "rural_village",
+      "name": "Rural Village",
+      "soc_range": {"min": 8, "max": 10},
+      "skill_options": ["animals", "craft", "riding"],
+      "starting_equipment": ["simple_clothes", "small_knife", "waterskin"],
+      "starting_funds_modifier": 1.0
+    },
+    {
+      "background_id": "urban_poor",
+      "name": "Urban Poor",
+      "soc_range": {"min": 8, "max": 10},
+      "skill_options": ["streetwise", "carouse", "gambling"],
+      "starting_equipment": ["worn_clothes", "small_knife"],
+      "starting_funds_modifier": 0.75
+    },
+    {
+      "background_id": "guild_apprentice",
+      "name": "Guild Apprentice",
+      "soc_range": {"min": 11, "max": 13},
+      "skill_options": ["craft", "trade", "profession"],
+      "starting_equipment": ["apprentice_tools", "decent_clothes"],
+      "starting_funds_modifier": 1.5
+    },
+    {
+      "background_id": "merchant_family",
+      "name": "Merchant Family",
+      "soc_range": {"min": 11, "max": 13},
+      "skill_options": ["broker", "language", "navigation"],
+      "starting_equipment": ["merchant_scale", "fine_clothes"],
+      "starting_funds_modifier": 2.0
+    },
+    {
+      "background_id": "minor_noble",
+      "name": "Minor Noble",
+      "soc_range": {"min": 14, "max": 16},
+      "skill_options": ["leadership", "riding", "etiquette"],
+      "starting_equipment": ["riding_horse", "noble_clothes", "signet_ring"],
+      "starting_funds_modifier": 3.0
+    },
+    {
+      "background_id": "major_house",
+      "name": "Major House",
+      "soc_range": {"min": 17, "max": 99},
+      "skill_options": ["leadership", "diplomacy", "history"],
+      "starting_equipment": ["riding_horse", "luxury_clothes", "signet_ring", "servant"],
+      "starting_funds_modifier": 5.0
+    }
+  ]
+}

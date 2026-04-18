@@ -1,0 +1,60 @@
+{
+  "career_id": "warrior",
+  "name": "Warrior",
+  "description": "Professional fighter in organized military, mercenary bands, or lordly retinues.",
+  "status_tier": "military",
+  "qualification": {
+    "target": 5,
+    "stat": "end",
+    "dm": 0
+  },
+  "survival": {
+    "target": 6,
+    "stat": "end",
+    "dm_modifier": "terms_served"
+  },
+  "advancement": {
+    "target": 6,
+    "stat": "edu",
+    "effect_threshold": 4
+  },
+  "skills": {
+    "personal": ["str", "dex", "end", "gambling", "melee_combat", "athletics"],
+    "service": ["melee_combat", "archery", "athletics", "survival", "tactics", "leadership"],
+    "advanced": ["tactics", "leadership", "navigation", "medicine", "engineering", "strategy"]
+  },
+  "ranks": [
+    {"rank": 0, "title": "Recruit", "skill": null},
+    {"rank": 1, "title": "Man-at-Arms", "skill": "melee_combat"},
+    {"rank": 2, "title": "Corporal", "skill": "leadership"},
+    {"rank": 3, "title": "Sergeant", "skill": "tactics"},
+    {"rank": 4, "title": "Lieutenant", "skill": "leadership"},
+    {"rank": 5, "title": "Captain", "skill": "strategy"},
+    {"rank": 6, "title": "Major", "skill": "leadership"}
+  ],
+  "mustering": {
+    "cash": [1000, 2000, 5000, 10000, 20000, 50000],
+    "benefits": ["weapon", "armor", "ally", "contact", "fief", "retainer"]
+  },
+  "events": {
+    "2": {"description": "Disaster", "effect": "mishap"},
+    "3": {"description": "War injury", "effect": "aging_roll"},
+    "4": {"description": "War injury", "effect": "aging_roll"},
+    "5": {"description": "Routine service", "effect": "none"},
+    "6": {"description": "Routine service", "effect": "none"},
+    "7": {"description": "Life event", "effect": "life_event_table"},
+    "8": {"description": "Good assignment", "effect": "skill_roll"},
+    "9": {"description": "Good assignment", "effect": "skill_roll"},
+    "10": {"description": "Heroic action", "effect": "advancement_dm_plus_2"},
+    "11": {"description": "Heroic action", "effect": "advancement_dm_plus_2"},
+    "12": {"description": "Legendary deed", "effect": "automatic_advancement_plus_skill"}
+  },
+  "mishaps": {
+    "1": "Severely injured. Roll on the Injury table.",
+    "2": "Discharged for misconduct.",
+    "3": "Political purge victim. Lose 1 SOC.",
+    "4": "Captured and imprisoned. Lose this term's benefit roll.",
+    "5": "Witnessed war crime. Gain an Enemy.",
+    "6": "Betrayed by comrade. Gain an Enemy in this career."
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "career_id": "noble",
+  "name": "Noble",
+  "description": "Scion of a noble house, trained in rulership, diplomacy, and intrigue.",
+  "status_tier": "upper",
+  "qualification": {
+    "target": 8,
+    "stat": "soc",
+    "dm": 0
+  },
+  "survival": {
+    "target": 5,
+    "stat": "soc",
+    "dm_modifier": ""
+  },
+  "advancement": {
+    "target": 6,
+    "stat": "edu",
+    "effect_threshold": 4
+  },
+  "skills": {
+    "personal": ["str", "dex", "end", "int", "etiquette", "leadership"],
+    "service": ["leadership", "etiquette", "diplomacy", "history", "riding", "persuade"],
+    "advanced": ["diplomacy", "strategy", "tactics", "language", "history", "navigation"]
+  },
+  "ranks": [
+    {"rank": 0, "title": "Courtier", "skill": null},
+    {"rank": 1, "title": "Knight", "skill": "riding"},
+    {"rank": 2, "title": "Baronet", "skill": "etiquette"},
+    {"rank": 3, "title": "Baron", "skill": "leadership"},
+    {"rank": 4, "title": "Count", "skill": "diplomacy"},
+    {"rank": 5, "title": "Marquis", "skill": "strategy"},
+    {"rank": 6, "title": "Duke", "skill": "leadership"}
+  ],
+  "mustering": {
+    "cash": [5000, 10000, 25000, 50000, 100000, 250000],
+    "benefits": ["weapon", "armor", "ally", "contact", "estate", "retainer"]
+  },
+  "events": {
+    "2": {"description": "Disgraced at court", "effect": "mishap"},
+    "3": {"description": "Assassination attempt", "effect": "aging_roll"},
+    "4": {"description": "Assassination attempt", "effect": "aging_roll"},
+    "5": {"description": "Courtly duties", "effect": "none"},
+    "6": {"description": "Courtly duties", "effect": "none"},
+    "7": {"description": "Life event", "effect": "life_event_table"},
+    "8": {"description": "Favorable marriage", "effect": "skill_roll"},
+    "9": {"description": "Favorable marriage", "effect": "skill_roll"},
+    "10": {"description": "Victory in tournament", "effect": "advancement_dm_plus_2"},
+    "11": {"description": "Victory in tournament", "effect": "advancement_dm_plus_2"},
+    "12": {"description": "Royal favor", "effect": "automatic_advancement_plus_skill"}
+  },
+  "mishaps": {
+    "1": "Severely injured in duel or battle.",
+    "2": "Stripped of title by decree.",
+    "3": "Scandal destroys reputation. Lose 2 SOC.",
+    "4": "Political exile. Lose this term's benefit roll.",
+    "5": "Rival house schemes against you. Gain an Enemy.",
+    "6": "Trusted advisor betrayed you. Gain an Enemy."
+  }
+}

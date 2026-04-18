@@ -1,0 +1,17 @@
+{
+  "species_id": "elf",
+  "name": "Elf",
+  "description": "Long-lived fey-touched humanoids with keen senses and magical aptitude.",
+  "ability_modifiers": {
+    "dex": 1,
+    "int": 1,
+    "end": -1
+  },
+  "base_speed": 7,
+  "lifespan_multiplier": 5,
+  "special_abilities": ["darkvision", "fey_ancestry"],
+  "starting_skills": ["perception_0"],
+  "career_restrictions": ["barbarian"],
+  "supernatural_bonus": 1,
+  "background_skill_bonus": 0
+}

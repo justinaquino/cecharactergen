@@ -1,0 +1,60 @@
+{
+  "career_id": "hunter",
+  "name": "Hunter",
+  "description": "Tracker, woodsman, and provider of meat and pelts.",
+  "status_tier": "common",
+  "qualification": {
+    "target": 5,
+    "stat": "dex",
+    "dm": 0
+  },
+  "survival": {
+    "target": 6,
+    "stat": "end",
+    "dm_modifier": ""
+  },
+  "advancement": {
+    "target": 6,
+    "stat": "int",
+    "effect_threshold": 4
+  },
+  "skills": {
+    "personal": ["str", "dex", "end", "gambling", "survival", "athletics"],
+    "service": ["survival", "archery", "recon", "athletics", "animals", "stealth"],
+    "advanced": ["survival", "recon", "medicine", "tactics", "navigation", "craft"]
+  },
+  "ranks": [
+    {"rank": 0, "title": "Tracker", "skill": null},
+    {"rank": 1, "title": "Hunter", "skill": "survival"},
+    {"rank": 2, "title": "Trapper", "skill": "recon"},
+    {"rank": 3, "title": "Ranger", "skill": "archery"},
+    {"rank": 4, "title": "Warden", "skill": "survival"},
+    {"rank": 5, "title": "Master Hunter", "skill": "tactics"},
+    {"rank": 6, "title": "Lord of the Wild", "skill": "leadership"}
+  ],
+  "mustering": {
+    "cash": [500, 1000, 2000, 5000, 8000, 15000],
+    "benefits": ["weapon", "trap_kit", "ally", "contact", "hunting_lodge", "retainer"]
+  },
+  "events": {
+    "2": {"description": "Mauled by beast", "effect": "mishap"},
+    "3": {"description": "Exposure in wilderness", "effect": "aging_roll"},
+    "4": {"description": "Exposure in wilderness", "effect": "aging_roll"},
+    "5": {"description": "Quiet season", "effect": "none"},
+    "6": {"description": "Quiet season", "effect": "none"},
+    "7": {"description": "Life event", "effect": "life_event_table"},
+    "8": {"description": "Legendary quarry", "effect": "skill_roll"},
+    "9": {"description": "Legendary quarry", "effect": "skill_roll"},
+    "10": {"description": "Guide to nobles", "effect": "advancement_dm_plus_2"},
+    "11": {"description": "Guide to nobles", "effect": "advancement_dm_plus_2"},
+    "12": {"description": "Tamed a beast", "effect": "automatic_advancement_plus_skill"}
+  },
+  "mishaps": {
+    "1": "Severely injured by predator.",
+    "2": "Lost hunting grounds to rival.",
+    "3": "Accused of poaching. Lose 1 SOC.",
+    "4": "Trapped in blizzard. Lose this term's benefit roll.",
+    "5": "Guide betrayed you to bandits. Gain an Enemy.",
+    "6": "Cursed animal spirit. Gain an Enemy."
+  }
+}

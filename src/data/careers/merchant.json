@@ -1,0 +1,60 @@
+{
+  "career_id": "merchant",
+  "name": "Merchant",
+  "description": "Trader, caravan master, and seeker of profit across land and sea.",
+  "status_tier": "middle",
+  "qualification": {
+    "target": 5,
+    "stat": "int",
+    "dm": 0
+  },
+  "survival": {
+    "target": 5,
+    "stat": "soc",
+    "dm_modifier": ""
+  },
+  "advancement": {
+    "target": 6,
+    "stat": "int",
+    "effect_threshold": 4
+  },
+  "skills": {
+    "personal": ["dex", "int", "edu", "soc", "broker", "language"],
+    "service": ["broker", "navigation", "language", "trade", "carouse", "persuade"],
+    "advanced": ["broker", "trade", "diplomacy", "language", "tactics", "strategy"]
+  },
+  "ranks": [
+    {"rank": 0, "title": "Porter", "skill": null},
+    {"rank": 1, "title": "Clerk", "skill": "broker"},
+    {"rank": 2, "title": "Factor", "skill": "trade"},
+    {"rank": 3, "title": "Merchant", "skill": "navigation"},
+    {"rank": 4, "title": "Master Merchant", "skill": "broker"},
+    {"rank": 5, "title": "Syndic", "skill": "diplomacy"},
+    {"rank": 6, "title": "Trade Prince", "skill": "leadership"}
+  ],
+  "mustering": {
+    "cash": [2000, 5000, 10000, 25000, 50000, 100000],
+    "benefits": ["weapon", "cart", "ally", "contact", "warehouse", "retainer"]
+  },
+  "events": {
+    "2": {"description": "Bankrupt by rival", "effect": "mishap"},
+    "3": {"description": "Caravan raided", "effect": "aging_roll"},
+    "4": {"description": "Caravan raided", "effect": "aging_roll"},
+    "5": {"description": "Steady trade", "effect": "none"},
+    "6": {"description": "Steady trade", "effect": "none"},
+    "7": {"description": "Life event", "effect": "life_event_table"},
+    "8": {"description": "Lucrative contract", "effect": "skill_roll"},
+    "9": {"description": "Lucrative contract", "effect": "skill_roll"},
+    "10": {"description": "Noble patronage", "effect": "advancement_dm_plus_2"},
+    "11": {"description": "Noble patronage", "effect": "advancement_dm_plus_2"},
+    "12": {"description": "Discovered trade route", "effect": "automatic_advancement_plus_skill"}
+  },
+  "mishaps": {
+    "1": "Severely injured defending cargo.",
+    "2": "Creditors seize your assets.",
+    "3": "Accused of smuggling. Lose 1 SOC.",
+    "4": "Shipwrecked. Lose this term's benefit roll.",
+    "5": "Partner embezzled funds. Gain an Enemy.",
+    "6": "Competitor sabotaged your goods. Gain an Enemy."
+  }
+}

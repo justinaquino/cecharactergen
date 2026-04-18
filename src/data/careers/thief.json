@@ -1,0 +1,60 @@
+{
+  "career_id": "thief",
+  "name": "Thief",
+  "description": "Criminal operative, burglar, and shadow-dweller.",
+  "status_tier": "low",
+  "qualification": {
+    "target": 6,
+    "stat": "dex",
+    "dm": 0
+  },
+  "survival": {
+    "target": 7,
+    "stat": "dex",
+    "dm_modifier": ""
+  },
+  "advancement": {
+    "target": 7,
+    "stat": "int",
+    "effect_threshold": 4
+  },
+  "skills": {
+    "personal": ["str", "dex", "end", "gambling", "stealth", "mechanic"],
+    "service": ["stealth", "streetwise", "mechanic", "gambling", "carouse", "athletics"],
+    "advanced": ["mechanic", "streetwise", "gambling", "tactics", "language", "forgery"]
+  },
+  "ranks": [
+    {"rank": 0, "title": "Cutpurse", "skill": null},
+    {"rank": 1, "title": "Burglar", "skill": "stealth"},
+    {"rank": 2, "title": "Robber", "skill": "mechanic"},
+    {"rank": 3, "title": "Gang Leader", "skill": "streetwise"},
+    {"rank": 4, "title": "Chief", "skill": "stealth"},
+    {"rank": 5, "title": "Crime Lord", "skill": "tactics"},
+    {"rank": 6, "title": "Guildmaster", "skill": "leadership"}
+  ],
+  "mustering": {
+    "cash": [1000, 2000, 5000, 10000, 20000, 50000],
+    "benefits": ["weapon", "lockpicks", "ally", "contact", "safehouse", "retainer"]
+  },
+  "events": {
+    "2": {"description": "Betrayed by crew", "effect": "mishap"},
+    "3": {"description": "Bad fall during heist", "effect": "aging_roll"},
+    "4": {"description": "Bad fall during heist", "effect": "aging_roll"},
+    "5": {"description": "Petty crimes", "effect": "none"},
+    "6": {"description": "Petty crimes", "effect": "none"},
+    "7": {"description": "Life event", "effect": "life_event_table"},
+    "8": {"description": "Big score", "effect": "skill_roll"},
+    "9": {"description": "Big score", "effect": "skill_roll"},
+    "10": {"description": "Underworld reputation", "effect": "advancement_dm_plus_2"},
+    "11": {"description": "Underworld reputation", "effect": "advancement_dm_plus_2"},
+    "12": {"description": "Legendary heist", "effect": "automatic_advancement_plus_skill"}
+  },
+  "mishaps": {
+    "1": "Severely injured during escape.",
+    "2": "Arrested and branded. Lose 1 SOC.",
+    "3": "Rival thieves' guild targets you. Gain an Enemy.",
+    "4": "Imprisoned. Lose this term's benefit roll.",
+    "5": "Betrayed by partner. Gain an Enemy.",
+    "6": "Cursed loot. Suffer a minor curse (Referee's discretion)."
+  }
+}

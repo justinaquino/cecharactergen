@@ -1,0 +1,14 @@
+{
+  "weapons": [
+    {"id": "dagger", "name": "Dagger", "category": "weapon", "subcategory": "melee_blade", "cost": 100, "weight": 0.5, "tech_level": 1, "required_skill": "melee_combat", "damage": "1d6", "properties": ["light", "concealable"]},
+    {"id": "shortsword", "name": "Shortsword", "category": "weapon", "subcategory": "melee_blade", "cost": 500, "weight": 1.0, "tech_level": 2, "required_skill": "melee_combat", "damage": "1d6+1", "properties": ["light"]},
+    {"id": "longsword", "name": "Longsword", "category": "weapon", "subcategory": "melee_blade", "cost": 1500, "weight": 1.5, "tech_level": 2, "required_skill": "melee_combat", "damage": "2d6", "properties": ["versatile", "balanced"]},
+    {"id": "battleaxe", "name": "Battle Axe", "category": "weapon", "subcategory": "melee_axe", "cost": 1200, "weight": 2.0, "tech_level": 2, "required_skill": "melee_combat", "damage": "2d6", "properties": ["heavy", "cleaving"]},
+    {"id": "spear", "name": "Spear", "category": "weapon", "subcategory": "melee_polearm", "cost": 300, "weight": 1.5, "tech_level": 1, "required_skill": "melee_combat", "damage": "1d6+2", "properties": ["reach", "throwable"]},
+    {"id": "quarterstaff", "name": "Quarterstaff", "category": "weapon", "subcategory": "melee_polearm", "cost": 100, "weight": 1.5, "tech_level": 1, "required_skill": "melee_combat", "damage": "1d6", "properties": ["defensive", "blunt"]},
+    {"id": "mace", "name": "Mace", "category": "weapon", "subcategory": "melee_blunt", "cost": 800, "weight": 2.0, "tech_level": 2, "required_skill": "melee_combat", "damage": "2d6", "properties": ["armor_piercing", "heavy"]},
+    {"id": "shortbow", "name": "Shortbow", "category": "weapon", "subcategory": "ranged_bow", "cost": 400, "weight": 1.0, "tech_level": 1, "required_skill": "archery", "damage": "1d6", "properties": ["range_60m"]},
+    {"id": "longbow", "name": "Longbow", "category": "weapon", "subcategory": "ranged_bow", "cost": 800, "weight": 1.5, "tech_level": 2, "required_skill": "archery", "damage": "1d6+2", "properties": ["range_100m", "heavy_draw"]},
+    {"id": "crossbow", "name": "Crossbow", "category": "weapon", "subcategory": "ranged_crossbow", "cost": 1000, "weight": 2.5, "tech_level": 2, "required_skill": "archery", "damage": "2d6", "properties": ["range_80m", "slow_reload", "armor_piercing"]}
+  ]
+}
