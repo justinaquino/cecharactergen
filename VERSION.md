@@ -1,6 +1,6 @@
 # CE CharacterGen — Version History
 
-**Current Version:** `260418.1.0`  
+**Current Version:** `260418.2.0`  
 **Branch:** `main`  
 **Repository:** https://github.com/Game-in-the-Brain/cecharactergen
 
@@ -24,13 +24,14 @@
 
 ## Release History
 
-### `260418.1.0` — PWA Scaffold & Engine Port (Current)
+### `260418.2.0` — Generator Wizard & Character Sheet (Current)
 **Date:** 260418  
 **Status:** In Development
 
 #### Major Changes
 - **Phase 1 Complete:** Vite + React 18 + TypeScript + Tailwind CSS scaffold
-- **Phase 2 In Progress:** UI Shell (Layout, TopBar, BottomBar, Routes, Zustand store)
+- **Phase 2 Complete:** UI Shell (Layout, TopBar, BottomBar, Routes, Zustand store)
+- **Phase 3 Complete:** Generator Wizard & Character Sheet
 - **PWA Configured:** vite-plugin-pwa with auto-updating service worker
 
 #### Features Added
@@ -44,6 +45,15 @@
 - [x] Zustand store with persist middleware
 - [x] Landing page with footer links to DriveThruRPG products
 - [x] About page with credits, source material, license
+- [x] **Generator Wizard** — 7-step accordion (Species → Characteristics → Background → Career → Mustering → Name → Sheet)
+- [x] **Career sub-tiles** — Start career, resolve term, re-enlist/change/muster out
+- [x] **Characteristics rolling** — 2d6 per ability, one free re-roll
+- [x] **Background selection** — SOC-based with skill choice
+- [x] **Character Sheet** — Rich display with inline editing of any field
+- [x] **Export formats** — JSON, CSV, TXT, DOCX (via docx library)
+- [x] **Random mode** — Single or batch (1–50) auto-generation
+- [x] **Generator store** — Zustand with full generation state machine
+- [x] **Code splitting** — docx library split into separate chunk
 
 #### Bug Fixes
 - [x] Fixed `total_terms` not incrementing on survival failure
